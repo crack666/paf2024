@@ -1,0 +1,53 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update # create
+      enable_lazy_load_no_trans: true # lazy loading
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+#      database-platform: org.hibernate.dialect.PostgreSQLDialect # PostgreSQL by default
+  datasource:
+    driverClassName: org.postgresql.Driver
+    platform: postgres
+    url: "jdbc:postgresql://localhost:5432/paf2024"
+    username: paf2024
+    password: paf2024
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+#hibernate:
+#  transaction:
+#    jta:
+#      platform:
+
+logging.level.org:
+  springframework: INFO
+  springframework.web: DEBUG
+  springframework.jpa: TRACE
+  hibernate: INFO
+#  de.vfh.paf.component: INFO;
+  de:
+    vfh:
+      component: INFO;
+      bean: INFO
+
+springdoc:
+  api-docs:
+    path=/api-docs:
+
+project-name: PaF 2024
+#product.persistence.class: ProductFilePersistence
+product.persistence.class: ProductDBPersistence
+
+startup.print: true
+
+component:
+  hello: HelloA

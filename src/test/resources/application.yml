@@ -1,0 +1,45 @@
+
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  profiles:
+    active=dev: dev
+  jpa:
+    database: H2
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create # update
+      enable_lazy_load_no_trans: true # lazy loading
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+      database-platform: org.hibernate.dialect.H2Dialect
+  datasource:
+    driverClassName: org.h2.Driver
+    platform: h2
+    url: "jdbc:h2:mem:pafTestDB"
+    username: paf2024
+    password: paf2024
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+logging.level:
+  org:
+    springframework.web: ERROR
+    springframework.jpa: ERROR
+    hibernate: ERROR
+  de:
+    vfh:
+      paf: INFO
+
+project-name: "PaF 2024 (Test)"
+#product.persistence.class: ProductFilePersistence
+product.persistence.class: ProductDBPersistence
+
+startup.print: true
+
