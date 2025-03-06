@@ -45,14 +45,19 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 
 ## Running the Application
 
-### Prerequisites
+You can run the application using either direct local setup or Docker, depending on your preference.
+
+### Option 1: Local Setup
+
+#### Prerequisites
 
 1. **Java Development Kit (JDK) 21**
 2. **PostgreSQL Database**
 3. **IntelliJ IDEA** (recommended) or another Java IDE
 4. **Maven**
+5. **Node.js** and **npm** (for frontend development)
 
-### PostgreSQL Setup
+#### PostgreSQL Setup
 
 Before running the application, you need to set up the PostgreSQL database:
 
@@ -69,7 +74,7 @@ Before running the application, you need to set up the PostgreSQL database:
    GRANT ALL PRIVILEGES ON DATABASE tasklist TO paf2024;
    ```
 
-### IntelliJ IDEA Setup
+#### Backend Setup with IntelliJ IDEA
 
 1. **Import the Project:**
    - Open IntelliJ IDEA
@@ -97,18 +102,105 @@ Before running the application, you need to set up the PostgreSQL database:
    - Right-click on the project and select "Reload Project"
    - Expand "Lifecycle" and run "clean" followed by "install"
 
-5. **Run the Application:**
+5. **Run the Backend Application:**
    - Select the "TaskListApplication" configuration
    - Click the "Run" button
 
-### Running via Command Line
+#### Running the Backend via Command Line
 
-Alternatively, you can run the application using Maven:
+Alternatively, you can run the backend application using Maven:
 
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
+
+#### Setting up the Frontend
+
+To set up and run the frontend application:
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd PatternsAndFrameworks_Frontend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+The frontend will be available at `http://localhost:5173` (or another port if 5173 is in use).
+
+### Option 2: Docker Setup
+
+This project includes Docker configuration for easy deployment of the entire application stack, including the backend, frontend, and PostgreSQL database.
+
+#### Prerequisites
+
+- **Docker** and **Docker Compose** installed on your system
+
+#### Running with Docker Compose
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd paf2024
+   ```
+
+2. **Start the Docker containers**:
+   ```bash
+   docker-compose up -d
+   ```
+
+   This command:
+   - Builds the Docker images for both frontend and backend
+   - Creates and starts the PostgreSQL database
+   - Connects all components together
+
+3. **Access the application**:
+   - Frontend: http://localhost
+   - Backend API Documentation: http://localhost:8080/api/swagger-ui.html
+   - WebSocket Test Page: http://localhost:8080/api/notifications-test.html
+
+4. **Stop the application**:
+   ```bash
+   docker-compose down
+   ```
+
+   To completely remove all data including the database volume:
+   ```bash
+   docker-compose down -v
+   ```
+
+#### Docker Configuration Details
+
+The application is configured using environment variables in the docker-compose.yml file:
+
+- Backend connects to PostgreSQL database using the following configuration:
+  - Database: tasklist
+  - Username: paf2024
+  - Password: paf2024
+
+- Frontend connects to the backend using the API_URL environment variable
+  - In the Docker environment, this is set to http://localhost:8080/api
+
+#### Customizing Docker Setup
+
+You can customize the configuration by editing the docker-compose.yml file:
+
+- To change the PostgreSQL credentials, update the environment variables in both postgres and backend services
+- To expose the services on different ports, modify the port mappings
+
+#### Troubleshooting Docker Setup
+
+- **Database Connection Issues**: Check that the postgres container is running and healthy
+- **Frontend can't connect to Backend**: Ensure the API_URL is correctly set
+- **Container Startup Failures**: View logs using `docker-compose logs [service-name]`
 
 ## Accessing the Application
 

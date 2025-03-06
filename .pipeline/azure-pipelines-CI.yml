@@ -1,0 +1,71 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+#deactivate automatic trigger
+#trigger: 
+#  - main
+
+pool: 'Self hosted agent pool'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  coverageMinimum: 75
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET 8.x sdk'
+    inputs:
+      packageType: sdk
+      version: 8.x
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  - task: NuGetToolInstaller@1
+
+  - task: DotNetCoreCLI@2
+    displayName: Restore
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'select'
+      includeNuGetOrg: true
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: 'build'
+      arguments: '--no-restore'
+           
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      nobuild: true
+      configuration: 'Release'
+      publishTestResults: true
+      publishPackageMetadata: true
+      command: 'test'
+      arguments: '--no-restore /p:Exclude="[*]*Migrations.*" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura '
+      projects: '**/*.sln'
+      
+  - script: ls $(System.DefaultWorkingDirectory)/
+    displayName: 'List Default Working Directory Contents'
+
+#  - script: find $(System.DefaultWorkingDirectory) -name coverage.cobertura.xml
+#    displayName: 'Search for Coverage File'
+    
+  - task: PublishCodeCoverageResults@1
+    displayName: 'publish coverage results'
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.cobertura.xml'
+
+#  - task: BuildQualityChecks@7
+#    inputs:
+#      checkCoverage: true
+#      coverageFailOption: 'fixed'
+#      coverageType: 'lines'
+#      coverageThreshold: '$(coverageMinimum)'
+#      runTitle: 'Quality Gateway'

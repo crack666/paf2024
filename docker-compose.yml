@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: paf2024-postgres
+    environment:
+      POSTGRES_DB: tasklist
+      POSTGRES_USER: paf2024
+      POSTGRES_PASSWORD: paf2024
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paf2024 -d tasklist"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend - Java Spring Boot application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paf2024-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tasklist
+      SPRING_DATASOURCE_USERNAME: paf2024
+      SPRING_DATASOURCE_PASSWORD: paf2024
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Frontend - Vue.js application
+  frontend:
+    build:
+      context: ./PatternsAndFrameworks_Frontend
+      dockerfile: Dockerfile
+    container_name: paf2024-frontend
+    environment:
+      # For browser clients, use localhost since they access from outside docker network
+      API_URL: http://localhost:8080/api
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
