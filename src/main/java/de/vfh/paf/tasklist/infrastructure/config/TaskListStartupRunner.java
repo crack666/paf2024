@@ -8,7 +8,8 @@ import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.domain.service.NotificationService;
 import de.vfh.paf.tasklist.domain.service.TaskQueueService;
 import de.vfh.paf.tasklist.domain.service.TaskService;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -28,8 +29,8 @@ import java.util.concurrent.TimeUnit;
  * Initializes services and demonstrates task management functionality.
  */
 @Component
-@Slf4j
 public class TaskListStartupRunner implements ApplicationRunner {
+    private static final Logger log = LoggerFactory.getLogger(TaskListStartupRunner.class);
 
     private final TaskService taskService;
     private final TaskQueueService taskQueueService;
@@ -109,7 +110,7 @@ public class TaskListStartupRunner implements ApplicationRunner {
                     
                     // Create result
                     return new TaskResult(
-                            task.getId(),
+                            null,
                             "Result for " + task.getTitle(),
                             "Completed at " + LocalDateTime.now(),
                             task.getId()

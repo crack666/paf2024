@@ -3,9 +3,13 @@ package de.vfh.paf.tasklist.domain.service;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
-import de.vfh.paf.tasklist.infrastructure.persistence.TaskRepositoryInMemory;
+import de.vfh.paf.tasklist.domain.repository.TaskResultRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,14 +17,25 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DataJpaTest
+@ActiveProfiles("test")
+@Import(TaskService.class)
 class TaskServiceTest {
+    
+    @Autowired
     private TaskService taskService;
+    
+    @Autowired
     private TaskRepository taskRepository;
+    
+    @Autowired
+    private TaskResultRepository taskResultRepository;
 
     @BeforeEach
     void setUp() {
-        taskRepository = new TaskRepositoryInMemory();
-        taskService = new TaskService(taskRepository);
+        // Clear the repositories before each test
+        taskRepository.deleteAll();
+        taskResultRepository.deleteAll();
     }
 
     @Test
@@ -45,7 +60,7 @@ class TaskServiceTest {
         // Verify task was saved in repository
         Optional<Task> savedTask = taskRepository.findById(createdTask.getId());
         assertTrue(savedTask.isPresent());
-        assertEquals(createdTask, savedTask.get());
+        assertEquals(createdTask.getId(), savedTask.get().getId());
     }
 
     @Test
@@ -72,7 +87,7 @@ class TaskServiceTest {
         // Verify task was updated in repository
         Optional<Task> savedTask = taskRepository.findById(task.getId());
         assertTrue(savedTask.isPresent());
-        assertEquals(updatedTask, savedTask.get());
+        assertEquals(updatedTask.getId(), savedTask.get().getId());
     }
 
     @Test
@@ -114,7 +129,8 @@ class TaskServiceTest {
         Optional<Task> savedTask = taskRepository.findById(task.getId());
         assertTrue(savedTask.isPresent());
         assertEquals(1, savedTask.get().getDependencies().size());
-        assertTrue(savedTask.get().getDependencies().contains(dependency));
+        assertTrue(savedTask.get().getDependencies().stream()
+                .anyMatch(dep -> dep.getId().equals(dependency.getId())));
     }
 
     @Test
@@ -152,6 +168,79 @@ class TaskServiceTest {
         taskService.addDependency(task1.getId(), task2.getId());
         taskService.addDependency(task2.getId(), task3.getId());
         taskService.addDependency(task3.getId(), task1.getId());
+
+        // Act
+        boolean hasDeadlock = taskService.detectDeadlocks();
+
+        // Assert
+        assertTrue(hasDeadlock);
+    }
+    
+    @Test
+    void shouldDetectDeadlockWithTwoTasks() {
+        // Arrange
+        Task task1 = taskService.createTask("Task 1", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task2 = taskService.createTask("Task 2", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        
+        // Create a cycle: task1 -> task2 -> task1
+        taskService.addDependency(task1.getId(), task2.getId());
+        taskService.addDependency(task2.getId(), task1.getId());
+
+        // Act
+        boolean hasDeadlock = taskService.detectDeadlocks();
+
+        // Assert
+        assertTrue(hasDeadlock);
+    }
+    
+    @Test
+    void shouldNotDetectDeadlockWithoutCycle() {
+        // Arrange
+        Task task1 = taskService.createTask("Task 1", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task2 = taskService.createTask("Task 2", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task3 = taskService.createTask("Task 3", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        
+        // Create a linear dependency chain: task1 -> task2 -> task3
+        taskService.addDependency(task1.getId(), task2.getId());
+        taskService.addDependency(task2.getId(), task3.getId());
+
+        // Act
+        boolean hasDeadlock = taskService.detectDeadlocks();
+
+        // Assert
+        assertFalse(hasDeadlock);
+    }
+    
+    @Test
+    void shouldDetectDeadlockInComplexDependencyGraph() {
+        // Arrange
+        Task task1 = taskService.createTask("Task 1", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task2 = taskService.createTask("Task 2", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task3 = taskService.createTask("Task 3", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task4 = taskService.createTask("Task 4", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        Task task5 = taskService.createTask("Task 5", "Description", 
+                LocalDateTime.now().plusDays(1), 100);
+        
+        // Create a complex dependency graph with a cycle
+        // task1 -> task2 -> task3 -> task5
+        //       -> task4 -↗     ↑
+        //                        ↓
+        //                      task5 -> task3
+        taskService.addDependency(task1.getId(), task2.getId());
+        taskService.addDependency(task1.getId(), task4.getId());
+        taskService.addDependency(task2.getId(), task3.getId());
+        taskService.addDependency(task4.getId(), task3.getId());
+        taskService.addDependency(task3.getId(), task5.getId());
+        taskService.addDependency(task5.getId(), task3.getId()); // This creates the cycle
 
         // Act
         boolean hasDeadlock = taskService.detectDeadlocks();

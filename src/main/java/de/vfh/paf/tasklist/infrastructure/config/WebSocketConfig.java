@@ -29,6 +29,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         
         // Prefix for user-specific destinations
         config.setUserDestinationPrefix("/user");
+        
+        // The /topic/tasks will be used for task status updates
+        // The /topic/queues will be used for queue-related updates
     }
 
     /**

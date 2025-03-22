@@ -1,5 +1,6 @@
 package de.vfh.paf.tasklist.domain.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,13 +8,28 @@ import java.util.Objects;
 /**
  * Represents a user in the system who can create and manage tasks.
  */
+@Entity
+@Table(name = "app_users")
 public class User {
-    private final int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
     private String name;
     private String email;
-    private final List<Task> tasks;
-    private final List<Notification> notifications;
+    
+    @Transient // Keep tasks transient for now to not disrupt existing functionality
+    private List<Task> tasks = new ArrayList<>();
+    
+    @Transient // Keep notifications transient for now to not disrupt existing functionality
+    private List<Notification> notifications = new ArrayList<>();
 
+    /**
+     * Default constructor required by JPA
+     */
+    public User() {
+    }
+    
     /**
      * Creates a new user.
      *
@@ -21,7 +37,7 @@ public class User {
      * @param name The name of the user
      * @param email The email address of the user
      */
-    public User(int id, String name, String email) {
+    public User(Integer id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -80,17 +96,29 @@ public class User {
         return notifications;
     }
 
-    // Getters
-    public int getId() {
+    // Getters and setters
+    public Integer getId() {
         return id;
+    }
+    
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getEmail() {
         return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -98,7 +126,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id;
+        return Objects.equals(id, user.id);
     }
 
     @Override

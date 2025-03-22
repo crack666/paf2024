@@ -36,6 +36,9 @@ public class TaskProcessorServiceTest {
     @Mock
     private NotificationService notificationService;
     
+    @Mock
+    private de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
+    
     @InjectMocks
     private TaskProcessorService taskExecutor;
 

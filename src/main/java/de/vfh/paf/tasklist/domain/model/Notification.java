@@ -1,20 +1,55 @@
 package de.vfh.paf.tasklist.domain.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
  * Represents a notification sent to a user in the system.
+ * Implements the State Pattern for managing notification lifecycle.
  */
+@Entity
+@Table(name = "notifications")
 public class Notification {
-    private final int id;
-    private final int userId;
-    private final String message;
-    private final String urgency;
-    private final String type;
-    private final Integer relatedTaskId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @Column(name = "user_id")
+    private Integer userId;
+    
+    @Column(length = 1000)
+    private String message;
+    
+    private String urgency;
+    
+    private String type;
+    
+    @Column(name = "related_task_id")
+    private Integer relatedTaskId;
+    
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    
+    @Column(name = "sent_at")
     private LocalDateTime sentAt;
-    private boolean isRead;
+    
+    @Column(name = "delivered_at")
+    private LocalDateTime deliveredAt;
+    
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
+    
+    @Enumerated(EnumType.STRING)
+    private NotificationStatus status;
+
+    /**
+     * Default constructor required by JPA
+     */
+    public Notification() {
+        this.createdAt = LocalDateTime.now();
+        this.status = NotificationStatus.CREATED;
+    }
 
     /**
      * Creates a simple notification.
@@ -23,7 +58,7 @@ public class Notification {
      * @param userId The ID of the user to whom the notification is sent
      * @param message The notification message
      */
-    public Notification(int id, int userId, String message) {
+    public Notification(Integer id, Integer userId, String message) {
         this(id, message, "NORMAL", "INFO", userId, null);
     }
     
@@ -36,7 +71,7 @@ public class Notification {
      * @param userId The ID of the user to whom the notification is sent
      * @param relatedTaskId The ID of the related task, if any
      */
-    public Notification(int id, String message, String urgency, int userId, Integer relatedTaskId) {
+    public Notification(Integer id, String message, String urgency, Integer userId, Integer relatedTaskId) {
         this(id, message, urgency, "INFO", userId, relatedTaskId);
     }
     
@@ -50,22 +85,74 @@ public class Notification {
      * @param userId The ID of the user to whom the notification is sent
      * @param relatedTaskId The ID of the related task, if any
      */
-    public Notification(int id, String message, String urgency, String type, int userId, Integer relatedTaskId) {
+    public Notification(Integer id, String message, String urgency, String type, Integer userId, Integer relatedTaskId) {
         this.id = id;
         this.userId = userId;
         this.message = message;
         this.urgency = urgency;
         this.type = type;
         this.relatedTaskId = relatedTaskId;
-        this.sentAt = LocalDateTime.now();
-        this.isRead = false;
+        this.createdAt = LocalDateTime.now();
+        this.status = NotificationStatus.CREATED;
     }
 
     /**
-     * Marks the notification as read.
+     * Transitions the notification to the next state.
+     * 
+     * @param newStatus The new status to transition to
+     * @return true if the transition is successful, false otherwise
      */
-    public void markAsRead() {
-        this.isRead = true;
+    public boolean transitionTo(NotificationStatus newStatus) {
+        if (!this.status.canTransitionTo(newStatus)) {
+            return false;
+        }
+        
+        // Record timestamp based on the new state
+        LocalDateTime now = LocalDateTime.now();
+        switch (newStatus) {
+            case SENT:
+                this.sentAt = now;
+                break;
+            case DELIVERED:
+                this.deliveredAt = now;
+                break;
+            case READ:
+                this.readAt = now;
+                break;
+            default:
+                // No timestamp for other states
+                break;
+        }
+        
+        this.status = newStatus;
+        return true;
+    }
+    
+    /**
+     * Marks the notification as read.
+     * 
+     * @return true if the transition to READ state was successful, false otherwise
+     */
+    public boolean markAsRead() {
+        return transitionTo(NotificationStatus.READ);
+    }
+    
+    /**
+     * Marks the notification as delivered.
+     * 
+     * @return true if the transition to DELIVERED state was successful, false otherwise
+     */
+    public boolean markAsDelivered() {
+        return transitionTo(NotificationStatus.DELIVERED);
+    }
+    
+    /**
+     * Archives the notification.
+     * 
+     * @return true if the transition to ARCHIVED state was successful, false otherwise
+     */
+    public boolean archive() {
+        return transitionTo(NotificationStatus.ARCHIVED);
     }
 
     /**
@@ -76,45 +163,118 @@ public class Notification {
      */
     public boolean send() {
         // In a real application, this would send the notification via a notification service
-        this.sentAt = LocalDateTime.now();
-        return true;
+        return transitionTo(NotificationStatus.SENT);
     }
 
-    // Getters
-    public int getId() {
+    // Getters and Setters
+    public Integer getId() {
         return id;
     }
+    
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
+    }
+    
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getMessage() {
         return message;
     }
+    
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
     public LocalDateTime getSentAt() {
         return sentAt;
     }
     
+    public void setSentAt(LocalDateTime sentAt) {
+        this.sentAt = sentAt;
+    }
+    
+    public LocalDateTime getDeliveredAt() {
+        return deliveredAt;
+    }
+    
+    public void setDeliveredAt(LocalDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
+    
+    public LocalDateTime getReadAt() {
+        return readAt;
+    }
+    
+    public void setReadAt(LocalDateTime readAt) {
+        this.readAt = readAt;
+    }
+    
     public LocalDateTime getTimestamp() {
-        return sentAt;
+        // Return the most recent timestamp based on status
+        switch (status) {
+            case READ:
+                return readAt;
+            case DELIVERED:
+                return deliveredAt;
+            case SENT:
+                return sentAt;
+            default:
+                return createdAt;
+        }
+    }
+    
+    public NotificationStatus getStatus() {
+        return status;
+    }
+    
+    public void setStatus(NotificationStatus status) {
+        this.status = status;
     }
 
     public boolean isRead() {
-        return isRead;
+        return status.isRead();
+    }
+    
+    public boolean isDelivered() {
+        return status.isDelivered();
     }
     
     public String getUrgency() {
         return urgency;
     }
     
+    public void setUrgency(String urgency) {
+        this.urgency = urgency;
+    }
+    
     public String getType() {
         return type;
     }
     
+    public void setType(String type) {
+        this.type = type;
+    }
+    
     public Integer getRelatedTaskId() {
         return relatedTaskId;
+    }
+    
+    public void setRelatedTaskId(Integer relatedTaskId) {
+        this.relatedTaskId = relatedTaskId;
     }
 
     @Override
@@ -122,7 +282,7 @@ public class Notification {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Notification that = (Notification) o;
-        return id == that.id;
+        return Objects.equals(id, that.id);
     }
 
     @Override

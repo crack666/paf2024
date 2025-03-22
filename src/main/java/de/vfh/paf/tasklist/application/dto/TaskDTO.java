@@ -44,6 +44,10 @@ public class TaskDTO {
             example = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask")
     private String taskClassName;
     
+    @Schema(description = "The simplified task type name (derived from taskClassName)",
+            example = "CalculatePiTask")
+    private String taskType;
+    
     @Schema(description = "Time when the task should be executed", 
             example = "2025-12-31T10:00:00")
     private LocalDateTime scheduledTime;
@@ -67,11 +71,36 @@ public class TaskDTO {
         this.dueDate = task.getDueDate();
         this.completed = task.isCompleted();
         this.status = task.getStatus();
-        this.dependencyIds = task.getDependencies().stream()
-                .map(Task::getId)
-                .collect(Collectors.toList());
+        
+        // Safely handle dependencies to avoid LazyInitializationException
+        try {
+            if (org.hibernate.Hibernate.isInitialized(task.getDependencies())) {
+                this.dependencyIds = task.getDependencies().stream()
+                    .map(Task::getId)
+                    .collect(Collectors.toList());
+            } else {
+                this.dependencyIds = java.util.Collections.emptyList();
+            }
+        } catch (Exception e) {
+            // Fallback to empty list if there's any issue with lazy loading
+            this.dependencyIds = java.util.Collections.emptyList();
+        }
+        
         this.assignedUserId = task.getAssignedUserId();
         this.taskClassName = task.getTaskClassName();
+        
+        // Extract simple class name for taskType
+        if (task.getTaskClassName() != null && !task.getTaskClassName().isEmpty()) {
+            int lastDotIndex = task.getTaskClassName().lastIndexOf('.');
+            if (lastDotIndex >= 0 && lastDotIndex < task.getTaskClassName().length() - 1) {
+                this.taskType = task.getTaskClassName().substring(lastDotIndex + 1);
+            } else {
+                this.taskType = task.getTaskClassName();
+            }
+        } else {
+            this.taskType = "Standard Task";
+        }
+        
         this.scheduledTime = task.getScheduledTime();
         this.createdAt = task.getCreatedAt();
         this.updatedAt = task.getUpdatedAt();
@@ -154,6 +183,14 @@ public class TaskDTO {
     
     public void setTaskClassName(String taskClassName) {
         this.taskClassName = taskClassName;
+    }
+    
+    public String getTaskType() {
+        return taskType;
+    }
+    
+    public void setTaskType(String taskType) {
+        this.taskType = taskType;
     }
     
     public LocalDateTime getScheduledTime() {

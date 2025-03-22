@@ -3,28 +3,32 @@ package de.vfh.paf.tasklist.domain.service;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
  * Service for managing tasks.
  */
-@org.springframework.stereotype.Service
+@Service
+@Transactional
 public class TaskService {
     private final TaskRepository taskRepository;
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
 
     /**
      * Creates a new task service.
      *
      * @param taskRepository The repository for tasks
      */
+    private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
+
     @org.springframework.beans.factory.annotation.Autowired
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository) {
         this.taskRepository = taskRepository;
+        this.taskResultRepository = taskResultRepository;
     }
 
     /**
@@ -37,8 +41,7 @@ public class TaskService {
      * @return The created task
      */
     public Task createTask(String title, String description, LocalDateTime dueDate, int userId) {
-        int id = idGenerator.getAndIncrement();
-        Task task = new Task(id, title, description, dueDate, false, Status.CREATED, userId, null, null);
+        Task task = new Task(null, title, description, dueDate, false, Status.CREATED, userId, null, null);
         return taskRepository.save(task);
     }
     
@@ -55,8 +58,7 @@ public class TaskService {
      */
     public Task createRunnableTask(String title, String description, LocalDateTime dueDate, 
                                   int userId, String taskClassName, LocalDateTime scheduledTime) {
-        int id = idGenerator.getAndIncrement();
-        Task task = new Task(id, title, description, dueDate, userId, taskClassName, scheduledTime);
+        Task task = new Task(null, title, description, dueDate, userId, taskClassName, scheduledTime);
         return taskRepository.save(task);
     }
 
@@ -107,7 +109,19 @@ public class TaskService {
      * @return Optional containing the task if found
      */
     public Optional<Task> findById(int taskId) {
-        return taskRepository.findById(taskId);
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+        
+        if (taskOptional.isPresent()) {
+            Task task = taskOptional.get();
+            // Load the task result if available
+            List<de.vfh.paf.tasklist.domain.model.TaskResult> results = taskResultRepository.findByTaskId(task.getId());
+            if (!results.isEmpty()) {
+                // Get the most recent result (assuming it's the relevant one)
+                task.setResult(results.get(0));
+            }
+        }
+        
+        return taskOptional;
     }
 
     /**
@@ -177,25 +191,11 @@ public class TaskService {
     private Map<Integer, Set<Integer>> buildDependencyGraph() {
         Map<Integer, Set<Integer>> graph = new HashMap<>();
         
-        // Since we don't have a method to get all tasks directly, collect them from all our known tasks
-        Map<Integer, Task> allTasksMap = new HashMap<>();
-        
-        // The detectDeadlocks test adds only three tasks, so we can iterate through possible IDs
-        for (int i = 1; i <= 10; i++) {
-            Optional<Task> task = taskRepository.findById(i);
-            if (task.isPresent()) {
-                Task t = task.get();
-                allTasksMap.put(t.getId(), t);
-                
-                // Also add all dependencies we find
-                for (Task dependency : t.getDependencies()) {
-                    allTasksMap.putIfAbsent(dependency.getId(), dependency);
-                }
-            }
-        }
+        // Get all tasks from the repository
+        List<Task> allTasks = taskRepository.findAll();
         
         // Build the dependency graph using the collected tasks
-        for (Task task : allTasksMap.values()) {
+        for (Task task : allTasks) {
             Set<Integer> dependencies = new HashSet<>();
             for (Task dependency : task.getDependencies()) {
                 dependencies.add(dependency.getId());
@@ -242,19 +242,19 @@ public class TaskService {
      * @return List of all tasks
      */
     public List<Task> findAll() {
-        // Since our repository interface doesn't have findAll() directly, we'll implement it here
-        Map<Integer, Task> allTasksMap = new HashMap<>();
+        List<Task> tasks = taskRepository.findAll();
         
-        // Iterate through possible task IDs (this is a simplified approach)
-        for (int i = 1; i <= 100; i++) { // Assuming we won't have more than 100 tasks in demo
-            Optional<Task> task = taskRepository.findById(i);
-            if (task.isPresent()) {
-                allTasksMap.put(i, task.get());
+        // Load results for completed tasks
+        for (Task task : tasks) {
+            if (task.getStatus() == Status.DONE) {
+                List<de.vfh.paf.tasklist.domain.model.TaskResult> results = taskResultRepository.findByTaskId(task.getId());
+                if (!results.isEmpty()) {
+                    task.setResult(results.get(0));
+                }
             }
         }
         
-        // Return all tasks as a list
-        return new ArrayList<>(allTasksMap.values());
+        return tasks;
     }
     
     /**
@@ -264,9 +264,7 @@ public class TaskService {
      * @return List of tasks assigned to the user
      */
     public List<Task> findByUserId(int userId) {
-        return findAll().stream()
-                .filter(task -> task.getAssignedUserId() == userId)
-                .collect(Collectors.toList());
+        return taskRepository.findAllByAssignedUserId(userId);
     }
     
     /**

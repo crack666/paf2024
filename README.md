@@ -11,23 +11,27 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 - **Task Queueing and Processing:** Queue and process tasks in parallel using separate threads
 - **Concurrent Task Execution:** Execute multiple tasks simultaneously with configurable thread pool
 - **Asynchronous Processing:** Support for both synchronous and asynchronous task execution
-- **Progress Tracking:** Monitor real-time progress of long-running tasks
+- **Progress Tracking:** Monitor real-time progress of long-running tasks with visual indicators
 - **User Management:** Create, update, and manage users with their assigned tasks
 - **Real-time Notifications:** Receive and manage real-time notifications for task events via WebSocket
+- **Task Status Visualization:** View task status with intuitive icons and real-time updates
+- **Task Queue Management UI:** Filter and view tasks by status with automatic data refreshing
 
 ## Design Patterns Used
 
-- **Repository Pattern:** For data access abstraction (TaskRepository)
-- **Factory Pattern:** For creating task instances dynamically
-- **Strategy Pattern:** For different task implementations (CalculatePiTask, GenerateReportTask)
-- **Command Pattern:** For encapsulating task execution and queueing
-- **Observer Pattern:** For real-time notifications about task events via WebSocket
-- **Dependency Injection:** Spring-based constructor injection throughout the application
-- **Singleton Pattern:** Spring services as singletons (TaskExecutor, TaskRegistry)
-- **Facade Pattern:** In TaskManagerService to coordinate different services
-- **DTO Pattern:** For data transfer between layers (TaskDTO, TaskResultDTO)
-- **State Pattern:** Task status transitions (CREATED → QUEUED → RUNNING → DONE)
-- **Thread Pool Pattern:** For managing concurrent task execution with configurable threads
+| Pattern | Implementation | Description | Native/Custom | More Info |
+|---------|---------------|-------------|---------------|-----------|
+| **Repository Pattern** | [TaskRepository](src/main/java/de/vfh/paf/tasklist/domain/repository/TaskRepository.java), [NotificationRepository](src/main/java/de/vfh/paf/tasklist/domain/repository/NotificationRepository.java) | Data access abstraction for domain objects | Custom implementation, inspired by Spring Data pattern | [Wikipedia](https://en.wikipedia.org/wiki/Repository_pattern) |
+| **Factory Pattern** | [TaskRegistry](src/main/java/de/vfh/paf/tasklist/domain/service/TaskRegistry.java) | Creates task instances dynamically based on class name | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Factory_method_pattern) |
+| **Strategy Pattern** | [RunnableTask](src/main/java/de/vfh/paf/tasklist/domain/model/RunnableTask.java), [CalculatePiTask](src/main/java/de/vfh/paf/tasklist/domain/tasks/CalculatePiTask.java), [GenerateReportTask](src/main/java/de/vfh/paf/tasklist/domain/tasks/GenerateReportTask.java) | Different task implementations with common interface | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Strategy_pattern) |
+| **Command Pattern** | [TaskQueueService](src/main/java/de/vfh/paf/tasklist/domain/service/TaskQueueService.java) | Encapsulates task execution and queueing | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Command_pattern) |
+| **Observer Pattern** | [NotificationWebSocketController](src/main/java/de/vfh/paf/tasklist/presentation/websocket/NotificationWebSocketController.java) | Real-time notifications via WebSocket | Uses Spring's WebSocket support | [Wikipedia](https://en.wikipedia.org/wiki/Observer_pattern) |
+| **Dependency Injection** | Throughout application (constructor injection) | Inversion of control for loosely coupled components | Native Spring feature | [Wikipedia](https://en.wikipedia.org/wiki/Dependency_injection) |
+| **Singleton Pattern** | All `@Service` classes | Services instantiated once by Spring container | Native Spring feature through `@Service` annotation | [Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern) |
+| **Facade Pattern** | [TaskManagerService](src/main/java/de/vfh/paf/tasklist/application/service/TaskManagerService.java) | Coordinates different services with simplified interface | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Facade_pattern) |
+| **DTO Pattern** | [TaskDTO](src/main/java/de/vfh/paf/tasklist/application/dto/TaskDTO.java), [NotificationDTO](src/main/java/de/vfh/paf/tasklist/application/dto/NotificationDTO.java) | Data transfer objects between layers | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Data_transfer_object) |
+| **State Pattern** | [Task.java](src/main/java/de/vfh/paf/tasklist/domain/model/Task.java) with [Status enum](src/main/java/de/vfh/paf/tasklist/domain/model/Status.java), [Notification.java](src/main/java/de/vfh/paf/tasklist/domain/model/Notification.java) with [NotificationStatus enum](src/main/java/de/vfh/paf/tasklist/domain/model/NotificationStatus.java) | Task status transitions (CREATED → QUEUED → RUNNING → DONE) and Notification lifecycle (CREATED → SENT → DELIVERED → READ → ARCHIVED) | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/State_pattern) |
+| **Thread Pool Pattern** | [TaskProcessorService](src/main/java/de/vfh/paf/tasklist/domain/service/TaskProcessorService.java) | Managing concurrent task execution with configurable threads | Uses Java's ExecutorService | [Wikipedia](https://en.wikipedia.org/wiki/Thread_pool) |
 
 ## Technical Stack
 
@@ -394,6 +398,55 @@ The application follows a clean DDD architecture:
   - `/tasklist/presentation/websocket/` - WebSocket controllers
     - `NotificationWebSocketController.java` - Real-time notification handling
 
+## Frontend Components
+
+The frontend is built using Vue 3 with Pinia for state management, offering a modern and responsive user interface for interacting with the backend services.
+
+### Key Frontend Components
+
+1. **Dashboard View**
+   - Central hub showing task summaries, queue status, and important notifications
+   - Quick access to task execution and management functions
+   - Real-time task status and notification updates
+
+2. **Task Management**
+   - Create, view, and manage tasks with different types and parameters
+   - Visual task board showing tasks grouped by status
+   - Task details view with execution results and dependencies
+
+3. **Task Queue Management**
+   - Tab-based filtering of tasks by status (All, Pending, Running, Completed)
+   - Real-time progress indicators for running tasks
+   - Direct execution controls for individual tasks
+   - Automatic data refreshing for active queues
+
+4. **Notification System**
+   - Real-time notification display with urgency-based styling
+   - Mark notifications as read directly from the interface
+   - Filter notifications by status and type
+
+5. **Reusable Components**
+   - `QueueList`: Flexible component for displaying task queues in various contexts
+   - Status indicators with intuitive icons and colors
+   - Progress visualization for running tasks
+
+### UI Features
+
+1. **Adaptive Layouts**
+   - Responsive design for various screen sizes
+   - Compact views for dashboard integration
+   - Detailed views for dedicated management pages
+
+2. **Real-time Updates**
+   - Automatic refreshing of data for running tasks
+   - WebSocket integration for instant notifications
+   - Visual status transitions for task state changes
+
+3. **Contextual Actions**
+   - Action buttons that adapt to task status
+   - Tabbed interfaces for focused interaction
+   - Direct navigation between related components
+
 ## Frontend Integration Guide
 
 This section describes how a frontend application should interact with the backend API to implement typical workflows.
@@ -503,3 +556,61 @@ Frontend applications should handle these common error scenarios:
 3. **Optimistic UI Updates**
    - Update UI immediately after operations like task creation or status change
    - Confirm with backend response or handle errors and revert if needed
+
+## Deadlock Detection and Resolution
+
+The system includes built-in detection for circular dependencies (deadlocks) between tasks. This feature prevents tasks from becoming unprocessable due to circular wait conditions.
+
+### Creating and Detecting a Deadlock through the UI
+
+To demonstrate the deadlock detection feature:
+
+1. **Create Multiple Tasks**:
+   - Create at least two tasks (e.g., "Task A" and "Task B")
+   - Navigate to the Tasks page and use the "Create Task" button
+
+2. **Set Up Circular Dependencies**:
+   - Select Task A and add Task B as a dependency
+   - Then try to select Task B and add Task A as a dependency
+   - This creates a circular dependency: Task A → Task B → Task A
+
+3. **Expected Result**:
+   - The system will detect the deadlock when you try to add the second dependency
+   - A notification with HIGH urgency will appear with the message: "Deadlock detected: Adding this dependency would create a circular wait condition"
+   - The dependency will not be added, preventing the deadlock
+
+4. **More Complex Scenario**:
+   - Create additional tasks (e.g., "Task C", "Task D", "Task E")
+   - Create a dependency chain: Task A → Task B → Task C → Task D
+   - Attempt to add a dependency from Task D to Task A
+   - The system will detect this longer circular chain as a deadlock and prevent it
+
+### Resolving Deadlocks
+
+When attempting to create a circular dependency, the system automatically prevents it. However, if you need to resolve a complex dependency graph with potential deadlocks:
+
+1. **Visualize Dependencies**:
+   - Navigate to the task detail view to see both dependencies and dependent tasks
+
+2. **Remove Problem Dependencies**:
+   - Identify which dependency is causing the circular reference
+   - Click the "Remove" button next to the problematic dependency
+   - The system will allow this action since it resolves the deadlock
+
+3. **Reorganize Task Structure**:
+   - Consider refactoring tasks into a proper directed acyclic graph (DAG)
+   - Create intermediate tasks that can break circular dependencies
+   - Use the task queue feature to ensure proper execution order
+
+### Automated Deadlock Detection
+
+The system regularly checks for deadlocks as part of its background processing. If a deadlock is detected:
+
+1. A system notification is sent to administrators
+2. The affected tasks are flagged in the UI with a warning indicator
+3. The task processing is temporarily suspended for the affected task chain
+
+To resume processing:
+1. Navigate to the task detail view of any affected task
+2. Review the dependency graph and remove the circular reference
+3. Once resolved, the task processing will automatically resume

@@ -20,7 +20,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -110,7 +112,7 @@ public class TaskQueueController {
      * @return List of tasks
      */
     @GetMapping("/{id}/tasks")
-    @Operation(summary = "Get queue tasks", description = "Retrieves all tasks in the specified queue")
+    @Operation(summary = "Get queue tasks", description = "Retrieves all current tasks in the specified queue")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDTO.class)))),
@@ -140,6 +142,76 @@ public class TaskQueueController {
                 .collect(Collectors.toList());
                 
         return ResponseEntity.ok(taskDTOs);
+    }
+    
+    /**
+     * Gets all tasks associated with a queue, including current and processed ones.
+     *
+     * @param id Queue ID
+     * @param status Optional status filter
+     * @return List of all tasks
+     */
+    @GetMapping("/{id}/all-tasks")
+    @Operation(summary = "Get all queue tasks", description = "Retrieves all tasks ever associated with the queue, including both current and processed ones")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Task queue not found")
+    })
+    public ResponseEntity<List<TaskDTO>> getAllQueueTasks(
+            @Parameter(description = "Queue ID", required = true) @PathVariable int id,
+            @Parameter(description = "Filter tasks by status") 
+            @RequestParam(required = false) Status status) {
+        
+        TaskQueue queue = taskQueueService.getQueue(id);
+        if (queue == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<Task> tasks = taskQueueService.getAllQueueTasks(id);
+        
+        // Filter by status if provided
+        if (status != null) {
+            tasks = tasks.stream()
+                    .filter(task -> task.getStatus() == status)
+                    .collect(Collectors.toList());
+        }
+        
+        List<TaskDTO> taskDTOs = tasks.stream()
+                .map(TaskDTO::new)
+                .collect(Collectors.toList());
+                
+        return ResponseEntity.ok(taskDTOs);
+    }
+    
+    /**
+     * Gets all processed tasks from a queue with their results.
+     *
+     * @param id Queue ID
+     * @return Map of task IDs to results
+     */
+    @GetMapping("/{id}/completed-tasks")
+    @Operation(summary = "Get completed tasks with results", description = "Retrieves all completed tasks from a queue with their execution results")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Completed tasks retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Task queue not found")
+    })
+    public ResponseEntity<Map<String, TaskResultDTO>> getCompletedTasks(
+            @Parameter(description = "Queue ID", required = true) @PathVariable int id) {
+        
+        TaskQueue queue = taskQueueService.getQueue(id);
+        if (queue == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Map<Integer, TaskResult> resultMap = taskQueueService.getProcessedTasksWithResults(id);
+        Map<String, TaskResultDTO> dtoMap = new HashMap<>();
+        
+        resultMap.forEach((taskId, result) -> {
+            dtoMap.put(String.valueOf(taskId), new TaskResultDTO(result));
+        });
+        
+        return ResponseEntity.ok(dtoMap);
     }
     
     /**

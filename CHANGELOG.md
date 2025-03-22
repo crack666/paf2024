@@ -1,5 +1,61 @@
 # Changelog
 
+## Version 0.6.0 - 2025-03-22
+
+### Added
+1. **Complete Database Persistence**
+   - Converted all in-memory repositories to JPA database persistence
+   - Implemented proper database schema with relationships between entities
+   - Created entity mappings for User, Task, Notification, and TaskResult
+   - Added data initialization for consistent startup experience
+
+### Changed
+1. **Domain Model Architecture**
+   - Added JPA annotations to all entity classes
+   - Implemented proper relationship mappings (OneToMany, ManyToMany)
+   - Converted primitive types to wrapper classes for proper null handling
+   - Added proper cascading behavior for entity relationships
+
+2. **Repository Layer**
+   - Replaced in-memory implementations with Spring Data JPA repositories
+   - Added JPQL queries for specialized data access methods
+   - Implemented transaction management for data consistency
+
+### Technical Improvements
+1. **Application Architecture**
+   - Added data persistence configuration with Hibernate
+   - Removed dependency on in-memory state for application features
+   - Ensured consistent application state across restarts
+   - Maintained quick login feature while adding persistence
+
+## Version 0.5.0 - 2025-03-22
+
+### Added
+1. **Enhanced TaskQueue Management UI**
+   - Added tab-based status filtering for tasks (All, Pending, Running, Completed)
+   - Implemented automatic data refreshing for running tasks
+   - Added detailed task progress visualization with status indicators
+   - Created task-specific action buttons for individual task execution
+   - Integrated direct navigation from queues to task details
+
+2. **Improved Dashboard Integration**
+   - Added TaskQueues component to dashboard for quick overview
+   - Implemented compact view for queue status in dashboard
+   - Created reusable QueueList component with configurable display modes
+   - Added automatic queue detail loading for better information display
+
+3. **Task Status Visualization**
+   - Enhanced status indicators with intuitive icons and colors
+   - Added real-time progress indicators for running tasks
+   - Implemented better task type display across the application
+
+### Technical Improvements
+1. **Frontend Architecture**
+   - Created reusable components for consistent UX across pages
+   - Implemented automatic data refresh using interval polling
+   - Enhanced routing for direct task access through URLs
+   - Fixed display issues with task creation and details pages
+
 ## Version 0.4.0 - 2025-03-06
 
 ### Added

@@ -1,20 +1,18 @@
 package de.vfh.paf.tasklist.domain.service;
 
 import de.vfh.paf.tasklist.domain.model.User;
-import de.vfh.paf.tasklist.domain.repository.UserRepository;
+import de.vfh.paf.tasklist.infrastructure.persistence.UserRepositoryJpaAdapter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service for managing users.
  */
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final AtomicInteger userIdGenerator = new AtomicInteger(1);
+    private final UserRepositoryJpaAdapter userRepository;
     
     /**
      * Creates a new user service.
@@ -22,7 +20,7 @@ public class UserService {
      * @param userRepository The repository for users
      */
     @org.springframework.beans.factory.annotation.Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepositoryJpaAdapter userRepository) {
         this.userRepository = userRepository;
     }
     
@@ -34,10 +32,8 @@ public class UserService {
      * @return The created user
      */
     public User createUser(String name, String email) {
-        int id = userIdGenerator.getAndIncrement();
-        User user = new User(id, name, email);
-        userRepository.save(user);
-        return user;
+        User user = new User(null, name, email); // null ID will be assigned by adapter
+        return userRepository.save(user);
     }
     
     /**

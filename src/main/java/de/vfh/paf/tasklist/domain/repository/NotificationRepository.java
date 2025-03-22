@@ -1,60 +1,64 @@
 package de.vfh.paf.tasklist.domain.repository;
 
 import de.vfh.paf.tasklist.domain.model.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Repository for notifications.
- * For this implementation, we use an in-memory storage.
+ * Repository for notifications using JPA.
  */
 @Repository
-public class NotificationRepository {
-    private final Map<Integer, Notification> notifications = new ConcurrentHashMap<>();
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
+public interface NotificationRepository extends JpaRepository<Notification, Integer> {
     
     /**
-     * Gets the next available ID.
+     * Finds all notifications for a specific user.
      *
-     * @return The next ID
+     * @param userId The user ID
+     * @return List of notifications for the user
      */
-    public int getNextId() {
-        return idGenerator.getAndIncrement();
-    }
+    List<Notification> findByUserId(Integer userId);
     
     /**
-     * Saves a notification.
+     * Finds all notifications for a specific user with a certain read status.
      *
-     * @param notification The notification to save
-     * @return The saved notification
+     * @param userId The user ID
+     * @param isRead Whether the notification has been read
+     * @return List of notifications for the user with the specified read status
      */
-    public Notification save(Notification notification) {
-        notifications.put(notification.getId(), notification);
-        return notification;
-    }
+    @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND " +
+           "((:isRead = true AND (n.status = 'READ' OR n.status = 'ARCHIVED')) OR " +
+           "(:isRead = false AND n.status != 'READ' AND n.status != 'ARCHIVED'))")
+    List<Notification> findByUserIdAndReadStatus(@Param("userId") Integer userId, @Param("isRead") boolean isRead);
     
     /**
-     * Finds a notification by ID.
+     * Finds existing notifications by type, userId, and relatedTaskId.
      *
-     * @param id The ID of the notification
-     * @return Optional containing the notification, or empty if not found
+     * @param type The notification type
+     * @param userId The user ID
+     * @param relatedTaskId The related task ID (can be null)
+     * @return List of matching notifications
      */
-    public Optional<Notification> findById(int id) {
-        return Optional.ofNullable(notifications.get(id));
-    }
+    List<Notification> findByTypeAndUserIdAndRelatedTaskId(String type, Integer userId, Integer relatedTaskId);
     
     /**
-     * Gets all notifications.
+     * Deletes notifications matching specific criteria.
      *
-     * @return List of all notifications
+     * @param type The notification type
+     * @param userId The user ID
+     * @param relatedTaskId The related task ID (can be null)
      */
-    public List<Notification> findAll() {
-        return new ArrayList<>(notifications.values());
-    }
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Notification n WHERE n.type = :type AND n.userId = :userId AND " +
+           "(:relatedTaskId IS NULL AND n.relatedTaskId IS NULL OR n.relatedTaskId = :relatedTaskId)")
+    void deleteByTypeAndUserIdAndRelatedTaskId(
+            @Param("type") String type, 
+            @Param("userId") Integer userId, 
+            @Param("relatedTaskId") Integer relatedTaskId);
 }

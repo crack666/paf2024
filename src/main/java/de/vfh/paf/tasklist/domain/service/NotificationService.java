@@ -8,17 +8,18 @@ import de.vfh.paf.tasklist.domain.repository.NotificationRepository;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing notifications.
  */
 @Service
+@Transactional
 public class NotificationService {
     private final TaskRepository taskRepository;
     private final NotificationRepository notificationRepository;
@@ -59,6 +60,7 @@ public class NotificationService {
 
     /**
      * Checks for overdue tasks and sends notifications to the assigned users.
+     * Only sends notifications for tasks that haven't been notified yet.
      *
      * @return The number of notifications sent
      */
@@ -68,6 +70,16 @@ public class NotificationService {
         int notificationsSent = 0;
 
         for (Task task : overdueTasks) {
+            // Check if there's already an active (unread) notification for this task being overdue
+            List<Notification> existingNotifications = 
+                notificationRepository.findByTypeAndUserIdAndRelatedTaskId(
+                    "TASK_OVERDUE", task.getAssignedUserId(), task.getId());
+            
+            // Skip if there's at least one unread overdue notification for this task
+            if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
+                continue;
+            }
+            
             String message = String.format("Task '%s' is overdue. Due date was %s", 
                     task.getTitle(), task.getDueDate().toString());
             
@@ -102,9 +114,19 @@ public class NotificationService {
      * @return true if the notification was sent successfully, false otherwise
      */
     public boolean sendNotification(String type, String urgency, int userId, String message, Integer relatedTaskId) {
-        int id = notificationRepository.getNextId();
-        // Create notification with the new type field
-        Notification notification = new Notification(id, message, urgency, type, userId, relatedTaskId);
+        // Get existing notifications of this type for this user/task
+        List<Notification> existingNotifications = 
+            notificationRepository.findByTypeAndUserIdAndRelatedTaskId(type, userId, relatedTaskId);
+            
+        // Only send a new notification if there are no unread notifications of this type
+        if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
+            return false;
+        }
+        
+        // Create notification in CREATED state - let JPA generate the ID
+        Notification notification = new Notification(null, message, urgency, type, userId, relatedTaskId);
+        
+        // Use the notificationSender to send and transition to SENT state
         boolean sent = notificationSender.apply(notification);
         
         if (sent) {
@@ -138,14 +160,23 @@ public class NotificationService {
      * @return true if the notification was sent successfully
      */
     public boolean broadcastSystemNotification(String type, String message, String urgency) {
-        int id = notificationRepository.getNextId();
-        Notification notification = new Notification(id, message, urgency, type, 0, null); // System user ID is 0
+        // For system broadcasts, we use user ID 0 and no related task
+        // Check if there's already an unread system notification of this type
+        List<Notification> existingNotifications = 
+            notificationRepository.findByTypeAndUserIdAndRelatedTaskId(type, 0, null);
+            
+        // Only send if there are no unread notifications of this type
+        if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
+            return false;
+        }
+        
+        Notification notification = new Notification(null, message, urgency, type, 0, null); // System user ID is 0
         
         // Save to repository
-        notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
         
         // Create payload for WebSocket
-        NotificationDTO dto = new NotificationDTO(notification);
+        NotificationDTO dto = new NotificationDTO(savedNotification);
         NotificationPayload payload = NotificationPayload.fromDto(dto);
         
         // Broadcast to all connected clients
@@ -180,9 +211,7 @@ public class NotificationService {
      * @return List of notifications
      */
     public List<Notification> findByUserId(int userId) {
-        return notificationRepository.findAll().stream()
-                .filter(notification -> notification.getUserId() == userId)
-                .collect(Collectors.toList());
+        return notificationRepository.findByUserId(userId);
     }
     
     /**
@@ -193,9 +222,7 @@ public class NotificationService {
      * @return List of notifications
      */
     public List<Notification> findByUserIdAndReadStatus(int userId, boolean read) {
-        return notificationRepository.findAll().stream()
-                .filter(notification -> notification.getUserId() == userId && notification.isRead() == read)
-                .collect(Collectors.toList());
+        return notificationRepository.findByUserIdAndReadStatus(userId, read);
     }
     
     /**
@@ -213,8 +240,29 @@ public class NotificationService {
         }
         
         Notification notification = optionalNotification.get();
-        notification.markAsRead();
-        notificationRepository.save(notification);
+        boolean marked = notification.markAsRead();
+        if (marked) {
+            notificationRepository.save(notification);
+        }
         return notification;
     }
+    
+    /**
+     * Sets a custom notification sender function.
+     * Used mainly for testing to override the default notification sender.
+     *
+     * @param notificationSender The function to use for sending notifications
+     */
+    public void setNotificationSender(Function<Notification, Boolean> notificationSender) {
+        // This field is final in a normal application context but is provided for testing
+        // We use reflection to allow setting it in tests
+        try {
+            java.lang.reflect.Field field = this.getClass().getDeclaredField("notificationSender");
+            field.setAccessible(true);
+            field.set(this, notificationSender);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set notification sender", e);
+        }
+    }
+    
 }

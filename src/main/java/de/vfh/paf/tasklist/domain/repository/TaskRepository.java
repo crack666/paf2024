@@ -1,52 +1,43 @@
 package de.vfh.paf.tasklist.domain.repository;
 
 import de.vfh.paf.tasklist.domain.model.Task;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Repository interface for managing Task entities.
+ * Repository interface for managing Task entities using JPA.
  */
-public interface TaskRepository {
-    /**
-     * Saves a task.
-     *
-     * @param task The task to save
-     * @return The saved task
-     */
-    Task save(Task task);
-
-    /**
-     * Finds a task by its ID.
-     *
-     * @param id The ID of the task to find
-     * @return An Optional containing the task if found, or empty if not found
-     */
-    Optional<Task> findById(int id);
-
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Integer> {
+    
     /**
      * Finds all tasks assigned to a specific user.
      *
      * @param userId The ID of the user
      * @return A list of tasks assigned to the user
      */
-    List<Task> findAllByUserId(int userId);
-
+    List<Task> findAllByAssignedUserId(Integer userId);
+    
     /**
      * Finds all tasks that depend on a specific task.
      *
      * @param taskId The ID of the dependency task
      * @return A list of tasks that depend on the specified task
      */
-    List<Task> findTasksByDependency(int taskId);
-
+    @Query("SELECT t FROM Task t JOIN t.dependencies d WHERE d.id = :taskId")
+    List<Task> findTasksByDependency(@Param("taskId") Integer taskId);
+    
     /**
      * Finds all tasks that are overdue.
      *
      * @param currentTime The current time to compare with task due dates
      * @return A list of overdue tasks
      */
-    List<Task> findOverdueTasks(LocalDateTime currentTime);
+    @Query("SELECT t FROM Task t WHERE t.completed = false AND t.dueDate < :currentTime")
+    List<Task> findOverdueTasks(@Param("currentTime") LocalDateTime currentTime);
 }

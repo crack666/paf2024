@@ -32,6 +32,7 @@ public class TaskProcessorService {
     private final TaskService taskService;
     private final TaskRegistry taskRegistry;
     private final NotificationService notificationService;
+    private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     private ExecutorService taskThreadPool;
     
     @Value("${tasklist.concurrent.thread-pool-size:5}")
@@ -41,10 +42,13 @@ public class TaskProcessorService {
     private int maxQueueSize;
     
     @org.springframework.beans.factory.annotation.Autowired
-    public TaskProcessorService(TaskService taskService, TaskRegistry taskRegistry, NotificationService notificationService) {
+    public TaskProcessorService(TaskService taskService, TaskRegistry taskRegistry, 
+                                NotificationService notificationService,
+                                de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository) {
         this.taskService = taskService;
         this.taskRegistry = taskRegistry;
         this.notificationService = notificationService;
+        this.taskResultRepository = taskResultRepository;
     }
     
     @PostConstruct
@@ -189,6 +193,12 @@ public class TaskProcessorService {
             updatedTask.setResult(result);
             updatedTask.markComplete();
             
+            // Save the task result to the database (using JPA repository)
+            if (result != null && result.getTaskId() == null) {
+                result.setTaskId(updatedTask.getId());
+            }
+            taskResultRepository.save(result);
+            
             // Save the updated task
             Task completedTask = taskService.updateTask(
                     updatedTask.getId(),
@@ -197,6 +207,9 @@ public class TaskProcessorService {
                     updatedTask.getDueDate(),
                     Status.DONE
             );
+            
+            // Load the result back into the completed task
+            completedTask.setResult(result);
             
             // Send notification that task has completed
             notificationService.sendNotification(

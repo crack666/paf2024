@@ -21,7 +21,7 @@ class NotificationTest {
         assertEquals(id, notification.getId());
         assertEquals(userId, notification.getUserId());
         assertEquals(message, notification.getMessage());
-        assertNotNull(notification.getSentAt());
+        assertEquals(NotificationStatus.CREATED, notification.getStatus());
         assertFalse(notification.isRead());
     }
     
@@ -29,12 +29,18 @@ class NotificationTest {
     void shouldMarkAsRead() {
         // Arrange
         Notification notification = new Notification(1, 5, "Test notification");
+        
+        // First transition to sent state (can't go directly from CREATED to READ)
+        notification.transitionTo(NotificationStatus.SENT);
+        // Then to delivered state
+        notification.transitionTo(NotificationStatus.DELIVERED);
         assertFalse(notification.isRead());
         
         // Act
-        notification.markAsRead();
+        boolean marked = notification.markAsRead();
         
         // Assert
+        assertTrue(marked);
         assertTrue(notification.isRead());
     }
     
@@ -48,6 +54,7 @@ class NotificationTest {
         
         // Assert
         assertTrue(result);
+        assertEquals(NotificationStatus.SENT, notification.getStatus());
         assertNotNull(notification.getSentAt());
     }
 }
