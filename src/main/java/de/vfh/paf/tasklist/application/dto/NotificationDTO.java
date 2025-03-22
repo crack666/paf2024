@@ -2,15 +2,20 @@ package de.vfh.paf.tasklist.application.dto;
 
 import de.vfh.paf.tasklist.domain.model.Notification;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 /**
  * Data Transfer Object for Notification entity.
  */
+@Setter
+@Getter
 @Schema(description = "Data Transfer Object for notifications")
 public class NotificationDTO {
-    
+
+    // Getters and setters
     @Schema(description = "Unique identifier of the notification")
     private int id;
     
@@ -48,69 +53,5 @@ public class NotificationDTO {
         this.relatedTaskId = notification.getRelatedTaskId();
         this.userId = notification.getUserId();
     }
-    
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public String getMessage() {
-        return message;
-    }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    public boolean isRead() {
-        return read;
-    }
-    
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-    
-    public String getUrgency() {
-        return urgency;
-    }
-    
-    public void setUrgency(String urgency) {
-        this.urgency = urgency;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public Integer getRelatedTaskId() {
-        return relatedTaskId;
-    }
-    
-    public void setRelatedTaskId(Integer relatedTaskId) {
-        this.relatedTaskId = relatedTaskId;
-    }
-    
-    public int getUserId() {
-        return userId;
-    }
-    
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
+
 }

@@ -2,14 +2,12 @@ package de.vfh.paf.tasklist.domain.service;
 
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
-import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.domain.tasks.CalculatePiTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -31,7 +29,7 @@ public class TaskProcessorServiceTest {
     private TaskService taskService;
     
     @Mock
-    private TaskRegistry taskRegistry;
+    private TaskFactory taskRegistry;
     
     @Mock
     private NotificationService notificationService;

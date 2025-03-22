@@ -4,6 +4,8 @@ import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +16,11 @@ import java.util.stream.Collectors;
  * This is an example of the DTO pattern, which provides a lightweight
  * representation of domain objects for data transfer.
  */
+@Setter
+@Getter
 @Schema(description = "Data Transfer Object for Task information")
 public class TaskDTO {
+    // Getters and setters
     @Schema(description = "Unique identifier of the task", example = "1")
     private int id;
     
@@ -112,116 +117,4 @@ public class TaskDTO {
         }
     }
 
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public List<Integer> getDependencyIds() {
-        return dependencyIds;
-    }
-
-    public void setDependencyIds(List<Integer> dependencyIds) {
-        this.dependencyIds = dependencyIds;
-    }
-
-    public int getAssignedUserId() {
-        return assignedUserId;
-    }
-
-    public void setAssignedUserId(int assignedUserId) {
-        this.assignedUserId = assignedUserId;
-    }
-    
-    public String getTaskClassName() {
-        return taskClassName;
-    }
-    
-    public void setTaskClassName(String taskClassName) {
-        this.taskClassName = taskClassName;
-    }
-    
-    public String getTaskType() {
-        return taskType;
-    }
-    
-    public void setTaskType(String taskType) {
-        this.taskType = taskType;
-    }
-    
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-    
-    public void setScheduledTime(LocalDateTime scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    public TaskResultDTO getResult() {
-        return result;
-    }
-    
-    public void setResult(TaskResultDTO result) {
-        this.result = result;
-    }
 }

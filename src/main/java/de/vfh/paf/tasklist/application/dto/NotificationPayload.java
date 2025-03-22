@@ -1,12 +1,18 @@
 package de.vfh.paf.tasklist.application.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 /**
  * Payload for WebSocket notifications.
  * Contains all the necessary information for a notification to be sent via WebSocket.
  */
+@Setter
+@Getter
 public class NotificationPayload {
+    // Getters and Setters
     private int notificationId;
     private String type;
     private String message;
@@ -52,61 +58,5 @@ public class NotificationPayload {
             dto.isRead()
         );
     }
-    
-    // Getters and Setters
-    public int getNotificationId() {
-        return notificationId;
-    }
-    
-    public void setNotificationId(int notificationId) {
-        this.notificationId = notificationId;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public String getMessage() {
-        return message;
-    }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
-    public String getUrgency() {
-        return urgency;
-    }
-    
-    public void setUrgency(String urgency) {
-        this.urgency = urgency;
-    }
-    
-    public Integer getTaskId() {
-        return taskId;
-    }
-    
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    public boolean isRead() {
-        return read;
-    }
-    
-    public void setRead(boolean read) {
-        this.read = read;
-    }
+
 }

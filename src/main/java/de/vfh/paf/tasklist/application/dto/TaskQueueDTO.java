@@ -1,8 +1,9 @@
 package de.vfh.paf.tasklist.application.dto;
 
-import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,12 +12,16 @@ import java.util.stream.Collectors;
 /**
  * Data Transfer Object for TaskQueue entity.
  */
+@Getter
 @Schema(description = "Data Transfer Object for task queues")
 public class TaskQueueDTO {
-    
+
+    // Getters and setters
+    @Setter
     @Schema(description = "Unique identifier of the task queue")
     private int id;
     
+    @Setter
     @Schema(description = "Name of the queue")
     private String name;
     
@@ -50,50 +55,10 @@ public class TaskQueueDTO {
             this.taskCount = 0;
         }
     }
-    
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public List<TaskDTO> getTasks() {
-        return tasks;
-    }
-    
+
     public void setTasks(List<TaskDTO> tasks) {
         this.tasks = tasks;
         this.taskCount = tasks != null ? tasks.size() : 0;
     }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    public int getTaskCount() {
-        return taskCount;
-    }
+
 }

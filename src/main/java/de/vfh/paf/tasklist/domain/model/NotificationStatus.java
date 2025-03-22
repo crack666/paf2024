@@ -37,25 +37,24 @@ public enum NotificationStatus {
      * @return true if the transition is valid, false otherwise
      */
     public boolean canTransitionTo(NotificationStatus nextStatus) {
-        switch (this) {
-            case CREATED:
+        return switch (this) {
+            case CREATED ->
                 // From CREATED, can only move to SENT
-                return nextStatus == SENT;
-            case SENT:
+                    nextStatus == SENT;
+            case SENT ->
                 // From SENT, can move to DELIVERED or directly to READ (if client reads instantly)
-                return nextStatus == DELIVERED || nextStatus == READ;
-            case DELIVERED:
+                    nextStatus == DELIVERED || nextStatus == READ;
+            case DELIVERED ->
                 // From DELIVERED, can only move to READ
-                return nextStatus == READ;
-            case READ:
+                    nextStatus == READ;
+            case READ ->
                 // From READ, can only move to ARCHIVED
-                return nextStatus == ARCHIVED;
-            case ARCHIVED:
+                    nextStatus == ARCHIVED;
+            case ARCHIVED ->
                 // Cannot transition from ARCHIVED
-                return false;
-            default:
-                return false;
-        }
+                    false;
+            default -> false;
+        };
     }
     
     /**

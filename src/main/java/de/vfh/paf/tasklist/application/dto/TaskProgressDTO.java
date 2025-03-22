@@ -3,15 +3,20 @@ package de.vfh.paf.tasklist.application.dto;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.tasks.CalculatePiTask;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 /**
  * Data Transfer Object for task progress information.
  */
+@Setter
+@Getter
 @Schema(description = "Data Transfer Object for task progress information")
 public class TaskProgressDTO {
-    
+
+    // Getters and setters
     @Schema(description = "Task ID")
     private int taskId;
     
@@ -78,85 +83,5 @@ public class TaskProgressDTO {
             }
         }
     }
-    
-    // Getters and setters
-    public int getTaskId() {
-        return taskId;
-    }
-    
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
-    }
-    
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getTaskClassName() {
-        return taskClassName;
-    }
-    
-    public void setTaskClassName(String taskClassName) {
-        this.taskClassName = taskClassName;
-    }
-    
-    public String getStatus() {
-        return status;
-    }
-    
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    
-    public int getProgressPercentage() {
-        return progressPercentage;
-    }
-    
-    public void setProgressPercentage(int progressPercentage) {
-        this.progressPercentage = progressPercentage;
-    }
-    
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-    
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-    
-    public long getElapsedTimeMillis() {
-        return elapsedTimeMillis;
-    }
-    
-    public void setElapsedTimeMillis(long elapsedTimeMillis) {
-        this.elapsedTimeMillis = elapsedTimeMillis;
-    }
-    
-    public long getEstimatedTimeRemainingMillis() {
-        return estimatedTimeRemainingMillis;
-    }
-    
-    public void setEstimatedTimeRemainingMillis(long estimatedTimeRemainingMillis) {
-        this.estimatedTimeRemainingMillis = estimatedTimeRemainingMillis;
-    }
-    
-    public String getCurrentValue() {
-        return currentValue;
-    }
-    
-    public void setCurrentValue(String currentValue) {
-        this.currentValue = currentValue;
-    }
-    
-    public boolean isHasProgress() {
-        return hasProgress;
-    }
-    
-    public void setHasProgress(boolean hasProgress) {
-        this.hasProgress = hasProgress;
-    }
+
 }

@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,13 +33,12 @@ public class NotificationWebSocketController {
      * Handles subscription to notifications from clients.
      * Returns the list of unread notifications for the requested user.
      * 
-     * @param userId The user ID
-     * @param headerAccessor The message headers
+     * @param message The message to be sent
      * @return List of notification payloads
      */
     @MessageMapping("/notifications.subscribe")
     @SendToUser("/queue/notifications")
-    public List<NotificationPayload> subscribeToNotifications(@Payload Map<String, Object> message, SimpMessageHeaderAccessor headerAccessor) {
+    public List<NotificationPayload> subscribeToNotifications(@Payload Map<String, Object> message) {
         Integer userId = (Integer) message.get("userId");
         if (userId == null) {
             return List.of();
@@ -103,7 +102,7 @@ public class NotificationWebSocketController {
         payload.setMessage(content);
         payload.setType(type);
         payload.setUrgency(urgency);
-        payload.setTimestamp(java.time.LocalDateTime.now());
+        payload.setTimestamp(LocalDateTime.now());
         
         return payload;
     }

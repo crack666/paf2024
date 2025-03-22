@@ -8,7 +8,7 @@ import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.service.TaskProcessorService;
-import de.vfh.paf.tasklist.domain.service.TaskRegistry;
+import de.vfh.paf.tasklist.domain.service.TaskFactory;
 import de.vfh.paf.tasklist.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,14 +20,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +38,11 @@ public class TaskController {
     
     private final TaskService taskService;
     private final TaskManagerService taskManagerService;
-    private final TaskRegistry taskRegistry;
+    private final TaskFactory taskRegistry;
     private final TaskProcessorService taskExecutor;
 
     public TaskController(TaskService taskService, TaskManagerService taskManagerService,
-                          TaskRegistry taskRegistry, TaskProcessorService taskExecutor) {
+                          TaskFactory taskRegistry, TaskProcessorService taskExecutor) {
         this.taskService = taskService;
         this.taskManagerService = taskManagerService;
         this.taskRegistry = taskRegistry;
@@ -255,10 +251,10 @@ public class TaskController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskTypeDTO.class))))
     })
     public ResponseEntity<List<TaskTypeDTO>> getTaskTypes() {
-        List<TaskTypeDTO> taskTypes = taskRegistry.getTaskTypeMap().entrySet().stream()
-                .map(entry -> {
-                    RunnableTask taskType = taskRegistry.getTaskType(entry.getKey());
-                    return new TaskTypeDTO(entry.getKey(), taskType);
+        List<TaskTypeDTO> taskTypes = taskRegistry.getTaskTypeMap().keySet().stream()
+                .map(s -> {
+                    RunnableTask taskType = taskRegistry.getTaskType(s);
+                    return new TaskTypeDTO(s, taskType);
                 })
                 .collect(Collectors.toList());
                 
@@ -291,7 +287,7 @@ public class TaskController {
             @RequestParam(required = false, defaultValue = "true") boolean wait) {
         
         // Check if task exists
-        if (!taskService.findById(id).isPresent()) {
+        if (taskService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         

@@ -4,7 +4,6 @@ import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
-import de.vfh.paf.tasklist.domain.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +29,7 @@ public class TaskProcessorService {
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessorService.class);
     
     private final TaskService taskService;
-    private final TaskRegistry taskRegistry;
+    private final TaskFactory taskRegistry;
     private final NotificationService notificationService;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     private ExecutorService taskThreadPool;
@@ -42,7 +41,7 @@ public class TaskProcessorService {
     private int maxQueueSize;
     
     @org.springframework.beans.factory.annotation.Autowired
-    public TaskProcessorService(TaskService taskService, TaskRegistry taskRegistry, 
+    public TaskProcessorService(TaskService taskService, TaskFactory taskRegistry,
                                 NotificationService notificationService,
                                 de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository) {
         this.taskService = taskService;

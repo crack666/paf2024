@@ -3,6 +3,8 @@ package de.vfh.paf.tasklist.domain.tasks;
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,8 +130,13 @@ public class CalculatePiTask implements RunnableTask {
     public static class ProgressData {
         private final int totalIterations;
         private final AtomicInteger currentIteration;
+        @Getter
+        @Setter
         private volatile double currentValue;
+        @Setter
+        @Getter
         private volatile double finalValue;
+        @Getter
         private final LocalDateTime startTime;
         
         public ProgressData(int totalIterations) {
@@ -150,27 +157,7 @@ public class CalculatePiTask implements RunnableTask {
         public void setCurrentIteration(int currentIteration) {
             this.currentIteration.set(currentIteration);
         }
-        
-        public double getCurrentValue() {
-            return currentValue;
-        }
-        
-        public void setCurrentValue(double currentValue) {
-            this.currentValue = currentValue;
-        }
-        
-        public double getFinalValue() {
-            return finalValue;
-        }
-        
-        public void setFinalValue(double finalValue) {
-            this.finalValue = finalValue;
-        }
-        
-        public LocalDateTime getStartTime() {
-            return startTime;
-        }
-        
+
         public int getProgressPercentage() {
             return (int) (((double) currentIteration.get() / totalIterations) * 100);
         }

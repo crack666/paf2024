@@ -1,6 +1,9 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -8,9 +11,12 @@ import java.util.Objects;
  * Represents a notification sent to a user in the system.
  * Implements the State Pattern for managing notification lifecycle.
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "notifications")
-public class Notification {
+public class  Notification {
+    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -166,63 +172,6 @@ public class Notification {
         return transitionTo(NotificationStatus.SENT);
     }
 
-    // Getters and Setters
-    public Integer getId() {
-        return id;
-    }
-    
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-    
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-    
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getSentAt() {
-        return sentAt;
-    }
-    
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
-    }
-    
-    public LocalDateTime getDeliveredAt() {
-        return deliveredAt;
-    }
-    
-    public void setDeliveredAt(LocalDateTime deliveredAt) {
-        this.deliveredAt = deliveredAt;
-    }
-    
-    public LocalDateTime getReadAt() {
-        return readAt;
-    }
-    
-    public void setReadAt(LocalDateTime readAt) {
-        this.readAt = readAt;
-    }
-    
     public LocalDateTime getTimestamp() {
         // Return the most recent timestamp based on status
         switch (status) {
@@ -236,14 +185,6 @@ public class Notification {
                 return createdAt;
         }
     }
-    
-    public NotificationStatus getStatus() {
-        return status;
-    }
-    
-    public void setStatus(NotificationStatus status) {
-        this.status = status;
-    }
 
     public boolean isRead() {
         return status.isRead();
@@ -251,30 +192,6 @@ public class Notification {
     
     public boolean isDelivered() {
         return status.isDelivered();
-    }
-    
-    public String getUrgency() {
-        return urgency;
-    }
-    
-    public void setUrgency(String urgency) {
-        this.urgency = urgency;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public Integer getRelatedTaskId() {
-        return relatedTaskId;
-    }
-    
-    public void setRelatedTaskId(Integer relatedTaskId) {
-        this.relatedTaskId = relatedTaskId;
     }
 
     @Override

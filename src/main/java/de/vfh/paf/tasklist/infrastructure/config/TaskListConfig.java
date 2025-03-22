@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class TaskListConfig {
-    // All beans are now auto-configured via annotations
+    // All beans are now autoconfigured via annotations
     // This class is kept for backward compatibility
 }

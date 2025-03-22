@@ -119,7 +119,7 @@ public class NotificationController {
             // Find the latest notification for this user
             List<Notification> notifications = notificationService.findByUserId(userId);
             if (!notifications.isEmpty()) {
-                Notification latest = notifications.get(notifications.size() - 1);
+                Notification latest = notifications.getLast();
                 return ResponseEntity.ok(new NotificationDTO(latest));
             }
         }

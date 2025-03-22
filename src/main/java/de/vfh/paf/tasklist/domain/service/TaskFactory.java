@@ -6,23 +6,22 @@ import de.vfh.paf.tasklist.domain.tasks.GenerateReportTask;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Registry for all available task types.
+ * Factory for all available task types.
  * This service maintains a list of all task types that can be executed by the system.
  */
 @Service
-public class TaskRegistry {
+public class TaskFactory {
     
     private final Map<String, RunnableTask> taskTypes = new HashMap<>();
     
     /**
-     * Initializes the registry with available task types.
+     * Initializes the factory with available task types.
      */
-    public TaskRegistry() {
+    public TaskFactory() {
         // Register available task types
         registerTaskType(new CalculatePiTask());
         registerTaskType(new GenerateReportTask());
@@ -45,16 +44,6 @@ public class TaskRegistry {
      */
     public RunnableTask getTaskType(String className) {
         return taskTypes.get(className);
-    }
-    
-    /**
-     * Gets all available task types.
-     * 
-     * @return List of all registered task types
-     */
-    public List<RunnableTask> getAllTaskTypes() {
-        return taskTypes.values().stream()
-                .collect(Collectors.toList());
     }
     
     /**

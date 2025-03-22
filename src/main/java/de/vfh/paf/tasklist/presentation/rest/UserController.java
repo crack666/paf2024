@@ -153,7 +153,7 @@ public class UserController {
     public ResponseEntity<List<TaskDTO>> getUserTasks(
             @Parameter(description = "User ID", required = true) @PathVariable int id) {
         
-        if (!userService.findById(id).isPresent()) {
+        if (userService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         
@@ -183,24 +183,24 @@ public class UserController {
             @Parameter(description = "Filter notifications by read status") 
             @RequestParam(required = false) Boolean read) {
         
-        if (!userService.findById(id).isPresent()) {
+        if (userService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         List<Notification> notifications;
         if (read != null) {
             notifications = notificationService.findByUserIdAndReadStatus(id, read);
         } else {
             notifications = notificationService.findByUserId(id);
         }
-        
+
         List<NotificationDTO> notificationDTOs = notifications.stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(notificationDTOs);
     }
-    
+
     /**
      * Marks a notification as read.
      *

@@ -21,7 +21,6 @@ public class TaskService {
     /**
      * Creates a new task service.
      *
-     * @param taskRepository The repository for tasks
      */
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
 
@@ -117,7 +116,7 @@ public class TaskService {
             List<de.vfh.paf.tasklist.domain.model.TaskResult> results = taskResultRepository.findByTaskId(task.getId());
             if (!results.isEmpty()) {
                 // Get the most recent result (assuming it's the relevant one)
-                task.setResult(results.get(0));
+                task.setResult(results.getFirst());
             }
         }
         
@@ -249,7 +248,7 @@ public class TaskService {
             if (task.getStatus() == Status.DONE) {
                 List<de.vfh.paf.tasklist.domain.model.TaskResult> results = taskResultRepository.findByTaskId(task.getId());
                 if (!results.isEmpty()) {
-                    task.setResult(results.get(0));
+                    task.setResult(results.getFirst());
                 }
             }
         }

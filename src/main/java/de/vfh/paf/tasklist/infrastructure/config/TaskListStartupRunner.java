@@ -1,10 +1,8 @@
 package de.vfh.paf.tasklist.infrastructure.config;
 
-import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
-import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.domain.service.NotificationService;
 import de.vfh.paf.tasklist.domain.service.TaskQueueService;
 import de.vfh.paf.tasklist.domain.service.TaskService;
@@ -47,7 +45,6 @@ public class TaskListStartupRunner implements ApplicationRunner {
             TaskService taskService,
             TaskQueueService taskQueueService,
             NotificationService notificationService) {
-        // Demonstrating constructor-based dependency injection
         this.taskService = taskService;
         this.taskQueueService = taskQueueService;
         this.notificationService = notificationService;

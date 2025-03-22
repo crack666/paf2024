@@ -29,7 +29,7 @@ public class UserRepositoryJpaAdapter {
     @Autowired
     public UserRepositoryJpaAdapter(UserRepository userRepository) {
         this.userRepository = userRepository;
-        // Pre-load the cache with users from the database
+        // Preload the cache with users from the database
         loadUsersFromDatabase();
     }
     
@@ -101,14 +101,5 @@ public class UserRepositoryJpaAdapter {
             }
         }
         return new ArrayList<>(userCache.values());
-    }
-    
-    /**
-     * Gets the next user ID.
-     * 
-     * @return The next available user ID
-     */
-    public int getNextId() {
-        return userIdGenerator.get();
     }
 }

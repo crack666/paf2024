@@ -74,7 +74,7 @@ public class TaskDetailsController {
         List<TaskResult> results = taskResultRepository.findByTaskId(id);
         if (!results.isEmpty()) {
             // Latest result is usually the first one due to sorting
-            TaskResult latestResult = results.get(0);
+            TaskResult latestResult = results.getFirst();
             taskDTO.setResult(new TaskResultDTO(latestResult));
         }
         
@@ -114,7 +114,7 @@ public class TaskDetailsController {
             }
             
             // Return the most recent result (typically the first in the list)
-            TaskResult latestResult = results.get(0);
+            TaskResult latestResult = results.getFirst();
             return ResponseEntity.ok(new TaskResultDTO(latestResult));
         } catch (Exception e) {
             logger.error("Error retrieving result for task ID {}: {}", id, e.getMessage(), e);

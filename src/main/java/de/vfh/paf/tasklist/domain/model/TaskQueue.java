@@ -1,5 +1,7 @@
 package de.vfh.paf.tasklist.domain.model;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,9 +11,17 @@ import java.util.Objects;
 /**
  * Represents a queue of tasks that can be processed in a specific order.
  */
+@Getter
 public class TaskQueue {
+    // Getters
     private final int id;
     private final String name;
+    /**
+     * -- GETTER --
+     *  Returns all tasks in the queue.
+     *
+     * @return A list of tasks
+     */
     private final List<Task> tasks;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -52,19 +62,10 @@ public class TaskQueue {
             return null;
         }
         
-        Task task = tasks.remove(0);
+        Task task = tasks.removeFirst();
         task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), Status.RUNNING);
         this.updatedAt = LocalDateTime.now();
         return task;
-    }
-
-    /**
-     * Returns all tasks in the queue.
-     *
-     * @return A list of tasks
-     */
-    public List<Task> getTasks() {
-        return tasks;
     }
 
     /**
@@ -73,7 +74,7 @@ public class TaskQueue {
      * @return The first task in the queue, or null if the queue is empty
      */
     public Task peekNextTask() {
-        return tasks.isEmpty() ? null : tasks.get(0);
+        return tasks.isEmpty() ? null : tasks.getFirst();
     }
 
     /**
@@ -102,23 +103,6 @@ public class TaskQueue {
         // Additional ordering criteria could be added here
         
         this.updatedAt = LocalDateTime.now();
-    }
-
-    // Getters
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     @Override

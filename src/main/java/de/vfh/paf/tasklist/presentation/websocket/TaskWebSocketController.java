@@ -2,7 +2,6 @@ package de.vfh.paf.tasklist.presentation.websocket;
 
 import de.vfh.paf.tasklist.application.dto.TaskDTO;
 import de.vfh.paf.tasklist.application.dto.TaskResultDTO;
-import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

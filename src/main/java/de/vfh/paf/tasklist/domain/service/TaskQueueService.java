@@ -245,7 +245,7 @@ public class TaskQueueService {
                 .map(taskRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
         
         // Combine both lists
         List<Task> allTasks = new ArrayList<>(currentTasks);

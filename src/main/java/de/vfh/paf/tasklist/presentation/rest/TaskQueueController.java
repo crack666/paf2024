@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -134,7 +135,7 @@ public class TaskQueueController {
         if (status != null) {
             tasks = tasks.stream()
                     .filter(task -> task.getStatus() == status)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         
         List<TaskDTO> taskDTOs = tasks.stream()
@@ -174,7 +175,7 @@ public class TaskQueueController {
         if (status != null) {
             tasks = tasks.stream()
                     .filter(task -> task.getStatus() == status)
-                    .collect(Collectors.toList());
+                    .toList();
         }
         
         List<TaskDTO> taskDTOs = tasks.stream()
@@ -271,8 +272,8 @@ public class TaskQueueController {
             return ResponseEntity.noContent().build();
         }
         
-        CompletableFuture<TaskResult> future = taskQueueService.executeNextTask(queueId, 
-            task -> taskService.processTask(task));
+        CompletableFuture<TaskResult> future = taskQueueService.executeNextTask(queueId,
+                taskService::processTask);
             
         if (wait) {
             // Wait for the task to complete
@@ -319,8 +320,8 @@ public class TaskQueueController {
             return ResponseEntity.noContent().build();
         }
         
-        CompletableFuture<List<TaskResult>> future = taskQueueService.processAllTasks(queueId, 
-            task -> taskService.processTask(task));
+        CompletableFuture<List<TaskResult>> future = taskQueueService.processAllTasks(queueId,
+                taskService::processTask);
             
         if (wait) {
             // Wait for all tasks to complete
@@ -331,7 +332,7 @@ public class TaskQueueController {
                 }
                 
                 List<TaskResultDTO> resultDTOs = results.stream()
-                        .filter(result -> result != null)
+                        .filter(Objects::nonNull)
                         .map(TaskResultDTO::new)
                         .collect(Collectors.toList());
                         

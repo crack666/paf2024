@@ -2,15 +2,20 @@ package de.vfh.paf.tasklist.application.dto;
 
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 /**
  * Data Transfer Object for TaskResult entity.
  */
+@Setter
+@Getter
 @Schema(description = "Data Transfer Object for task execution results")
 public class TaskResultDTO {
-    
+
+    // Getters and setters
     @Schema(description = "Title of the result")
     private String title;
     
@@ -28,29 +33,5 @@ public class TaskResultDTO {
         this.content = taskResult.getContent();
         this.timestamp = taskResult.getTimestamp();
     }
-    
-    // Getters and setters
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getContent() {
-        return content;
-    }
-    
-    public void setContent(String content) {
-        this.content = content;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+
 }

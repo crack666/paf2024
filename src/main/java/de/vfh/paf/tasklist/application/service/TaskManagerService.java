@@ -1,8 +1,6 @@
 package de.vfh.paf.tasklist.application.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
-import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import de.vfh.paf.tasklist.domain.service.TaskQueueService;
 import de.vfh.paf.tasklist.domain.service.TaskService;
