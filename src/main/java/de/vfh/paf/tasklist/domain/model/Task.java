@@ -1,6 +1,8 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,28 +16,44 @@ import java.util.Objects;
 @Entity
 @Table(name = "tasks")
 public class Task {
+    // Getters and Setters
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
+    @Getter
     private String title;
+    @Setter
+    @Getter
     private String description;
 
+    @Setter
+    @Getter
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
+    @Setter
+    @Getter
     @Column(name = "is_completed")
     private boolean completed;
 
+    @Setter
+    @Getter
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Getter
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
 
+    @Setter
+    @Getter
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "task_dependencies",
@@ -44,15 +62,20 @@ public class Task {
     )
     private List<Task> dependencies = new ArrayList<>();
 
+    @Setter
+    @Getter
     @Column(name = "assigned_user_id")
     private Integer assignedUserId;
 
+    @Getter
     @Column(name = "task_class_name")
     private String taskClassName; // Fully qualified class name of the task implementation
 
+    @Getter
     @Column(name = "scheduled_time")
     private LocalDateTime scheduledTime; // Time when the task should be executed
 
+    @Getter
     @Transient // We'll handle this separately due to its complex structure
     private TaskResult result; // Result of the task execution
 
@@ -203,63 +226,6 @@ public class Task {
         }
     }
 
-    // Getters and Setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public TaskStatus getStatus() {
         return taskStatus;
     }
@@ -267,43 +233,6 @@ public class Task {
     public void setStatus(TaskStatus taskStatus) {
         this.taskStatus = taskStatus;
     }
-
-    public List<Task> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<Task> dependencies) {
-        this.dependencies = dependencies;
-    }
-
-    public Integer getAssignedUserId() {
-        return assignedUserId;
-    }
-
-    public void setAssignedUserId(Integer assignedUserId) {
-        this.assignedUserId = assignedUserId;
-    }
-
-    public String getTaskClassName() {
-        return taskClassName;
-    }
-
-    public void setTaskClassName(String taskClassName) {
-        this.taskClassName = taskClassName;
-    }
-
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public void setScheduledTime(LocalDateTime scheduledTime) {
-        this.scheduledTime = scheduledTime;
-    }
-
-    public TaskResult getResult() {
-        return result;
-    }
-
     /**
      * Sets the result of the task execution.
      * This method is intentionally kept to avoid compilation errors in Task.java
