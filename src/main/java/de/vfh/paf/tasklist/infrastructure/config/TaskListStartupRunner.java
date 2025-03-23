@@ -63,22 +63,19 @@ public class TaskListStartupRunner implements ApplicationRunner {
         int userId = 1;
         log.info("Creating tasks for user {}", userId);
 
+
         // Create tasks
-        Task task1 = taskService.createTask("Calculate Pi",
+        Task task1 = taskService.createRunnableTask("Calculate Pi",
                 "Calculate Pi to 1000 decimal places",
-                LocalDateTime.now().plusMinutes(5), userId);
+                LocalDateTime.now().plusMinutes(1), userId, "", LocalDateTime.now().plusMinutes(1));
 
-        Task task2 = taskService.createTask("Generate Report",
+        Task task2 = taskService.createRunnableTask("Generate Report",
                 "Generate monthly sales report",
-                LocalDateTime.now().plusMinutes(10), userId);
-
-        Task task3 = taskService.createTask("Send Notifications",
-                "Send notification emails to all users",
-                LocalDateTime.now().plusMinutes(15), userId);
+                LocalDateTime.now().plusMinutes(2), userId, "", LocalDateTime.now().plusMinutes(1));
 
         // Create dependencies
         log.info("Setting up task dependencies");
-        taskService.addDependency(task3.getId(), task2.getId()); // task3 depends on task2
+        taskService.addDependency(task1.getId(), task2.getId()); // task3 depends on task2
 
         // Check for deadlocks
         boolean hasDeadlocks = taskService.detectDeadlocks();

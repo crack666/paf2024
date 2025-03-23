@@ -112,7 +112,7 @@ public class Task {
      * @param description    The description of the task
      * @param dueDate        The due date for the task
      * @param isCompleted    Whether the task is completed
-     * @param taskStatus         The status of the task
+     * @param taskStatus     The status of the task
      * @param assignedUserId The ID of the user assigned to the task
      * @param taskClassName  The class name of the task implementation
      * @param scheduledTime  The time when the task should be executed
@@ -201,6 +201,19 @@ public class Task {
      * @return true if the task is ready to run, false otherwise
      */
     public boolean isReadyToRun() {
+        if (completed) {
+            System.out.println("Task " + id + " not ready: completed");
+            return false;
+        }
+        if (taskClassName == null) {
+            System.out.println("Task " + id + " not ready: no class");
+            return false;
+        }
+        if (scheduledTime != null && scheduledTime.isAfter(LocalDateTime.now())) {
+            System.out.println("Task " + id + " not ready: scheduled in future");
+            return false;
+        }
+
         if (completed || taskClassName == null) {
             return false;
         }

@@ -30,20 +30,6 @@ public class TaskService {
     }
 
     /**
-     * Creates a new task.
-     *
-     * @param title       The title of the task
-     * @param description The description of the task
-     * @param dueDate     The due date for the task
-     * @param userId      The ID of the user assigned to the task
-     * @return The created task
-     */
-    public Task createTask(String title, String description, LocalDateTime dueDate, int userId) {
-        Task task = new Task(null, title, description, dueDate, false, TaskStatus.CREATED, userId, null, null);
-        return taskRepository.save(task);
-    }
-
-    /**
      * Creates a new runnable task with a specific implementation.
      *
      * @param title         The title of the task

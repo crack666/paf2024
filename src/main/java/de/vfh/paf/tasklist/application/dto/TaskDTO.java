@@ -46,7 +46,8 @@ public class TaskDTO {
     private int assignedUserId;
 
     @Schema(description = "The fully qualified class name of the task implementation",
-            example = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask")
+            example = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private String taskClassName;
 
     @Schema(description = "The simplified task type name (derived from taskClassName)",

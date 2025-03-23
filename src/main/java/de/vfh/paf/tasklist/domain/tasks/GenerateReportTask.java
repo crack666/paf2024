@@ -1,5 +1,6 @@
 package de.vfh.paf.tasklist.domain.tasks;
 
+import de.vfh.paf.tasklist.domain.model.AbstractRunnableTask;
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -12,15 +13,15 @@ import java.util.UUID;
  * A task that generates a simulated report.
  * This mimics a data processing task that might generate reports from data.
  */
-public class GenerateReportTask implements RunnableTask {
+public class GenerateReportTask extends AbstractRunnableTask {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public TaskResult run(Task task) {
+    protected TaskResult execute(Task task) {
         // Simulate report generation work
         try {
-            Thread.sleep(500); // Simulate some processing time
+            Thread.sleep(10000); // Simulate some processing time
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

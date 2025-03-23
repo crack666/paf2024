@@ -65,26 +65,27 @@ public class TaskController {
     public ResponseEntity<TaskDTO> createTask(
             @Parameter(description = "Task details", required = true) @RequestBody TaskDTO taskDTO) {
 
-        // If task class name is provided, create a runnable task
-        if (taskDTO.getTaskClassName() != null && !taskDTO.getTaskClassName().isEmpty()) {
+        if (taskDTO.getTaskType() != null && !taskDTO.getTaskType().isEmpty()) {
+            // Lookup: Ermittele den zugehörigen RunnableTask anhand des simplen Namens
+            RunnableTask taskTypeImpl = taskRegistry.getTaskType(taskDTO.getTaskType());
+            if (taskTypeImpl == null) {
+                // Ungültiger Task-Typ
+                return ResponseEntity.badRequest().build();
+            }
+            // Ableiten des fully qualified class name
+            String taskClassName = taskTypeImpl.getClass().getName();
             Task task = taskService.createRunnableTask(
                     taskDTO.getTitle(),
                     taskDTO.getDescription(),
                     taskDTO.getDueDate(),
                     taskDTO.getAssignedUserId(),
-                    taskDTO.getTaskClassName(),
+                    taskClassName,
                     taskDTO.getScheduledTime()
             );
             return ResponseEntity.ok(new TaskDTO(task));
-        } else {
-            // Create a regular task
-            Task task = taskService.createTask(
-                    taskDTO.getTitle(),
-                    taskDTO.getDescription(),
-                    taskDTO.getDueDate(),
-                    taskDTO.getAssignedUserId()
-            );
-            return ResponseEntity.ok(new TaskDTO(task));
+        }
+        else {
+            throw new IllegalArgumentException("Task type must be specified");
         }
     }
 

@@ -36,11 +36,11 @@ public class TaskManagerService {
      * @param queueId     Queue ID
      * @return The created task
      */
-    public Task createAndQueueTask(String title, String description, LocalDateTime dueDate, int userId, int queueId) {
+    /*public Task createAndQueueTask(String title, String description, LocalDateTime dueDate, int userId, int queueId) {
         Task task = taskService.createTask(title, description, dueDate, userId);
         taskQueueService.enqueueTask(queueId, task.getId());
         return task;
-    }
+    }*/
 
     /**
      * Checks if a task has dependencies that would create a deadlock.

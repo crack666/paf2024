@@ -234,7 +234,7 @@ public class TaskProcessorService {
      * Scheduled task that runs every minute to check for tasks that are ready to run.
      * Any ready tasks are executed in parallel using the thread pool.
      */
-    @Scheduled(fixedRateString = "${tasklist.scheduling.task-check-seconds:60}000")
+    @Scheduled(fixedRateString = "${tasklist.scheduling.task-check-seconds:10}000")
     public void checkForReadyTasks() {
         logger.debug("Checking for ready tasks...");
 

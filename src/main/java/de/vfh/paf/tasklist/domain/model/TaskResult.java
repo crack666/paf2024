@@ -27,6 +27,7 @@ public class TaskResult {
     @Column(length = 4000)
     private String content;
 
+    @Getter
     @Column(name = "timestamp", updatable = false)
     private LocalDateTime timestamp;
 

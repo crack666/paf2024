@@ -1,6 +1,8 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +14,25 @@ import java.util.Objects;
 @Entity
 @Table(name = "app_users")
 public class User {
+    @Getter
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Getter
+    @Setter
     private String name;
+
+    @Getter
+    @Setter
     private String email;
 
+    @Getter
     @Transient // Keep tasks transient for now to not disrupt existing functionality
     private List<Task> tasks = new ArrayList<>();
 
+    @Getter
     @Transient // Keep notifications transient for now to not disrupt existing functionality
     private List<Notification> notifications = new ArrayList<>();
 
@@ -79,48 +90,6 @@ public class User {
         }
     }
 
-    /**
-     * Gets all tasks assigned to the user.
-     *
-     * @return A list of tasks
-     */
-    public List<Task> getTasks() {
-        return tasks;
-    }
-
-    /**
-     * Gets all notifications for the user.
-     *
-     * @return A list of notifications
-     */
-    public List<Notification> getNotifications() {
-        return notifications;
-    }
-
-    // Getters and setters
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 
     @Override
     public boolean equals(Object o) {

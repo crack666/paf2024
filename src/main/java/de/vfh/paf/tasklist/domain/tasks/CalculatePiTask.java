@@ -1,5 +1,6 @@
 package de.vfh.paf.tasklist.domain.tasks;
 
+import de.vfh.paf.tasklist.domain.model.AbstractRunnableTask;
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A task that calculates Pi to a specified number of decimal places.
  * This is a CPU-intensive task example with progress tracking.
  */
-public class CalculatePiTask implements RunnableTask {
+public class CalculatePiTask extends AbstractRunnableTask {
 
     private static final int DEFAULT_ITERATIONS = 1000;
 
@@ -32,7 +33,7 @@ public class CalculatePiTask implements RunnableTask {
     }
 
     @Override
-    public TaskResult run(Task task) {
+    protected TaskResult execute(Task task) {
         // Extract the number of iterations from task description, or use default
         int iterations = DEFAULT_ITERATIONS;
         try {

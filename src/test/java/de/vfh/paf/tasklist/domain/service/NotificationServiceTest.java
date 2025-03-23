@@ -70,10 +70,12 @@ class NotificationServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         // Add an overdue task
-        Task overdueTask = taskService.createTask("Overdue Task", "Description", now.minusDays(1), 100);
+        Task overdueTask = taskService.createRunnableTask("Overdue Task", "Description", now.minusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         // Add a future task (not overdue)
-        Task futureTask = taskService.createTask("Future Task", "Description", now.plusDays(1), 100);
+        Task futureTask = taskService.createRunnableTask("Future Task", "Description", now.plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         // Act
         int notificationsSent = notificationService.checkAndNotifyOverdueTasks();
@@ -96,8 +98,9 @@ class NotificationServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         // Add only future tasks
-        Task futureTask1 = taskService.createTask("Future Task 1", "Description", now.plusDays(1), 100);
-        Task futureTask2 = taskService.createTask("Future Task 2", "Description", now.plusDays(2), 100);
+        Task futureTask1 = taskService.createRunnableTask("Future Task 1", "Description", now.plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task futureTask2 = taskService.createRunnableTask("Future Task 2", "Description", now.plusDays(2), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         // Act
         int notificationsSent = notificationService.checkAndNotifyOverdueTasks();

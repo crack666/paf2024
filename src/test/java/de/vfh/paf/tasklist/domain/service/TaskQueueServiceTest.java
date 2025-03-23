@@ -61,7 +61,8 @@ class TaskQueueServiceTest {
     void shouldEnqueueTask() {
         // Arrange
         TaskQueue queue = taskQueueService.createQueue("Test Queue");
-        Task task = taskService.createTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100);
+        Task task = taskService.createRunnableTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         // Act
         boolean enqueued = taskQueueService.enqueueTask(queue.getId(), task.getId());
@@ -80,7 +81,7 @@ class TaskQueueServiceTest {
     void shouldExecuteTask() throws Exception {
         // Arrange
         TaskQueue queue = taskQueueService.createQueue("Test Queue");
-        Task task = taskService.createTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100);
+        Task task = taskService.createRunnableTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
         taskQueueService.enqueueTask(queue.getId(), task.getId());
 
         // Act
@@ -116,9 +117,12 @@ class TaskQueueServiceTest {
         // Arrange
         TaskQueue queue = taskQueueService.createQueue("Test Queue");
 
-        Task task1 = taskService.createTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100);
-        Task task2 = taskService.createTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100);
-        Task task3 = taskService.createTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100);
+        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
+        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
+        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         taskQueueService.enqueueTask(queue.getId(), task1.getId());
         taskQueueService.enqueueTask(queue.getId(), task2.getId());
