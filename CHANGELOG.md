@@ -32,20 +32,20 @@
 
 ### Added
 1. **Enhanced TaskQueue Management UI**
-   - Added tab-based status filtering for tasks (All, Pending, Running, Completed)
+   - Added tab-based taskStatus filtering for tasks (All, Pending, Running, Completed)
    - Implemented automatic data refreshing for running tasks
-   - Added detailed task progress visualization with status indicators
+   - Added detailed task progress visualization with taskStatus indicators
    - Created task-specific action buttons for individual task execution
    - Integrated direct navigation from queues to task details
 
 2. **Improved Dashboard Integration**
    - Added TaskQueues component to dashboard for quick overview
-   - Implemented compact view for queue status in dashboard
+   - Implemented compact view for queue taskStatus in dashboard
    - Created reusable QueueList component with configurable display modes
    - Added automatic queue detail loading for better information display
 
 3. **Task Status Visualization**
-   - Enhanced status indicators with intuitive icons and colors
+   - Enhanced taskStatus indicators with intuitive icons and colors
    - Added real-time progress indicators for running tasks
    - Implemented better task type display across the application
 
@@ -77,7 +77,7 @@
    - Added interactive WebSocket testing page (`notifications-test.html`)
    - Implemented real-time notification display with styling by urgency
    - Added controls for connecting, sending, and marking notifications as read
-   - Created visual indicators for notification status and type
+   - Created visual indicators for notification taskStatus and type
 
 ### Changed
 1. **Notification Model**
@@ -128,7 +128,7 @@
 4. **Task Queue Management**
    - Created `TaskQueueController` for queue operations
    - Added endpoints for queue creation and management
-   - Implemented filtering for queue tasks by status
+   - Implemented filtering for queue tasks by taskStatus
    - Added support for processing tasks individually or in batches
    - Implemented queue reordering capabilities
 
@@ -173,7 +173,7 @@
 
 2. **Task Status Tracking**
    - Implemented state transitions for tasks (CREATED → QUEUED → RUNNING → DONE)
-   - Added status filtering for task queries
+   - Added taskStatus filtering for task queries
 
 3. **Initial Task Queue Implementation**
    - Created basic queue structure for organizing tasks

@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.domain.repository.TaskResultRepository;
@@ -54,7 +54,7 @@ class TaskServiceTest {
         assertEquals(description, createdTask.getDescription());
         assertEquals(dueDate, createdTask.getDueDate());
         assertEquals(userId, createdTask.getAssignedUserId());
-        assertEquals(Status.CREATED, createdTask.getStatus());
+        assertEquals(TaskStatus.CREATED, createdTask.getStatus());
 
         // Verify task was saved in repository
         Optional<Task> savedTask = taskRepository.findById(createdTask.getId());
@@ -71,17 +71,17 @@ class TaskServiceTest {
         String newTitle = "Updated Task";
         String newDescription = "Updated description";
         LocalDateTime newDueDate = LocalDateTime.now().plusDays(2);
-        Status newStatus = Status.QUEUED;
+        TaskStatus newTaskStatus = TaskStatus.QUEUED;
 
         // Act
-        Task updatedTask = taskService.updateTask(task.getId(), newTitle, newDescription, newDueDate, newStatus);
+        Task updatedTask = taskService.updateTask(task.getId(), newTitle, newDescription, newDueDate, newTaskStatus);
 
         // Assert
         assertNotNull(updatedTask);
         assertEquals(newTitle, updatedTask.getTitle());
         assertEquals(newDescription, updatedTask.getDescription());
         assertEquals(newDueDate, updatedTask.getDueDate());
-        assertEquals(newStatus, updatedTask.getStatus());
+        assertEquals(newTaskStatus, updatedTask.getStatus());
 
         // Verify task was updated in repository
         Optional<Task> savedTask = taskRepository.findById(task.getId());
@@ -101,7 +101,7 @@ class TaskServiceTest {
 
         // Assert
         assertTrue(completedTask.isCompleted());
-        assertEquals(Status.DONE, completedTask.getStatus());
+        assertEquals(TaskStatus.DONE, completedTask.getStatus());
 
         // Verify task was updated in repository
         Optional<Task> savedTask = taskRepository.findById(task.getId());

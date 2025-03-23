@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.application.dto;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,7 +37,7 @@ public class TaskDTO {
     private boolean completed;
 
     @Schema(description = "Current status of the task", example = "IN_PROGRESS")
-    private Status status;
+    private TaskStatus taskStatus;
 
     @Schema(description = "IDs of tasks that this task depends on", example = "[1, 2, 3]")
     private List<Integer> dependencyIds;
@@ -75,7 +75,7 @@ public class TaskDTO {
         this.description = task.getDescription();
         this.dueDate = task.getDueDate();
         this.completed = task.isCompleted();
-        this.status = task.getStatus();
+        this.taskStatus = task.getStatus();
 
         // Safely handle dependencies to avoid LazyInitializationException
         try {

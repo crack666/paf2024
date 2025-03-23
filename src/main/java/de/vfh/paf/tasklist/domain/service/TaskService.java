@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class TaskService {
      * @return The created task
      */
     public Task createTask(String title, String description, LocalDateTime dueDate, int userId) {
-        Task task = new Task(null, title, description, dueDate, false, Status.CREATED, userId, null, null);
+        Task task = new Task(null, title, description, dueDate, false, TaskStatus.CREATED, userId, null, null);
         return taskRepository.save(task);
     }
 
@@ -67,15 +67,15 @@ public class TaskService {
      * @param title       The new title
      * @param description The new description
      * @param dueDate     The new due date
-     * @param status      The new status
+     * @param taskStatus  The new status
      * @return The updated task, or null if the task is not found
      */
-    public Task updateTask(int taskId, String title, String description, LocalDateTime dueDate, Status status) {
+    public Task updateTask(int taskId, String title, String description, LocalDateTime dueDate, TaskStatus taskStatus) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
 
         if (optionalTask.isPresent()) {
             Task task = optionalTask.get();
-            task.updateDetails(title, description, dueDate, status);
+            task.updateDetails(title, description, dueDate, taskStatus);
             return taskRepository.save(task);
         }
 
@@ -244,7 +244,7 @@ public class TaskService {
 
         // Load results for completed tasks
         for (Task task : tasks) {
-            if (task.getStatus() == Status.DONE) {
+            if (task.getStatus() == TaskStatus.DONE) {
                 List<de.vfh.paf.tasklist.domain.model.TaskResult> results = taskResultRepository.findByTaskId(task.getId());
                 if (!results.isEmpty()) {
                     task.setResult(results.getFirst());
@@ -268,12 +268,12 @@ public class TaskService {
     /**
      * Finds all tasks with a specific status.
      *
-     * @param status The status to filter by
+     * @param taskStatus The status to filter by
      * @return List of tasks with the specified status
      */
-    public List<Task> findByStatus(Status status) {
+    public List<Task> findByStatus(TaskStatus taskStatus) {
         return findAll().stream()
-                .filter(task -> task.getStatus() == status)
+                .filter(task -> task.getStatus() == taskStatus)
                 .collect(Collectors.toList());
     }
 
@@ -281,12 +281,12 @@ public class TaskService {
      * Finds all tasks assigned to a specific user with a specific status.
      *
      * @param userId The ID of the user
-     * @param status The status to filter by
+     * @param taskStatus The status to filter by
      * @return List of tasks matching both criteria
      */
-    public List<Task> findByUserIdAndStatus(int userId, Status status) {
+    public List<Task> findByUserIdAndStatus(int userId, TaskStatus taskStatus) {
         return findAll().stream()
-                .filter(task -> task.getAssignedUserId() == userId && task.getStatus() == status)
+                .filter(task -> task.getAssignedUserId() == userId && task.getStatus() == taskStatus)
                 .collect(Collectors.toList());
     }
 

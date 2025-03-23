@@ -3,7 +3,7 @@ package de.vfh.paf.tasklist.presentation.rest;
 import de.vfh.paf.tasklist.application.dto.TaskDTO;
 import de.vfh.paf.tasklist.application.dto.TaskQueueDTO;
 import de.vfh.paf.tasklist.application.dto.TaskResultDTO;
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -122,7 +122,7 @@ public class TaskQueueController {
     public ResponseEntity<List<TaskDTO>> getQueueTasks(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id,
             @Parameter(description = "Filter tasks by status")
-            @RequestParam(required = false) Status status) {
+            @RequestParam(required = false) TaskStatus taskStatus) {
 
         TaskQueue queue = taskQueueService.getQueue(id);
         if (queue == null) {
@@ -132,9 +132,9 @@ public class TaskQueueController {
         List<Task> tasks = queue.getTasks();
 
         // Filter by status if provided
-        if (status != null) {
+        if (taskStatus != null) {
             tasks = tasks.stream()
-                    .filter(task -> task.getStatus() == status)
+                    .filter(task -> task.getStatus() == taskStatus)
                     .toList();
         }
 
@@ -149,7 +149,7 @@ public class TaskQueueController {
      * Gets all tasks associated with a queue, including current and processed ones.
      *
      * @param id     Queue ID
-     * @param status Optional status filter
+     * @param taskStatus Optional status filter
      * @return List of all tasks
      */
     @GetMapping("/{id}/all-tasks")
@@ -162,7 +162,7 @@ public class TaskQueueController {
     public ResponseEntity<List<TaskDTO>> getAllQueueTasks(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id,
             @Parameter(description = "Filter tasks by status")
-            @RequestParam(required = false) Status status) {
+            @RequestParam(required = false) TaskStatus taskStatus) {
 
         TaskQueue queue = taskQueueService.getQueue(id);
         if (queue == null) {
@@ -172,9 +172,9 @@ public class TaskQueueController {
         List<Task> tasks = taskQueueService.getAllQueueTasks(id);
 
         // Filter by status if provided
-        if (status != null) {
+        if (taskStatus != null) {
             tasks = tasks.stream()
-                    .filter(task -> task.getStatus() == status)
+                    .filter(task -> task.getStatus() == taskStatus)
                     .toList();
         }
 

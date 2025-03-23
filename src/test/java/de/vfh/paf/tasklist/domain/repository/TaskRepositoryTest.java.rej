@@ -3,7 +3,7 @@
 @@ -2,7 +2,7 @@
  
  import de.vfh.paf.tasklist.domain.model.Task;
- import de.vfh.paf.tasklist.domain.model.Status;
+ import de.vfh.paf.tasklist.domain.model.TaskStatus;
 -import de.vfh.paf.tasklist.domain.repository.TaskRepositoryInMemory;
 +import de.vfh.paf.tasklist.infrastructure.persistence.TaskRepositoryInMemory;
  import org.junit.jupiter.api.BeforeEach;

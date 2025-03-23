@@ -34,7 +34,7 @@ public class Task {
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private TaskStatus taskStatus;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -61,7 +61,7 @@ public class Task {
      */
     public Task() {
         this.createdAt = LocalDateTime.now();
-        this.status = Status.CREATED;
+        this.taskStatus = TaskStatus.CREATED;
     }
 
     /**
@@ -77,7 +77,7 @@ public class Task {
      */
     public Task(Integer id, String title, String description, LocalDateTime dueDate,
                 Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
-        this(id, title, description, dueDate, false, Status.CREATED,
+        this(id, title, description, dueDate, false, TaskStatus.CREATED,
                 assignedUserId, taskClassName, scheduledTime);
     }
 
@@ -89,20 +89,20 @@ public class Task {
      * @param description    The description of the task
      * @param dueDate        The due date for the task
      * @param isCompleted    Whether the task is completed
-     * @param status         The status of the task
+     * @param taskStatus         The status of the task
      * @param assignedUserId The ID of the user assigned to the task
      * @param taskClassName  The class name of the task implementation
      * @param scheduledTime  The time when the task should be executed
      */
     public Task(Integer id, String title, String description, LocalDateTime dueDate, boolean isCompleted,
-                Status status, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
+                TaskStatus taskStatus, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
         this.completed = isCompleted;
         this.createdAt = LocalDateTime.now();
-        this.status = status;
+        this.taskStatus = taskStatus;
         this.assignedUserId = assignedUserId;
         this.taskClassName = taskClassName;
         this.scheduledTime = scheduledTime;
@@ -113,7 +113,7 @@ public class Task {
      */
     public void markComplete() {
         this.completed = true;
-        this.status = Status.DONE;
+        this.taskStatus = TaskStatus.DONE;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -123,13 +123,13 @@ public class Task {
      * @param title       The new title
      * @param description The new description
      * @param dueDate     The new due date
-     * @param status      The new status
+     * @param taskStatus      The new status
      */
-    public void updateDetails(String title, String description, LocalDateTime dueDate, Status status) {
+    public void updateDetails(String title, String description, LocalDateTime dueDate, TaskStatus taskStatus) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
-        this.status = status;
+        this.taskStatus = taskStatus;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -260,12 +260,12 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
-    public Status getStatus() {
-        return status;
+    public TaskStatus getStatus() {
+        return taskStatus;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(TaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
     }
 
     public List<Task> getDependencies() {

@@ -14,8 +14,8 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 - **Progress Tracking:** Monitor real-time progress of long-running tasks with visual indicators
 - **User Management:** Create, update, and manage users with their assigned tasks
 - **Real-time Notifications:** Receive and manage real-time notifications for task events via WebSocket
-- **Task Status Visualization:** View task status with intuitive icons and real-time updates
-- **Task Queue Management UI:** Filter and view tasks by status with automatic data refreshing
+- **Task Status Visualization:** View task taskStatus with intuitive icons and real-time updates
+- **Task Queue Management UI:** Filter and view tasks by taskStatus with automatic data refreshing
 
 ## Design Patterns Used
 
@@ -30,7 +30,7 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 | **Singleton Pattern** | All `@Service` classes | Services instantiated once by Spring container | Native Spring feature through `@Service` annotation | [Wikipedia](https://en.wikipedia.org/wiki/Singleton_pattern) |
 | **Facade Pattern** | [TaskManagerService](src/main/java/de/vfh/paf/tasklist/application/service/TaskManagerService.java) | Coordinates different services with simplified interface | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Facade_pattern) |
 | **DTO Pattern** | [TaskDTO](src/main/java/de/vfh/paf/tasklist/application/dto/TaskDTO.java), [NotificationDTO](src/main/java/de/vfh/paf/tasklist/application/dto/NotificationDTO.java) | Data transfer objects between layers | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/Data_transfer_object) |
-| **State Pattern** | [Task.java](src/main/java/de/vfh/paf/tasklist/domain/model/Task.java) with [Status enum](src/main/java/de/vfh/paf/tasklist/domain/model/Status.java), [Notification.java](src/main/java/de/vfh/paf/tasklist/domain/model/Notification.java) with [NotificationStatus enum](src/main/java/de/vfh/paf/tasklist/domain/model/NotificationStatus.java) | Task status transitions (CREATED → QUEUED → RUNNING → DONE) and Notification lifecycle (CREATED → SENT → DELIVERED → READ → ARCHIVED) | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/State_pattern) |
+| **State Pattern** | [Task.java](src/main/java/de/vfh/paf/tasklist/domain/model/Task.java) with [Status enum](src/main/java/de/vfh/paf/tasklist/domain/model/Status.java), [Notification.java](src/main/java/de/vfh/paf/tasklist/domain/model/Notification.java) with [NotificationStatus enum](src/main/java/de/vfh/paf/tasklist/domain/model/NotificationStatus.java) | Task taskStatus transitions (CREATED → QUEUED → RUNNING → DONE) and Notification lifecycle (CREATED → SENT → DELIVERED → READ → ARCHIVED) | Custom implementation | [Wikipedia](https://en.wikipedia.org/wiki/State_pattern) |
 | **Thread Pool Pattern** | [TaskProcessorService](src/main/java/de/vfh/paf/tasklist/domain/service/TaskProcessorService.java) | Managing concurrent task execution with configurable threads | Uses Java's ExecutorService | [Wikipedia](https://en.wikipedia.org/wiki/Thread_pool) |
 
 ## Technical Stack
@@ -217,9 +217,9 @@ You can customize the configuration by editing the docker-compose.yml file:
 The application provides the following main endpoints:
 
 ### Task Management
-- `GET /api/tasks` - List all tasks (with optional filtering by user ID and status)
+- `GET /api/tasks` - List all tasks (with optional filtering by user ID and taskStatus)
 - `GET /api/tasks/{id}` - Get a specific task
-- `GET /api/tasks/status/{status}` - Get all tasks with a specific status
+- `GET /api/tasks/taskStatus/{taskStatus}` - Get all tasks with a specific taskStatus
 - `GET /api/tasks/{id}/progress` - Get real-time progress information for a running task
 - `POST /api/tasks` - Create a new task (regular or runnable)
 - `PUT /api/tasks/{id}` - Update a task
@@ -233,7 +233,7 @@ The application provides the following main endpoints:
 - `GET /api/users` - List all users
 - `GET /api/users/{id}` - Get a specific user
 - `GET /api/users/{id}/tasks` - Get all tasks assigned to a user
-- `GET /api/users/{id}/notifications` - Get all notifications for a user (with optional filtering by read status)
+- `GET /api/users/{id}/notifications` - Get all notifications for a user (with optional filtering by read taskStatus)
 - `POST /api/users` - Create a new user
 - `PUT /api/users/{id}` - Update a user
 - `POST /api/users/{id}/notifications/{notificationId}/read` - Mark a notification as read
@@ -241,7 +241,7 @@ The application provides the following main endpoints:
 ### Notification Management
 - `GET /api/notifications` - List all notifications
 - `GET /api/notifications/{id}` - Get a specific notification
-- `GET /api/notifications/user/{userId}` - Get notifications for a user (with optional read status filter)
+- `GET /api/notifications/user/{userId}` - Get notifications for a user (with optional read taskStatus filter)
 - `POST /api/notifications/{id}/read` - Mark a notification as read
 - `POST /api/notifications/send` - Send a notification to a specific user
 - `POST /api/notifications/broadcast` - Broadcast a notification to all users
@@ -249,7 +249,7 @@ The application provides the following main endpoints:
 ### Task Queue Management
 - `GET /api/task-queues` - List all task queues
 - `GET /api/task-queues/{id}` - Get a specific task queue
-- `GET /api/task-queues/{id}/tasks` - Get all tasks in a queue (with optional filtering by status)
+- `GET /api/task-queues/{id}/tasks` - Get all tasks in a queue (with optional filtering by taskStatus)
 - `POST /api/task-queues` - Create a new task queue
 - `POST /api/task-queues/{queueId}/tasks/{taskId}` - Add a task to a queue
 - `POST /api/task-queues/{queueId}/process-next` - Process the next task in a queue
@@ -311,7 +311,7 @@ The application features a robust system for executing tasks concurrently:
    - Tasks with completed dependencies are automatically executed
 
 6. **Thread Safety:**
-   - Thread-safe task status updates
+   - Thread-safe task taskStatus updates
    - Safe shutdown with proper thread termination
 
 ## Troubleshooting
@@ -349,7 +349,7 @@ The application follows a clean DDD architecture:
   - `/tasklist/domain/model/` - Domain entities and interfaces
     - `Task.java` - Core entity with dependencies and execution information
     - `User.java` - User entity with associated tasks and notifications
-    - `Notification.java` - Notification entity with urgency and read status
+    - `Notification.java` - Notification entity with urgency and read taskStatus
     - `RunnableTask.java` - Interface for executable tasks
     - `TaskResult.java` - Result of task execution
     - `TaskQueue.java` - Queue for organizing and processing tasks
@@ -372,7 +372,7 @@ The application follows a clean DDD architecture:
   - `/tasklist/application/dto/` - Data transfer objects
     - `TaskDTO.java` - Task data with execution details
     - `UserDTO.java` - User data with associated tasks and notifications
-    - `NotificationDTO.java` - Notification data with urgency and status
+    - `NotificationDTO.java` - Notification data with urgency and taskStatus
     - `NotificationPayload.java` - Simplified notification data for WebSocket transmission
     - `TaskResultDTO.java` - Task result information
     - `TaskProgressDTO.java` - Real-time progress information for running tasks
@@ -405,17 +405,17 @@ The frontend is built using Vue 3 with Pinia for state management, offering a mo
 ### Key Frontend Components
 
 1. **Dashboard View**
-   - Central hub showing task summaries, queue status, and important notifications
+   - Central hub showing task summaries, queue taskStatus, and important notifications
    - Quick access to task execution and management functions
-   - Real-time task status and notification updates
+   - Real-time task taskStatus and notification updates
 
 2. **Task Management**
    - Create, view, and manage tasks with different types and parameters
-   - Visual task board showing tasks grouped by status
+   - Visual task board showing tasks grouped by taskStatus
    - Task details view with execution results and dependencies
 
 3. **Task Queue Management**
-   - Tab-based filtering of tasks by status (All, Pending, Running, Completed)
+   - Tab-based filtering of tasks by taskStatus (All, Pending, Running, Completed)
    - Real-time progress indicators for running tasks
    - Direct execution controls for individual tasks
    - Automatic data refreshing for active queues
@@ -423,7 +423,7 @@ The frontend is built using Vue 3 with Pinia for state management, offering a mo
 4. **Notification System**
    - Real-time notification display with urgency-based styling
    - Mark notifications as read directly from the interface
-   - Filter notifications by status and type
+   - Filter notifications by taskStatus and type
 
 5. **Reusable Components**
    - `QueueList`: Flexible component for displaying task queues in various contexts
@@ -440,10 +440,10 @@ The frontend is built using Vue 3 with Pinia for state management, offering a mo
 2. **Real-time Updates**
    - Automatic refreshing of data for running tasks
    - WebSocket integration for instant notifications
-   - Visual status transitions for task state changes
+   - Visual taskStatus transitions for task state changes
 
 3. **Contextual Actions**
-   - Action buttons that adapt to task status
+   - Action buttons that adapt to task taskStatus
    - Tabbed interfaces for focused interaction
    - Direct navigation between related components
 
@@ -528,7 +528,7 @@ This section describes how a frontend application should interact with the backe
 
 4. **Monitor Progress**
    - Poll `GET /api/tasks/{taskId}/progress` until completion
-   - Or listen for WebSocket notifications about task status changes
+   - Or listen for WebSocket notifications about task taskStatus changes
 
 5. **View Results**
    - `GET /api/tasks/{taskId}` to view final task results
@@ -551,10 +551,10 @@ Frontend applications should handle these common error scenarios:
 
 2. **Batch Operations**
    - When displaying many tasks, use pagination parameters
-   - Consider using `GET /api/tasks?userId={userId}&status=RUNNING` for filtered queries
+   - Consider using `GET /api/tasks?userId={userId}&taskStatus=RUNNING` for filtered queries
 
 3. **Optimistic UI Updates**
-   - Update UI immediately after operations like task creation or status change
+   - Update UI immediately after operations like task creation or taskStatus change
    - Confirm with backend response or handle errors and revert if needed
 
 ## Deadlock Detection and Resolution

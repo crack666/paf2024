@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -73,7 +73,7 @@ class TaskQueueServiceTest {
 
         // Verify task status was updated
         Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
-        assertEquals(Status.QUEUED, updatedTask.getStatus());
+        assertEquals(TaskStatus.QUEUED, updatedTask.getStatus());
     }
 
     @Test
@@ -107,7 +107,7 @@ class TaskQueueServiceTest {
 
         // Verify task status
         Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
-        assertEquals(Status.DONE, updatedTask.getStatus());
+        assertEquals(TaskStatus.DONE, updatedTask.getStatus());
         assertTrue(updatedTask.isCompleted());
     }
 

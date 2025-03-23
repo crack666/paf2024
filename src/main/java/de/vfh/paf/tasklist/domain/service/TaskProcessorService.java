@@ -1,7 +1,7 @@
 package de.vfh.paf.tasklist.domain.service;
 
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import jakarta.annotation.PostConstruct;
@@ -160,7 +160,7 @@ public class TaskProcessorService {
                     task.getTitle(),
                     task.getDescription(),
                     task.getDueDate(),
-                    Status.RUNNING
+                    TaskStatus.RUNNING
             );
 
             // Send notification that task has started
@@ -198,7 +198,7 @@ public class TaskProcessorService {
                     updatedTask.getTitle(),
                     updatedTask.getDescription(),
                     updatedTask.getDueDate(),
-                    Status.DONE
+                    TaskStatus.DONE
             );
 
             // Load the result back into the completed task

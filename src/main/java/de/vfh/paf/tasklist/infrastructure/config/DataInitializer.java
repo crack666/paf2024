@@ -1,7 +1,7 @@
 package de.vfh.paf.tasklist.infrastructure.config;
 
 import de.vfh.paf.tasklist.domain.model.Notification;
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.User;
 import de.vfh.paf.tasklist.domain.repository.NotificationRepository;
@@ -42,17 +42,17 @@ public class DataInitializer {
                 // Create tasks
                 Task task1 = new Task(null, "Complete project plan",
                         "Create a comprehensive project plan for the Q2 release",
-                        LocalDateTime.now().plusDays(5), false, Status.CREATED,
+                        LocalDateTime.now().plusDays(5), false, TaskStatus.CREATED,
                         john.getId(), null, null);
 
                 Task task2 = new Task(null, "Review code changes",
                         "Code review for the authentication module PR",
-                        LocalDateTime.now().plusDays(2), false, Status.CREATED,
+                        LocalDateTime.now().plusDays(2), false, TaskStatus.CREATED,
                         jane.getId(), null, null);
 
                 Task task3 = new Task(null, "Deploy to staging",
                         "Deploy the latest changes to the staging environment",
-                        LocalDateTime.now().plusDays(3), false, Status.CREATED,
+                        LocalDateTime.now().plusDays(3), false, TaskStatus.CREATED,
                         admin.getId(), null, null);
 
                 List<Task> tasks = Arrays.asList(task1, task2, task3);

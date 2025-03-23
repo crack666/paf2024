@@ -15,7 +15,7 @@ class TaskTest {
         String title = "Test Task";
         LocalDateTime dueDate = LocalDateTime.now().plusDays(1);
         int assignedUserId = 100;
-        Status status = Status.CREATED;
+        TaskStatus taskStatus = TaskStatus.CREATED;
 
         // Act
         Task task = new Task(1, title, "Description 1", dueDate, assignedUserId, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
@@ -25,7 +25,7 @@ class TaskTest {
         assertEquals(title, task.getTitle());
         assertEquals(dueDate, task.getDueDate());
         assertEquals(assignedUserId, task.getAssignedUserId());
-        assertEquals(status, task.getStatus());
+        assertEquals(taskStatus, task.getStatus());
         assertFalse(task.isCompleted());
         assertNotNull(task.getCreatedAt());
         assertNotNull(task.getDescription());
@@ -41,14 +41,14 @@ class TaskTest {
         String description = "This is a test task";
         LocalDateTime dueDate = LocalDateTime.now().plusDays(1);
         boolean isCompleted = false;
-        Status status = Status.CREATED;
+        TaskStatus taskStatus = TaskStatus.CREATED;
         int assignedUserId = 100;
         String taskClassName = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask";
         LocalDateTime scheduledTime = LocalDateTime.now().plusHours(1);
 
         // Act
         Task task = new Task(id, title, description, dueDate, isCompleted,
-                status, assignedUserId, taskClassName, scheduledTime);
+                taskStatus, assignedUserId, taskClassName, scheduledTime);
 
         // Assert
         assertEquals(id, task.getId());
@@ -56,7 +56,7 @@ class TaskTest {
         assertEquals(description, task.getDescription());
         assertEquals(dueDate, task.getDueDate());
         assertEquals(isCompleted, task.isCompleted());
-        assertEquals(status, task.getStatus());
+        assertEquals(taskStatus, task.getStatus());
         assertEquals(assignedUserId, task.getAssignedUserId());
         assertEquals(taskClassName, task.getTaskClassName());
         assertEquals(scheduledTime, task.getScheduledTime());
@@ -76,7 +76,7 @@ class TaskTest {
 
         // Assert
         assertTrue(task.isCompleted());
-        assertEquals(Status.DONE, task.getStatus());
+        assertEquals(TaskStatus.DONE, task.getStatus());
     }
 
     @Test
@@ -86,16 +86,16 @@ class TaskTest {
         String newTitle = "Updated Task";
         String newDescription = "Updated description";
         LocalDateTime newDueDate = LocalDateTime.now().plusDays(2);
-        Status newStatus = Status.QUEUED;
+        TaskStatus newTaskStatus = TaskStatus.QUEUED;
 
         // Act
-        task.updateDetails(newTitle, newDescription, newDueDate, newStatus);
+        task.updateDetails(newTitle, newDescription, newDueDate, newTaskStatus);
 
         // Assert
         assertEquals(newTitle, task.getTitle());
         assertEquals(newDescription, task.getDescription());
         assertEquals(newDueDate, task.getDueDate());
-        assertEquals(newStatus, task.getStatus());
+        assertEquals(newTaskStatus, task.getStatus());
         assertNotNull(task.getUpdatedAt());
     }
 

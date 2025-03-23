@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -119,7 +119,7 @@ public class TaskQueueService {
         }
 
         // Save the task with the RUNNING status
-        task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), Status.RUNNING);
+        task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), TaskStatus.RUNNING);
         taskRepository.save(task);
 
         // Notify that task status is now RUNNING (if WebSocket controller is available)

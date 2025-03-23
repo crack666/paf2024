@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.tasks.CalculatePiTask;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ public class TaskProcessorServiceTest {
                 "Description",
                 LocalDateTime.now().plusDays(1),
                 false,
-                Status.CREATED,
+                TaskStatus.CREATED,
                 1,
                 taskClassName,
                 null
@@ -69,8 +69,8 @@ public class TaskProcessorServiceTest {
         when(taskService.findById(1)).thenReturn(Optional.of(testTask));
         when(taskService.updateTask(anyInt(), any(), any(), any(), any()))
                 .thenAnswer(invocation -> {
-                    Status status = invocation.getArgument(4);
-                    testTask.updateDetails(testTask.getTitle(), testTask.getDescription(), testTask.getDueDate(), status);
+                    TaskStatus taskStatus = invocation.getArgument(4);
+                    testTask.updateDetails(testTask.getTitle(), testTask.getDescription(), testTask.getDueDate(), taskStatus);
                     return testTask;
                 });
 
@@ -87,7 +87,7 @@ public class TaskProcessorServiceTest {
 
         // Verify task was executed
         assertNotNull(result, "Task execution result should not be null");
-        assertEquals(Status.DONE, result.getStatus(), "Task status should be DONE");
+        assertEquals(TaskStatus.DONE, result.getStatus(), "Task status should be DONE");
         assertNotNull(result.getResult(), "Task should have a result");
 
         // Verify interactions
@@ -106,7 +106,7 @@ public class TaskProcessorServiceTest {
 
         // Verify task was executed
         assertNotNull(result, "Task execution result should not be null");
-        assertEquals(Status.DONE, result.getStatus(), "Task status should be DONE");
+        assertEquals(TaskStatus.DONE, result.getStatus(), "Task status should be DONE");
         assertNotNull(result.getResult(), "Task should have a result");
 
         // Verify interactions
@@ -130,7 +130,7 @@ public class TaskProcessorServiceTest {
                     "Description " + i,
                     LocalDateTime.now().plusDays(1),
                     false,
-                    Status.CREATED,
+                    TaskStatus.CREATED,
                     1,
                     taskClassName,
                     null
@@ -161,7 +161,7 @@ public class TaskProcessorServiceTest {
         for (CompletableFuture<Task> future : futures) {
             Task result = future.get();
             assertNotNull(result, "Task execution result should not be null");
-            assertEquals(Status.DONE, result.getStatus(), "Task status should be DONE");
+            assertEquals(TaskStatus.DONE, result.getStatus(), "Task status should be DONE");
             assertNotNull(result.getResult(), "Task should have a result");
         }
     }

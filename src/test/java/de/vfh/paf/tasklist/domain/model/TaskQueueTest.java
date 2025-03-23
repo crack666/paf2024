@@ -48,7 +48,7 @@ class TaskQueueTest {
         assertEquals(task1, dequeuedTask);
         assertEquals(1, taskQueue.getTasks().size());
         assertEquals(task2, taskQueue.peekNextTask());
-        assertEquals(Status.RUNNING, dequeuedTask.getStatus());
+        assertEquals(TaskStatus.RUNNING, dequeuedTask.getStatus());
 
         // Act - Dequeue another task
         dequeuedTask = taskQueue.dequeueTask();
@@ -57,7 +57,7 @@ class TaskQueueTest {
         assertEquals(task2, dequeuedTask);
         assertEquals(0, taskQueue.getTasks().size());
         assertNull(taskQueue.peekNextTask());
-        assertEquals(Status.RUNNING, dequeuedTask.getStatus());
+        assertEquals(TaskStatus.RUNNING, dequeuedTask.getStatus());
     }
 
     @Test

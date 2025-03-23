@@ -5,7 +5,7 @@ import de.vfh.paf.tasklist.application.dto.TaskProgressDTO;
 import de.vfh.paf.tasklist.application.dto.TaskTypeDTO;
 import de.vfh.paf.tasklist.application.service.TaskManagerService;
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.service.TaskFactory;
 import de.vfh.paf.tasklist.domain.service.TaskProcessorService;
@@ -133,7 +133,7 @@ public class TaskController {
                 taskDTO.getTitle(),
                 taskDTO.getDescription(),
                 taskDTO.getDueDate(),
-                taskDTO.getStatus()
+                taskDTO.getTaskStatus()
         );
 
         if (updatedTask == null) {
@@ -214,17 +214,17 @@ public class TaskController {
     })
     public ResponseEntity<List<TaskDTO>> getAllTasks(
             @Parameter(description = "Filter tasks by status (optional)")
-            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) TaskStatus taskStatus,
             @Parameter(description = "Filter tasks by user ID (optional)")
             @RequestParam(required = false) Integer userId) {
 
         List<Task> tasks;
 
         // Apply filters based on provided parameters
-        if (status != null && userId != null) {
-            tasks = taskService.findByUserIdAndStatus(userId, status);
-        } else if (status != null) {
-            tasks = taskService.findByStatus(status);
+        if (taskStatus != null && userId != null) {
+            tasks = taskService.findByUserIdAndStatus(userId, taskStatus);
+        } else if (taskStatus != null) {
+            tasks = taskService.findByStatus(taskStatus);
         } else if (userId != null) {
             tasks = taskService.findByUserId(userId);
         } else {
@@ -357,10 +357,10 @@ public class TaskController {
     /**
      * Gets all tasks with a specific status.
      *
-     * @param status Task status
+     * @param taskStatus Task status
      * @return List of tasks with the specified status
      */
-    @GetMapping("/status/{status}")
+    @GetMapping("/status/{taskStatus}")
     @Operation(summary = "Get tasks by status",
             description = "Retrieves all tasks with the specified status")
     @ApiResponses(value = {
@@ -368,9 +368,9 @@ public class TaskController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDTO.class))))
     })
     public ResponseEntity<List<TaskDTO>> getTasksByStatus(
-            @Parameter(description = "Task status", required = true) @PathVariable Status status) {
+            @Parameter(description = "Task status", required = true) @PathVariable TaskStatus taskStatus) {
 
-        List<Task> tasks = taskService.findByStatus(status);
+        List<Task> tasks = taskService.findByStatus(taskStatus);
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());

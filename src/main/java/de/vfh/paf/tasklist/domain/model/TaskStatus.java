@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * changes based on its current state.
  */
 @Schema(description = "Task status representing its current state in the lifecycle")
-public enum Status {
+public enum TaskStatus {
     @Schema(description = "Task has been created but not yet started or queued")
     CREATED,
 

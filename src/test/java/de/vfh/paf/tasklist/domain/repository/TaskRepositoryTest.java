@@ -1,6 +1,6 @@
 package de.vfh.paf.tasklist.domain.repository;
 
-import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,14 +32,14 @@ class TaskRepositoryTest {
         task1.setTitle("Task 1");
         task1.setDueDate(LocalDateTime.now().plusDays(1));
         task1.setAssignedUserId(100);
-        task1.setStatus(Status.CREATED);
+        task1.setStatus(TaskStatus.CREATED);
         task1.setCreatedAt(LocalDateTime.now());
 
         task2 = new Task();
         task2.setTitle("Task 2");
         task2.setDueDate(LocalDateTime.now().plusDays(2));
         task2.setAssignedUserId(100);
-        task2.setStatus(Status.CREATED);
+        task2.setStatus(TaskStatus.CREATED);
         task2.setCreatedAt(LocalDateTime.now());
 
         task1 = taskRepository.save(task1);
@@ -53,7 +53,7 @@ class TaskRepositoryTest {
         newTask.setTitle("New Task");
         newTask.setDueDate(LocalDateTime.now().plusDays(3));
         newTask.setAssignedUserId(200);
-        newTask.setStatus(Status.CREATED);
+        newTask.setStatus(TaskStatus.CREATED);
         newTask.setCreatedAt(LocalDateTime.now());
 
         // Act
@@ -90,7 +90,7 @@ class TaskRepositoryTest {
         task3.setTitle("Task 3");
         task3.setDueDate(LocalDateTime.now().plusDays(3));
         task3.setAssignedUserId(200);
-        task3.setStatus(Status.CREATED);
+        task3.setStatus(TaskStatus.CREATED);
         task3.setCreatedAt(LocalDateTime.now());
         taskRepository.save(task3);
 
@@ -111,7 +111,7 @@ class TaskRepositoryTest {
         dependency.setTitle("Dependency Task");
         dependency.setDueDate(LocalDateTime.now().plusDays(1));
         dependency.setAssignedUserId(100);
-        dependency.setStatus(Status.CREATED);
+        dependency.setStatus(TaskStatus.CREATED);
         dependency.setCreatedAt(LocalDateTime.now());
         dependency = taskRepository.save(dependency);
 
@@ -139,7 +139,7 @@ class TaskRepositoryTest {
         overdueTask1.setDueDate(now.minusDays(1));
         overdueTask1.setAssignedUserId(100);
         overdueTask1.setCompleted(false);
-        overdueTask1.setStatus(Status.CREATED);
+        overdueTask1.setStatus(TaskStatus.CREATED);
         overdueTask1.setCreatedAt(LocalDateTime.now());
 
         Task overdueTask2 = new Task();
@@ -147,7 +147,7 @@ class TaskRepositoryTest {
         overdueTask2.setDueDate(now.minusHours(2));
         overdueTask2.setAssignedUserId(100);
         overdueTask2.setCompleted(false);
-        overdueTask2.setStatus(Status.CREATED);
+        overdueTask2.setStatus(TaskStatus.CREATED);
         overdueTask2.setCreatedAt(LocalDateTime.now());
 
         taskRepository.save(overdueTask1);
