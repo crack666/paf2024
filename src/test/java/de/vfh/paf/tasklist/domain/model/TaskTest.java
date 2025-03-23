@@ -26,7 +26,6 @@ class TaskTest {
         assertEquals(dueDate, task.getDueDate());
         assertEquals(assignedUserId, task.getAssignedUserId());
         assertEquals(taskStatus, task.getStatus());
-        assertFalse(task.isCompleted());
         assertNotNull(task.getCreatedAt());
         assertNotNull(task.getDescription());
         assertNotNull(task.getDependencies());
@@ -40,22 +39,19 @@ class TaskTest {
         String title = "Test Task";
         String description = "This is a test task";
         LocalDateTime dueDate = LocalDateTime.now().plusDays(1);
-        boolean isCompleted = false;
         TaskStatus taskStatus = TaskStatus.CREATED;
         int assignedUserId = 100;
         String taskClassName = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask";
         LocalDateTime scheduledTime = LocalDateTime.now().plusHours(1);
 
         // Act
-        Task task = new Task(id, title, description, dueDate, isCompleted,
-                taskStatus, assignedUserId, taskClassName, scheduledTime);
+        Task task = new Task(id, title, description, dueDate, taskStatus, assignedUserId, taskClassName, scheduledTime);
 
         // Assert
         assertEquals(id, task.getId());
         assertEquals(title, task.getTitle());
         assertEquals(description, task.getDescription());
         assertEquals(dueDate, task.getDueDate());
-        assertEquals(isCompleted, task.isCompleted());
         assertEquals(taskStatus, task.getStatus());
         assertEquals(assignedUserId, task.getAssignedUserId());
         assertEquals(taskClassName, task.getTaskClassName());
@@ -69,13 +65,12 @@ class TaskTest {
     void shouldMarkTaskAsComplete() {
         // Arrange
         Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), null, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        assertFalse(task.isCompleted());
+        assertEquals(TaskStatus.CREATED, task.getStatus());
 
         // Act
         task.markComplete();
 
         // Assert
-        assertTrue(task.isCompleted());
         assertEquals(TaskStatus.DONE, task.getStatus());
     }
 

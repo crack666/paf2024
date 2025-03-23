@@ -9,13 +9,12 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: update # create
+      ddl-auto: create-drop #update # create
       enable_lazy_load_no_trans: true # lazy loading
       naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
       database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     driverClassName: org.postgresql.Driver
-    platform: postgres
     url: "jdbc:postgresql://localhost:5432/paf2024"
     username: paf2024
     password: paf2024
@@ -23,11 +22,14 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+  sql:
+    init:
+      platform: postgres
 
 logging.level.org:
-  springframework.web: DEBUG
-  springframework.jps: INFO
-  hibernate: INFO
+  springframework.web: ERROR
+  springframework.jpa: ERROR
+  hibernate: ERROR
 
 project-name: PaF 2024 (Test - Profile dev)
 #product.persistence.class: ProductFilePersistence

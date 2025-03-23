@@ -33,9 +33,6 @@ public class TaskDTO {
     @Schema(description = "Due date and time for the task", example = "2025-12-31T23:59:59")
     private LocalDateTime dueDate;
 
-    @Schema(description = "Whether the task has been completed", example = "false")
-    private boolean completed;
-
     @Schema(description = "Current status of the task", example = "IN_PROGRESS")
     private TaskStatus taskStatus;
 
@@ -75,7 +72,6 @@ public class TaskDTO {
         this.title = task.getTitle();
         this.description = task.getDescription();
         this.dueDate = task.getDueDate();
-        this.completed = task.isCompleted();
         this.taskStatus = task.getStatus();
 
         // Safely handle dependencies to avoid LazyInitializationException

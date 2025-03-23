@@ -92,19 +92,17 @@ class TaskServiceTest {
     void shouldCompleteTask() {
         // Arrange
         Task task = taskService.createRunnableTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        assertFalse(task.isCompleted());
+        assertNotEquals(TaskStatus.DONE, task.getStatus());
 
         // Act
         Task completedTask = taskService.completeTask(task.getId());
 
         // Assert
-        assertTrue(completedTask.isCompleted());
         assertEquals(TaskStatus.DONE, completedTask.getStatus());
 
         // Verify task was updated in repository
         Optional<Task> savedTask = taskRepository.findById(task.getId());
         assertTrue(savedTask.isPresent());
-        assertTrue(savedTask.get().isCompleted());
     }
 
     @Test

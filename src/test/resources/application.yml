@@ -4,27 +4,27 @@ server:
     context-path: /api
 
 spring:
-  profiles:
-    active=dev: dev
   jpa:
-    database: H2
+    database: POSTGRESQL
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: create # update
+      ddl-auto: create-drop #update # create
       enable_lazy_load_no_trans: true # lazy loading
       naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
-      database-platform: org.hibernate.dialect.H2Dialect
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    driverClassName: org.h2.Driver
-    platform: h2
-    url: "jdbc:h2:mem:pafTestDB"
+    driverClassName: org.postgresql.Driver
+    url: "jdbc:postgresql://localhost:5432/paf2024"
     username: paf2024
     password: paf2024
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+  sql:
+    init:
+      platform: postgres
 
 logging.level:
   org:

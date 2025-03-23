@@ -1,6 +1,7 @@
 package de.vfh.paf.tasklist.infrastructure.persistence;
 
 import de.vfh.paf.tasklist.domain.model.Task;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -40,7 +41,7 @@ public class TaskRepositoryInMemory implements TaskRepository {
     @Override
     public List<Task> findOverdueTasks(LocalDateTime currentTime) {
         return tasks.values().stream()
-                .filter(task -> !task.isCompleted() && task.getDueDate() != null && task.getDueDate().isBefore(currentTime))
+                .filter(task -> task.getStatus() != TaskStatus.DONE && task.getDueDate() != null && task.getDueDate().isBefore(currentTime))
                 .collect(Collectors.toList());
     }
 

@@ -138,7 +138,6 @@ class TaskRepositoryTest {
         overdueTask1.setTitle("Overdue Task 1");
         overdueTask1.setDueDate(now.minusDays(1));
         overdueTask1.setAssignedUserId(100);
-        overdueTask1.setCompleted(false);
         overdueTask1.setStatus(TaskStatus.CREATED);
         overdueTask1.setCreatedAt(LocalDateTime.now());
 
@@ -146,7 +145,6 @@ class TaskRepositoryTest {
         overdueTask2.setTitle("Overdue Task 2");
         overdueTask2.setDueDate(now.minusHours(2));
         overdueTask2.setAssignedUserId(100);
-        overdueTask2.setCompleted(false);
         overdueTask2.setStatus(TaskStatus.CREATED);
         overdueTask2.setCreatedAt(LocalDateTime.now());
 

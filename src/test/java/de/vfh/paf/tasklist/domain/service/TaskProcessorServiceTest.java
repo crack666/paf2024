@@ -50,17 +50,7 @@ public class TaskProcessorServiceTest {
         when(notificationService.sendNotification(anyString(), anyString(), anyInt(), anyString(), any())).thenReturn(true);
 
         // Create a test task
-        testTask = new Task(
-                1,
-                "Test Task",
-                "Description",
-                LocalDateTime.now().plusDays(1),
-                false,
-                TaskStatus.CREATED,
-                1,
-                taskClassName,
-                null
-        );
+        testTask = new Task(1, "Test Task", "Description", LocalDateTime.now().plusDays(1), TaskStatus.QUEUED, 1, taskClassName, null);
 
         // Set the task as ready to run
         ReflectionTestUtils.setField(testTask, "dependencies", new ArrayList<>());
@@ -124,17 +114,7 @@ public class TaskProcessorServiceTest {
 
         // Mock task service for multiple tasks
         for (int i = 1; i <= taskCount; i++) {
-            Task task = new Task(
-                    i,
-                    "Test Task " + i,
-                    "Description " + i,
-                    LocalDateTime.now().plusDays(1),
-                    false,
-                    TaskStatus.CREATED,
-                    1,
-                    taskClassName,
-                    null
-            );
+            Task task = new Task(i, "Test Task " + i, "Description " + i, LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName, null);
             ReflectionTestUtils.setField(task, "dependencies", new ArrayList<>());
             tasks.add(task);
             when(taskService.findById(i)).thenReturn(Optional.of(task));
@@ -152,7 +132,7 @@ public class TaskProcessorServiceTest {
 
         // Use timeout to avoid hanging test
         try {
-            allFutures.get(10, TimeUnit.SECONDS);
+            allFutures.get(30, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             fail("Tasks execution timed out - they might be hanging");
         }

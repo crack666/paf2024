@@ -33,12 +33,7 @@ public class Task {
     @Setter
     @Getter
     @Column(name = "due_date")
-    private LocalDateTime dueDate;
-
-    @Setter
-    @Getter
-    @Column(name = "is_completed")
-    private boolean completed;
+    private LocalDateTime dueDate; // Time when the task should be executed
 
     @Setter
     @Getter
@@ -98,10 +93,8 @@ public class Task {
      * @param taskClassName  The class name of the task implementation
      * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate,
-                Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
-        this(id, title, description, dueDate, false, TaskStatus.CREATED,
-                assignedUserId, taskClassName, scheduledTime);
+    public Task(Integer id, String title, String description, LocalDateTime dueDate, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
+        this(id, title, description, dueDate, TaskStatus.CREATED, assignedUserId, taskClassName, scheduledTime);
     }
 
     /**
@@ -111,19 +104,17 @@ public class Task {
      * @param title          The title of the task
      * @param description    The description of the task
      * @param dueDate        The due date for the task
-     * @param isCompleted    Whether the task is completed
      * @param taskStatus     The status of the task
      * @param assignedUserId The ID of the user assigned to the task
      * @param taskClassName  The class name of the task implementation
      * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate, boolean isCompleted,
-                TaskStatus taskStatus, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
+    public Task(Integer id, String title, String description, LocalDateTime dueDate, TaskStatus taskStatus, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
+        if (taskClassName == null) { throw new IllegalArgumentException("Task class name must not be null"); }
         this.id = id;
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
-        this.completed = isCompleted;
         this.createdAt = LocalDateTime.now();
         this.taskStatus = taskStatus;
         this.assignedUserId = assignedUserId;
@@ -135,7 +126,6 @@ public class Task {
      * Marks the task as complete and updates its status.
      */
     public void markComplete() {
-        this.completed = true;
         this.taskStatus = TaskStatus.DONE;
         this.updatedAt = LocalDateTime.now();
     }
@@ -201,8 +191,8 @@ public class Task {
      * @return true if the task is ready to run, false otherwise
      */
     public boolean isReadyToRun() {
-        if (completed) {
-            System.out.println("Task " + id + " not ready: completed");
+        if (taskStatus != TaskStatus.QUEUED) {
+            System.out.println("Task " + id + " not ready: status is " + taskStatus);
             return false;
         }
         if (taskClassName == null) {
@@ -214,7 +204,7 @@ public class Task {
             return false;
         }
 
-        if (completed || taskClassName == null) {
+        if (taskStatus != TaskStatus.QUEUED || taskClassName == null) {
             return false;
         }
 
@@ -225,8 +215,7 @@ public class Task {
         try {
             // Only check dependencies if they're initialized
             if (org.hibernate.Hibernate.isInitialized(dependencies)) {
-                return dependencies.stream()
-                        .allMatch(Task::isCompleted);
+                return dependencies.stream().allMatch(dependency -> dependency.getStatus() == TaskStatus.DONE);
             } else {
                 // If dependencies aren't loaded, consider the task ready
                 // The database will enforce foreign key constraints

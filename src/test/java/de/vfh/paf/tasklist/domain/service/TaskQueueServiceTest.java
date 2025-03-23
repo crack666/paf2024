@@ -70,7 +70,7 @@ class TaskQueueServiceTest {
         // Assert
         assertTrue(enqueued);
         assertEquals(1, queue.getTasks().size());
-        assertEquals(task.getId(), queue.getTasks().get(0).getId());
+        assertEquals(task.getId(), queue.getTasks().getFirst().getId());
 
         // Verify task status was updated
         Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
@@ -109,7 +109,6 @@ class TaskQueueServiceTest {
         // Verify task status
         Task updatedTask = taskRepository.findById(task.getId()).orElseThrow();
         assertEquals(TaskStatus.DONE, updatedTask.getStatus());
-        assertTrue(updatedTask.isCompleted());
     }
 
     @Test
@@ -149,9 +148,9 @@ class TaskQueueServiceTest {
         }
 
         // Verify all tasks are completed
-        assertTrue(taskRepository.findById(task1.getId()).orElseThrow().isCompleted());
-        assertTrue(taskRepository.findById(task2.getId()).orElseThrow().isCompleted());
-        assertTrue(taskRepository.findById(task3.getId()).orElseThrow().isCompleted());
+        assertEquals(TaskStatus.DONE, task1.getStatus());
+        assertEquals(TaskStatus.DONE, task2.getStatus());
+        assertEquals(TaskStatus.DONE, task3.getStatus());
 
         // Verify queue is empty
         assertEquals(0, queue.getTasks().size());

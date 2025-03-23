@@ -38,6 +38,6 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
      * @param currentTime The current time to compare with task due dates
      * @return A list of overdue tasks
      */
-    @Query("SELECT t FROM Task t WHERE t.completed = false AND t.dueDate < :currentTime")
+    @Query("SELECT t FROM Task t WHERE t.taskStatus <> 'DONE' AND t.dueDate < :currentTime")
     List<Task> findOverdueTasks(@Param("currentTime") LocalDateTime currentTime);
 }

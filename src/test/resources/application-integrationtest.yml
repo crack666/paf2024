@@ -15,7 +15,6 @@ spring:
       database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     driverClassName: org.postgresql.Driver
-    platform: postgres
     url: "jdbc:postgresql://localhost:5432/paf2024"
     username: paf2024
     password: paf2024
@@ -23,6 +22,9 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+  sql:
+    init:
+      platform: postgres
 
 logging.level.org:
   springframework.web: DEBUG

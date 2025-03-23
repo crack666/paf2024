@@ -67,11 +67,11 @@ public class TaskListStartupRunner implements ApplicationRunner {
         // Create tasks
         Task task1 = taskService.createRunnableTask("Calculate Pi",
                 "Calculate Pi to 1000 decimal places",
-                LocalDateTime.now().plusMinutes(1), userId, "", LocalDateTime.now().plusMinutes(1));
+                LocalDateTime.now().plusMinutes(1), userId, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now().plusMinutes(1));
 
         Task task2 = taskService.createRunnableTask("Generate Report",
                 "Generate monthly sales report",
-                LocalDateTime.now().plusMinutes(2), userId, "", LocalDateTime.now().plusMinutes(1));
+                LocalDateTime.now().plusMinutes(2), userId, "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask", LocalDateTime.now().plusMinutes(1));
 
         // Create dependencies
         log.info("Setting up task dependencies");

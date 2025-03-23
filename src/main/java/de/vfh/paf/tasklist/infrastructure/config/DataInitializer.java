@@ -40,20 +40,14 @@ public class DataInitializer {
                 userRepository.saveAll(users);
 
                 // Create tasks
-                Task task1 = new Task(null, "Complete project plan",
-                        "Create a comprehensive project plan for the Q2 release",
-                        LocalDateTime.now().plusDays(5), false, TaskStatus.CREATED,
-                        john.getId(), null, null);
+                Task task1 = new Task(null, "Calculate Pi Demo Task","Create a comprehensive project plan for the Q2 release",
+                        LocalDateTime.now().plusDays(5), TaskStatus.CREATED, john.getId(), "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
 
-                Task task2 = new Task(null, "Review code changes",
-                        "Code review for the authentication module PR",
-                        LocalDateTime.now().plusDays(2), false, TaskStatus.CREATED,
-                        jane.getId(), null, null);
+                Task task2 = new Task(null, "Generate Sales Report","type=Sales",
+                        LocalDateTime.now().plusDays(2), TaskStatus.CREATED, jane.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask", LocalDateTime.now());
 
-                Task task3 = new Task(null, "Deploy to staging",
-                        "Deploy the latest changes to the staging environment",
-                        LocalDateTime.now().plusDays(3), false, TaskStatus.CREATED,
-                        admin.getId(), null, null);
+                Task task3 = new Task(null, "Generate Performance Report","type=Performance",
+                        LocalDateTime.now().plusDays(3), TaskStatus.CREATED, admin.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask", LocalDateTime.now());
 
                 List<Task> tasks = Arrays.asList(task1, task2, task3);
                 taskRepository.saveAll(tasks);
@@ -67,15 +61,11 @@ public class DataInitializer {
                         "NORMAL", "WELCOME", john.getId(), null);
                 notification1.send();
 
-                Notification notification2 = new Notification(null, "New task assigned to you",
+                Notification notification2 = new Notification(null, "Create a new task to get going!",
                         "HIGH", "TASK_ASSIGNED", jane.getId(), task2.getId());
                 notification2.send();
 
-                Notification notification3 = new Notification(null, "System maintenance scheduled for next weekend",
-                        "NORMAL", "SYSTEM", admin.getId(), null);
-                notification3.send();
-
-                List<Notification> notifications = Arrays.asList(notification1, notification2, notification3);
+                List<Notification> notifications = Arrays.asList(notification1, notification2);
                 notificationRepository.saveAll(notifications);
 
                 System.out.println("Initialized sample data with " + users.size() + " users, " +

@@ -204,6 +204,7 @@ public class TaskProcessorService {
             // Load the result back into the completed task
             completedTask.setResult(result);
 
+            logger.error("TASK_COMPLETED notification for: {}", completedTask.getId());
             // Send notification that task has completed
             notificationService.sendNotification(
                     "TASK_COMPLETED",
