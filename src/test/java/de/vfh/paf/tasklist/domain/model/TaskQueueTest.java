@@ -30,8 +30,8 @@ class TaskQueueTest {
     void shouldEnqueueAndDequeueTask() {
         // Arrange
         TaskQueue taskQueue = new TaskQueue(1, "FIFO Queue");
-        Task task1 = new Task(1, "Task 1", LocalDateTime.now().plusDays(1), 100);
-        Task task2 = new Task(2, "Task 2", LocalDateTime.now().plusDays(2), 100);
+        Task task1 = new Task(1, "Task 1", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
+        Task task2 = new Task(2, "Task 2", "Description 2", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
 
         // Act - Enqueue tasks
         taskQueue.enqueueTask(task1);
@@ -64,8 +64,9 @@ class TaskQueueTest {
     void shouldRemoveTaskById() {
         // Arrange
         TaskQueue taskQueue = new TaskQueue(1, "Test Queue");
-        Task task1 = new Task(1, "Task 1", LocalDateTime.now().plusDays(1), 100);
-        Task task2 = new Task(2, "Task 2", LocalDateTime.now().plusDays(2), 100);
+        Task task1 = new Task(1, "Task 1", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
+        Task task2 = new Task(2, "Task 2", "Description 2", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
+
         taskQueue.enqueueTask(task1);
         taskQueue.enqueueTask(task2);
 
@@ -89,9 +90,13 @@ class TaskQueueTest {
     void shouldReorderTasksByDueDate() {
         // Arrange
         TaskQueue taskQueue = new TaskQueue(1, "Priority Queue");
-        Task task1 = new Task(1, "Task 1", LocalDateTime.now().plusDays(3), 100);
-        Task task2 = new Task(2, "Task 2", LocalDateTime.now().plusDays(1), 100);
-        Task task3 = new Task(3, "Task 3", LocalDateTime.now().plusDays(2), 100);
+        Task task1 = new Task(1, "Task 1 -- Third", "Description 1", LocalDateTime.now().plusDays(3), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
+        Task task2 = new Task(2, "Task 2 -- First", "Description 2", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
+        Task task3 = new Task(3, "Task 3 -- Second", "Description 3", LocalDateTime.now().plusDays(2), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
+
         taskQueue.enqueueTask(task1);
         taskQueue.enqueueTask(task2);
         taskQueue.enqueueTask(task3);

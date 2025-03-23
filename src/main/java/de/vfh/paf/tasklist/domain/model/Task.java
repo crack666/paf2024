@@ -65,18 +65,6 @@ public class Task {
     }
 
     /**
-     * Creates a new task with the required fields.
-     *
-     * @param id             The unique identifier for the task
-     * @param title          The title of the task
-     * @param dueDate        The due date for the task
-     * @param assignedUserId The ID of the user assigned to the task
-     */
-    public Task(Integer id, String title, LocalDateTime dueDate, Integer assignedUserId) {
-        this(id, title, null, dueDate, false, Status.CREATED, assignedUserId, null, null);
-    }
-
-    /**
      * Creates a new task with essential fields including the task class.
      *
      * @param id             The unique identifier for the task

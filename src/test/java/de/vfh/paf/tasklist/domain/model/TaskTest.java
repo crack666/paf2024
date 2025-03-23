@@ -18,7 +18,7 @@ class TaskTest {
         Status status = Status.CREATED;
 
         // Act
-        Task task = new Task(id, title, dueDate, assignedUserId);
+        Task task = new Task(1, title, "Description 1", dueDate, assignedUserId,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
 
         // Assert
         assertEquals(id, task.getId());
@@ -28,7 +28,7 @@ class TaskTest {
         assertEquals(status, task.getStatus());
         assertFalse(task.isCompleted());
         assertNotNull(task.getCreatedAt());
-        assertNull(task.getDescription());
+        assertNotNull(task.getDescription());
         assertNotNull(task.getDependencies());
         assertTrue(task.getDependencies().isEmpty());
     }
@@ -68,7 +68,7 @@ class TaskTest {
     @Test
     void shouldMarkTaskAsComplete() {
         // Arrange
-        Task task = new Task(1, "Test Task", LocalDateTime.now().plusDays(1), 100);
+        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
         assertFalse(task.isCompleted());
 
         // Act
@@ -82,7 +82,7 @@ class TaskTest {
     @Test
     void shouldUpdateTaskDetails() {
         // Arrange
-        Task task = new Task(1, "Test Task", LocalDateTime.now().plusDays(1), 100);
+        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
         String newTitle = "Updated Task";
         String newDescription = "Updated description";
         LocalDateTime newDueDate = LocalDateTime.now().plusDays(2);
@@ -102,8 +102,9 @@ class TaskTest {
     @Test
     void shouldAddAndRemoveDependency() {
         // Arrange
-        Task task = new Task(1, "Test Task", LocalDateTime.now().plusDays(1), 100);
-        Task dependency = new Task(2, "Dependency Task", LocalDateTime.now().plusDays(1), 100);
+        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
+        Task dependency = new Task(2, "Dependency Task", "Description 1", LocalDateTime.now().plusDays(1), null,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",
+                LocalDateTime.now());
 
         // Act - Add dependency
         task.addDependency(dependency);

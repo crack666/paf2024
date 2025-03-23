@@ -2,6 +2,7 @@ package de.vfh.paf.tasklist.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ class UserTest {
     void shouldAddAndGetTask() {
         // Arrange
         User user = new User(1, "John Doe", "john.doe@example.com");
-        Task task = new Task(1, "Test Task", null, 1);
+        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), 1,  "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask",  LocalDateTime.now());
 
         // Act
         user.addTask(task);
