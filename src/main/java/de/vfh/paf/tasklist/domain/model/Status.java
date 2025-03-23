@@ -11,13 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public enum Status {
     @Schema(description = "Task has been created but not yet started or queued")
     CREATED,
-    
+
     @Schema(description = "Task is in a queue waiting to be processed")
     QUEUED,
-    
+
     @Schema(description = "Task is currently being processed")
     RUNNING,
-    
+
     @Schema(description = "Task has been completed successfully")
     DONE
 }

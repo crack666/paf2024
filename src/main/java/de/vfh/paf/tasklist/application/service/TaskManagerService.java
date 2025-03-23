@@ -29,11 +29,11 @@ public class TaskManagerService {
     /**
      * Creates a new task and adds it to a queue.
      *
-     * @param title Task title
+     * @param title       Task title
      * @param description Task description
-     * @param dueDate Task due date
-     * @param userId User ID
-     * @param queueId Queue ID
+     * @param dueDate     Task due date
+     * @param userId      User ID
+     * @param queueId     Queue ID
      * @return The created task
      */
     public Task createAndQueueTask(String title, String description, LocalDateTime dueDate, int userId, int queueId) {
@@ -45,29 +45,29 @@ public class TaskManagerService {
     /**
      * Checks if a task has dependencies that would create a deadlock.
      *
-     * @param taskId Task ID
+     * @param taskId       Task ID
      * @param dependencyId Dependency task ID
      * @return true if adding this dependency would create a deadlock
      */
     public boolean wouldCreateDeadlock(int taskId, int dependencyId) {
         // Temporarily add the dependency
         Task task = taskService.addDependency(taskId, dependencyId);
-        
+
         // Check for deadlocks
         boolean hasDeadlock = taskService.detectDeadlocks();
-        
+
         // If there's a deadlock, remove the dependency
         if (hasDeadlock) {
             taskService.removeDependency(taskId, dependencyId);
         }
-        
+
         return hasDeadlock;
     }
 
     /**
      * Processes all tasks in a queue with a given processor function.
      *
-     * @param queueId Queue ID
+     * @param queueId   Queue ID
      * @param processor Function to process each task
      * @return CompletableFuture containing the list of results
      */

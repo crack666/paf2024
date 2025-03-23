@@ -30,17 +30,17 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 @Tag(name = "User Management", description = "APIs for managing users in the system")
 public class UserController {
-    
+
     private final UserService userService;
     private final TaskService taskService;
     private final NotificationService notificationService;
-    
+
     public UserController(UserService userService, TaskService taskService, NotificationService notificationService) {
         this.userService = userService;
         this.taskService = taskService;
         this.notificationService = notificationService;
     }
-    
+
     /**
      * Gets all users in the system.
      *
@@ -56,10 +56,10 @@ public class UserController {
         List<UserDTO> userDTOs = userService.findAll().stream()
                 .map(UserDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(userDTOs);
     }
-    
+
     /**
      * Gets a user by ID.
      *
@@ -80,7 +80,7 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Creates a new user.
      *
@@ -96,19 +96,19 @@ public class UserController {
     })
     public ResponseEntity<UserDTO> createUser(
             @Parameter(description = "User details", required = true) @RequestBody UserDTO userDTO) {
-        
+
         User user = userService.createUser(
                 userDTO.getName(),
                 userDTO.getEmail()
         );
-        
+
         return ResponseEntity.ok(new UserDTO(user));
     }
-    
+
     /**
      * Updates a user.
      *
-     * @param id User ID
+     * @param id      User ID
      * @param userDTO User data
      * @return Updated user
      */
@@ -129,14 +129,14 @@ public class UserController {
                 userDTO.getName(),
                 userDTO.getEmail()
         );
-        
+
         if (updatedUser == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new UserDTO(updatedUser));
     }
-    
+
     /**
      * Gets all tasks assigned to a user.
      *
@@ -152,19 +152,19 @@ public class UserController {
     })
     public ResponseEntity<List<TaskDTO>> getUserTasks(
             @Parameter(description = "User ID", required = true) @PathVariable int id) {
-        
+
         if (userService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         List<Task> tasks = taskService.findByUserId(id);
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskDTOs);
     }
-    
+
     /**
      * Gets all notifications for a user.
      *
@@ -180,9 +180,9 @@ public class UserController {
     })
     public ResponseEntity<List<NotificationDTO>> getUserNotifications(
             @Parameter(description = "User ID", required = true) @PathVariable int id,
-            @Parameter(description = "Filter notifications by read status") 
+            @Parameter(description = "Filter notifications by read status")
             @RequestParam(required = false) Boolean read) {
-        
+
         if (userService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -204,7 +204,7 @@ public class UserController {
     /**
      * Marks a notification as read.
      *
-     * @param userId User ID
+     * @param userId         User ID
      * @param notificationId Notification ID
      * @return Updated notification
      */
@@ -218,13 +218,13 @@ public class UserController {
     public ResponseEntity<NotificationDTO> markNotificationAsRead(
             @Parameter(description = "User ID", required = true) @PathVariable int userId,
             @Parameter(description = "Notification ID", required = true) @PathVariable int notificationId) {
-        
+
         Notification notification = notificationService.markAsRead(userId, notificationId);
-        
+
         if (notification == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new NotificationDTO(notification));
     }
 }

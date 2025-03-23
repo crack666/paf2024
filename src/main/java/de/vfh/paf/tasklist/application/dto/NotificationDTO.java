@@ -18,31 +18,31 @@ public class NotificationDTO {
     // Getters and setters
     @Schema(description = "Unique identifier of the notification")
     private int id;
-    
+
     @Schema(description = "Message content")
     private String message;
-    
+
     @Schema(description = "Timestamp when the notification was created")
     private LocalDateTime timestamp;
-    
+
     @Schema(description = "Whether the notification has been read")
     private boolean read;
-    
+
     @Schema(description = "Notification urgency level")
     private String urgency;
-    
+
     @Schema(description = "Type of notification (e.g. TASK_CREATED, TASK_COMPLETED, TASK_OVERDUE)")
     private String type;
-    
+
     @Schema(description = "Related task ID, if applicable")
     private Integer relatedTaskId;
-    
+
     @Schema(description = "ID of the user this notification is for")
     private int userId;
-    
+
     public NotificationDTO() {
     }
-    
+
     public NotificationDTO(Notification notification) {
         this.id = notification.getId();
         this.message = notification.getMessage();

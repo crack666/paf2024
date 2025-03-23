@@ -13,7 +13,7 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepositoryJpaAdapter userRepository;
-    
+
     /**
      * Creates a new user service.
      *
@@ -23,11 +23,11 @@ public class UserService {
     public UserService(UserRepositoryJpaAdapter userRepository) {
         this.userRepository = userRepository;
     }
-    
+
     /**
      * Creates a new user.
      *
-     * @param name The name of the user
+     * @param name  The name of the user
      * @param email The email address of the user
      * @return The created user
      */
@@ -35,12 +35,12 @@ public class UserService {
         User user = new User(null, name, email); // null ID will be assigned by adapter
         return userRepository.save(user);
     }
-    
+
     /**
      * Updates a user.
      *
-     * @param id The ID of the user
-     * @param name The new name
+     * @param id    The ID of the user
+     * @param name  The new name
      * @param email The new email address
      * @return The updated user, or null if not found
      */
@@ -49,13 +49,13 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             return null;
         }
-        
+
         User user = optionalUser.get();
         user.updateContactInfo(name, email);
         userRepository.save(user);
         return user;
     }
-    
+
     /**
      * Finds a user by ID.
      *
@@ -65,7 +65,7 @@ public class UserService {
     public Optional<User> findById(int id) {
         return userRepository.findById(id);
     }
-    
+
     /**
      * Gets all users.
      *

@@ -9,27 +9,27 @@ public enum NotificationStatus {
      * Notification has been created but not yet sent.
      */
     CREATED,
-    
+
     /**
      * Notification has been sent to the messaging system but delivery is not confirmed.
      */
     SENT,
-    
+
     /**
      * Notification has been delivered to the client but not yet read.
      */
     DELIVERED,
-    
+
     /**
      * Notification has been read by the user.
      */
     READ,
-    
+
     /**
      * Notification has been archived by the user.
      */
     ARCHIVED;
-    
+
     /**
      * Checks if the notification can be transitioned to the given status.
      *
@@ -56,7 +56,7 @@ public enum NotificationStatus {
             default -> false;
         };
     }
-    
+
     /**
      * Checks if the notification is in a terminal state.
      *
@@ -65,7 +65,7 @@ public enum NotificationStatus {
     public boolean isTerminal() {
         return this == ARCHIVED;
     }
-    
+
     /**
      * Checks if the notification has been read.
      *
@@ -74,7 +74,7 @@ public enum NotificationStatus {
     public boolean isRead() {
         return this == READ || this == ARCHIVED;
     }
-    
+
     /**
      * Checks if the notification has been delivered or read.
      *

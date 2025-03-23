@@ -1,6 +1,7 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,13 +15,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
     private String name;
     private String email;
-    
+
     @Transient // Keep tasks transient for now to not disrupt existing functionality
     private List<Task> tasks = new ArrayList<>();
-    
+
     @Transient // Keep notifications transient for now to not disrupt existing functionality
     private List<Notification> notifications = new ArrayList<>();
 
@@ -29,12 +30,12 @@ public class User {
      */
     public User() {
     }
-    
+
     /**
      * Creates a new user.
      *
-     * @param id The unique identifier for the user
-     * @param name The name of the user
+     * @param id    The unique identifier for the user
+     * @param name  The name of the user
      * @param email The email address of the user
      */
     public User(Integer id, String name, String email) {
@@ -48,7 +49,7 @@ public class User {
     /**
      * Updates the user's contact information.
      *
-     * @param name The new name
+     * @param name  The new name
      * @param email The new email address
      */
     public void updateContactInfo(String name, String email) {
@@ -100,7 +101,7 @@ public class User {
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -108,7 +109,7 @@ public class User {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -116,7 +117,7 @@ public class User {
     public String getEmail() {
         return email;
     }
-    
+
     public void setEmail(String email) {
         this.email = email;
     }

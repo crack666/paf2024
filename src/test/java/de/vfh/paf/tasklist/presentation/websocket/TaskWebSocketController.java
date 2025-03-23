@@ -34,7 +34,7 @@ public class TaskWebSocketController {
     /**
      * Mock method that doesn't send any actual WebSocket messages.
      *
-     * @param task The task
+     * @param task   The task
      * @param result The result of the task execution
      */
     public void sendTaskResultUpdate(Task task, TaskResult result) {
@@ -43,10 +43,10 @@ public class TaskWebSocketController {
 
     /**
      * Mock method that doesn't send any actual WebSocket messages.
-     * 
+     *
      * @param queueId The ID of the queue that has been updated
-     * @param task The task that caused the update (can be null for general updates)
-     * @param action The action that occurred (e.g., "ADDED", "REMOVED", "STARTED", "COMPLETED")
+     * @param task    The task that caused the update (can be null for general updates)
+     * @param action  The action that occurred (e.g., "ADDED", "REMOVED", "STARTED", "COMPLETED")
      */
     public void sendQueueUpdate(int queueId, Task task, String action) {
         // Do nothing - this is a mock for testing

@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Integer> {
-    
+
     /**
      * Finds all tasks assigned to a specific user.
      *
@@ -22,7 +22,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
      * @return A list of tasks assigned to the user
      */
     List<Task> findAllByAssignedUserId(Integer userId);
-    
+
     /**
      * Finds all tasks that depend on a specific task.
      *
@@ -31,7 +31,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
      */
     @Query("SELECT t FROM Task t JOIN t.dependencies d WHERE d.id = :taskId")
     List<Task> findTasksByDependency(@Param("taskId") Integer taskId);
-    
+
     /**
      * Finds all tasks that are overdue.
      *

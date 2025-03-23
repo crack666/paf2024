@@ -32,7 +32,7 @@ public class NotificationWebSocketController {
     /**
      * Handles subscription to notifications from clients.
      * Returns the list of unread notifications for the requested user.
-     * 
+     *
      * @param message The message to be sent
      * @return List of notification payloads
      */
@@ -43,20 +43,20 @@ public class NotificationWebSocketController {
         if (userId == null) {
             return List.of();
         }
-        
+
         // Get unread notifications for the user
         List<Notification> notifications = notificationService.findByUserIdAndReadStatus(userId, false);
-        
+
         // Return as payload
         return notifications.stream()
                 .map(NotificationDTO::new)
                 .map(NotificationPayload::fromDto)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Marks a notification as read.
-     * 
+     *
      * @param message The message containing notificationId and userId
      * @return Acknowledgment message
      */
@@ -65,25 +65,25 @@ public class NotificationWebSocketController {
     public Map<String, Object> markNotificationAsRead(@Payload Map<String, Object> message) {
         Integer notificationId = (Integer) message.get("notificationId");
         Integer userId = (Integer) message.get("userId");
-        
+
         if (notificationId == null || userId == null) {
             return Map.of("success", false, "message", "Missing notification ID or user ID");
         }
-        
+
         Notification notification = notificationService.markAsRead(userId, notificationId);
         boolean success = notification != null;
-        
+
         return Map.of(
-            "success", success,
-            "notificationId", notificationId,
-            "message", success ? "Notification marked as read" : "Notification not found or unauthorized"
+                "success", success,
+                "notificationId", notificationId,
+                "message", success ? "Notification marked as read" : "Notification not found or unauthorized"
         );
     }
-    
+
     /**
      * Broadcasts a notification to all connected clients.
      * This method is primarily for testing purposes.
-     * 
+     *
      * @param message The message containing the notification details
      * @return The broadcast notification
      */
@@ -93,17 +93,17 @@ public class NotificationWebSocketController {
         String type = message.getOrDefault("type", "BROADCAST");
         String content = message.getOrDefault("message", "System broadcast message");
         String urgency = message.getOrDefault("urgency", "NORMAL");
-        
+
         // Use the service to broadcast (this will send the WebSocket message too)
         notificationService.broadcastSystemNotification(type, content, urgency);
-        
+
         // Create a simple payload for the response
         NotificationPayload payload = new NotificationPayload();
         payload.setMessage(content);
         payload.setType(type);
         payload.setUrgency(urgency);
         payload.setTimestamp(LocalDateTime.now());
-        
+
         return payload;
     }
 }

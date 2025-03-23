@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
-    
+
     /**
      * Finds all notifications for a specific user.
      *
@@ -23,7 +23,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
      * @return List of notifications for the user
      */
     List<Notification> findByUserId(Integer userId);
-    
+
     /**
      * Finds all notifications for a specific user with a certain read status.
      *
@@ -32,33 +32,33 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
      * @return List of notifications for the user with the specified read status
      */
     @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND " +
-           "((:isRead = true AND (n.status = 'READ' OR n.status = 'ARCHIVED')) OR " +
-           "(:isRead = false AND n.status != 'READ' AND n.status != 'ARCHIVED'))")
+            "((:isRead = true AND (n.status = 'READ' OR n.status = 'ARCHIVED')) OR " +
+            "(:isRead = false AND n.status != 'READ' AND n.status != 'ARCHIVED'))")
     List<Notification> findByUserIdAndReadStatus(@Param("userId") Integer userId, @Param("isRead") boolean isRead);
-    
+
     /**
      * Finds existing notifications by type, userId, and relatedTaskId.
      *
-     * @param type The notification type
-     * @param userId The user ID
+     * @param type          The notification type
+     * @param userId        The user ID
      * @param relatedTaskId The related task ID (can be null)
      * @return List of matching notifications
      */
     List<Notification> findByTypeAndUserIdAndRelatedTaskId(String type, Integer userId, Integer relatedTaskId);
-    
+
     /**
      * Deletes notifications matching specific criteria.
      *
-     * @param type The notification type
-     * @param userId The user ID
+     * @param type          The notification type
+     * @param userId        The user ID
      * @param relatedTaskId The related task ID (can be null)
      */
     @Modifying
     @Transactional
     @Query("DELETE FROM Notification n WHERE n.type = :type AND n.userId = :userId AND " +
-           "(:relatedTaskId IS NULL AND n.relatedTaskId IS NULL OR n.relatedTaskId = :relatedTaskId)")
+            "(:relatedTaskId IS NULL AND n.relatedTaskId IS NULL OR n.relatedTaskId = :relatedTaskId)")
     void deleteByTypeAndUserIdAndRelatedTaskId(
-            @Param("type") String type, 
-            @Param("userId") Integer userId, 
+            @Param("type") String type,
+            @Param("userId") Integer userId,
             @Param("relatedTaskId") Integer relatedTaskId);
 }

@@ -17,42 +17,42 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
     private String title;
     private String description;
-    
+
     @Column(name = "due_date")
     private LocalDateTime dueDate;
-    
+
     @Column(name = "is_completed")
     private boolean completed;
-    
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     @Enumerated(EnumType.STRING)
     private Status status;
-    
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "task_dependencies",
-        joinColumns = @JoinColumn(name = "task_id"),
-        inverseJoinColumns = @JoinColumn(name = "dependency_id")
+            name = "task_dependencies",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "dependency_id")
     )
     private List<Task> dependencies = new ArrayList<>();
-    
+
     @Column(name = "assigned_user_id")
     private Integer assignedUserId;
-    
+
     @Column(name = "task_class_name")
     private String taskClassName; // Fully qualified class name of the task implementation
-    
+
     @Column(name = "scheduled_time")
     private LocalDateTime scheduledTime; // Time when the task should be executed
-    
+
     @Transient // We'll handle this separately due to its complex structure
     private TaskResult result; // Result of the task execution
 
@@ -67,9 +67,9 @@ public class Task {
     /**
      * Creates a new task with the required fields.
      *
-     * @param id The unique identifier for the task
-     * @param title The title of the task
-     * @param dueDate The due date for the task
+     * @param id             The unique identifier for the task
+     * @param title          The title of the task
+     * @param dueDate        The due date for the task
      * @param assignedUserId The ID of the user assigned to the task
      */
     public Task(Integer id, String title, LocalDateTime dueDate, Integer assignedUserId) {
@@ -79,34 +79,34 @@ public class Task {
     /**
      * Creates a new task with essential fields including the task class.
      *
-     * @param id The unique identifier for the task
-     * @param title The title of the task
-     * @param description The description of the task
-     * @param dueDate The due date for the task
+     * @param id             The unique identifier for the task
+     * @param title          The title of the task
+     * @param description    The description of the task
+     * @param dueDate        The due date for the task
      * @param assignedUserId The ID of the user assigned to the task
-     * @param taskClassName The class name of the task implementation
-     * @param scheduledTime The time when the task should be executed
+     * @param taskClassName  The class name of the task implementation
+     * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate, 
+    public Task(Integer id, String title, String description, LocalDateTime dueDate,
                 Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
-        this(id, title, description, dueDate, false, Status.CREATED, 
-             assignedUserId, taskClassName, scheduledTime);
+        this(id, title, description, dueDate, false, Status.CREATED,
+                assignedUserId, taskClassName, scheduledTime);
     }
 
     /**
      * Creates a new task with all fields.
      *
-     * @param id The unique identifier for the task
-     * @param title The title of the task
-     * @param description The description of the task
-     * @param dueDate The due date for the task
-     * @param isCompleted Whether the task is completed
-     * @param status The status of the task
+     * @param id             The unique identifier for the task
+     * @param title          The title of the task
+     * @param description    The description of the task
+     * @param dueDate        The due date for the task
+     * @param isCompleted    Whether the task is completed
+     * @param status         The status of the task
      * @param assignedUserId The ID of the user assigned to the task
-     * @param taskClassName The class name of the task implementation
-     * @param scheduledTime The time when the task should be executed
+     * @param taskClassName  The class name of the task implementation
+     * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate, boolean isCompleted, 
+    public Task(Integer id, String title, String description, LocalDateTime dueDate, boolean isCompleted,
                 Status status, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
         this.id = id;
         this.title = title;
@@ -132,10 +132,10 @@ public class Task {
     /**
      * Updates the details of the task.
      *
-     * @param title The new title
+     * @param title       The new title
      * @param description The new description
-     * @param dueDate The new due date
-     * @param status The new status
+     * @param dueDate     The new due date
+     * @param status      The new status
      */
     public void updateDetails(String title, String description, LocalDateTime dueDate, Status status) {
         this.title = title;
@@ -205,11 +205,11 @@ public class Task {
         if (completed || taskClassName == null) {
             return false;
         }
-        
+
         if (scheduledTime != null && scheduledTime.isAfter(LocalDateTime.now())) {
             return false;
         }
-        
+
         try {
             // Only check dependencies if they're initialized
             if (org.hibernate.Hibernate.isInitialized(dependencies)) {
@@ -231,7 +231,7 @@ public class Task {
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -239,7 +239,7 @@ public class Task {
     public String getTitle() {
         return title;
     }
-    
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -247,7 +247,7 @@ public class Task {
     public String getDescription() {
         return description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -255,7 +255,7 @@ public class Task {
     public LocalDateTime getDueDate() {
         return dueDate;
     }
-    
+
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
@@ -263,7 +263,7 @@ public class Task {
     public boolean isCompleted() {
         return completed;
     }
-    
+
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
@@ -271,7 +271,7 @@ public class Task {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-    
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -279,7 +279,7 @@ public class Task {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-    
+
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -287,7 +287,7 @@ public class Task {
     public Status getStatus() {
         return status;
     }
-    
+
     public void setStatus(Status status) {
         this.status = status;
     }
@@ -295,7 +295,7 @@ public class Task {
     public List<Task> getDependencies() {
         return dependencies;
     }
-    
+
     public void setDependencies(List<Task> dependencies) {
         this.dependencies = dependencies;
     }
@@ -303,31 +303,31 @@ public class Task {
     public Integer getAssignedUserId() {
         return assignedUserId;
     }
-    
+
     public void setAssignedUserId(Integer assignedUserId) {
         this.assignedUserId = assignedUserId;
     }
-    
+
     public String getTaskClassName() {
         return taskClassName;
     }
-    
+
     public void setTaskClassName(String taskClassName) {
         this.taskClassName = taskClassName;
     }
-    
+
     public LocalDateTime getScheduledTime() {
         return scheduledTime;
     }
-    
+
     public void setScheduledTime(LocalDateTime scheduledTime) {
         this.scheduledTime = scheduledTime;
     }
-    
+
     public TaskResult getResult() {
         return result;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

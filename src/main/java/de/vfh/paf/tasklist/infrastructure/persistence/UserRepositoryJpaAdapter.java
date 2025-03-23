@@ -2,9 +2,9 @@ package de.vfh.paf.tasklist.infrastructure.persistence;
 
 import de.vfh.paf.tasklist.domain.model.User;
 import de.vfh.paf.tasklist.domain.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +21,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Primary
 public class UserRepositoryJpaAdapter {
-    
+
     private final UserRepository userRepository;
     private final Map<Integer, User> userCache = new ConcurrentHashMap<>();
     private final AtomicInteger userIdGenerator = new AtomicInteger(1);
-    
+
     @Autowired
     public UserRepositoryJpaAdapter(UserRepository userRepository) {
         this.userRepository = userRepository;
         // Preload the cache with users from the database
         loadUsersFromDatabase();
     }
-    
+
     private void loadUsersFromDatabase() {
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -43,10 +43,10 @@ public class UserRepositoryJpaAdapter {
             }
         }
     }
-    
+
     /**
      * Saves a user.
-     * 
+     *
      * @param user The user to save
      * @return The saved user
      */
@@ -55,19 +55,19 @@ public class UserRepositoryJpaAdapter {
             // New user, assign ID
             user.setId(userIdGenerator.getAndIncrement());
         }
-        
+
         // Save to database
         User savedUser = userRepository.save(user);
-        
+
         // Update cache
         userCache.put(savedUser.getId(), savedUser);
-        
+
         return savedUser;
     }
-    
+
     /**
      * Finds a user by ID.
-     * 
+     *
      * @param id The ID of the user
      * @return Optional containing the user, or empty if not found
      */
@@ -77,19 +77,19 @@ public class UserRepositoryJpaAdapter {
         if (user != null) {
             return Optional.of(user);
         }
-        
+
         // Then check database
         Optional<User> userOpt = userRepository.findById(id);
-        
+
         // Update cache if found
         userOpt.ifPresent(u -> userCache.put(id, u));
-        
+
         return userOpt;
     }
-    
+
     /**
      * Gets all users.
-     * 
+     *
      * @return List of all users
      */
     public List<User> findAll() {

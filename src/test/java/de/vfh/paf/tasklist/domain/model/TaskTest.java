@@ -1,8 +1,8 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import org.junit.jupiter.api.Test;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,8 +47,8 @@ class TaskTest {
         LocalDateTime scheduledTime = LocalDateTime.now().plusHours(1);
 
         // Act
-        Task task = new Task(id, title, description, dueDate, isCompleted, 
-                            status, assignedUserId, taskClassName, scheduledTime);
+        Task task = new Task(id, title, description, dueDate, isCompleted,
+                status, assignedUserId, taskClassName, scheduledTime);
 
         // Assert
         assertEquals(id, task.getId());

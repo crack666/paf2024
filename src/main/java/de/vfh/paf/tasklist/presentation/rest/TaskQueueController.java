@@ -34,15 +34,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/task-queues")
 @Tag(name = "Task Queue Management", description = "APIs for managing task queues in the system")
 public class TaskQueueController {
-    
+
     private final TaskQueueService taskQueueService;
     private final TaskService taskService;
-    
+
     public TaskQueueController(TaskQueueService taskQueueService, TaskService taskService) {
         this.taskQueueService = taskQueueService;
         this.taskService = taskService;
     }
-    
+
     /**
      * Gets all task queues in the system.
      *
@@ -58,10 +58,10 @@ public class TaskQueueController {
         List<TaskQueueDTO> queueDTOs = taskQueueService.getAllQueues().stream()
                 .map(TaskQueueDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(queueDTOs);
     }
-    
+
     /**
      * Gets a task queue by ID.
      *
@@ -78,14 +78,14 @@ public class TaskQueueController {
     public ResponseEntity<TaskQueueDTO> getQueue(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id) {
         TaskQueue queue = taskQueueService.getQueue(id);
-        
+
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new TaskQueueDTO(queue));
     }
-    
+
     /**
      * Creates a new task queue.
      *
@@ -101,11 +101,11 @@ public class TaskQueueController {
     })
     public ResponseEntity<TaskQueueDTO> createQueue(
             @Parameter(description = "Queue details", required = true) @RequestBody TaskQueueDTO queueDTO) {
-        
+
         TaskQueue queue = taskQueueService.createQueue(queueDTO.getName());
         return ResponseEntity.ok(new TaskQueueDTO(queue));
     }
-    
+
     /**
      * Gets all tasks in a queue.
      *
@@ -121,34 +121,34 @@ public class TaskQueueController {
     })
     public ResponseEntity<List<TaskDTO>> getQueueTasks(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id,
-            @Parameter(description = "Filter tasks by status") 
+            @Parameter(description = "Filter tasks by status")
             @RequestParam(required = false) Status status) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(id);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         List<Task> tasks = queue.getTasks();
-        
+
         // Filter by status if provided
         if (status != null) {
             tasks = tasks.stream()
                     .filter(task -> task.getStatus() == status)
                     .toList();
         }
-        
+
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskDTOs);
     }
-    
+
     /**
      * Gets all tasks associated with a queue, including current and processed ones.
      *
-     * @param id Queue ID
+     * @param id     Queue ID
      * @param status Optional status filter
      * @return List of all tasks
      */
@@ -161,30 +161,30 @@ public class TaskQueueController {
     })
     public ResponseEntity<List<TaskDTO>> getAllQueueTasks(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id,
-            @Parameter(description = "Filter tasks by status") 
+            @Parameter(description = "Filter tasks by status")
             @RequestParam(required = false) Status status) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(id);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         List<Task> tasks = taskQueueService.getAllQueueTasks(id);
-        
+
         // Filter by status if provided
         if (status != null) {
             tasks = tasks.stream()
                     .filter(task -> task.getStatus() == status)
                     .toList();
         }
-        
+
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskDTOs);
     }
-    
+
     /**
      * Gets all processed tasks from a queue with their results.
      *
@@ -199,27 +199,27 @@ public class TaskQueueController {
     })
     public ResponseEntity<Map<String, TaskResultDTO>> getCompletedTasks(
             @Parameter(description = "Queue ID", required = true) @PathVariable int id) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(id);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         Map<Integer, TaskResult> resultMap = taskQueueService.getProcessedTasksWithResults(id);
         Map<String, TaskResultDTO> dtoMap = new HashMap<>();
-        
+
         resultMap.forEach((taskId, result) -> {
             dtoMap.put(String.valueOf(taskId), new TaskResultDTO(result));
         });
-        
+
         return ResponseEntity.ok(dtoMap);
     }
-    
+
     /**
      * Adds a task to a queue.
      *
      * @param queueId Queue ID
-     * @param taskId Task ID
+     * @param taskId  Task ID
      * @return Updated queue
      */
     @PostMapping("/{queueId}/tasks/{taskId}")
@@ -233,17 +233,17 @@ public class TaskQueueController {
     public ResponseEntity<TaskQueueDTO> addTaskToQueue(
             @Parameter(description = "Queue ID", required = true) @PathVariable int queueId,
             @Parameter(description = "Task ID", required = true) @PathVariable int taskId) {
-        
+
         boolean success = taskQueueService.enqueueTask(queueId, taskId);
-        
+
         if (!success) {
             return ResponseEntity.notFound().build();
         }
-        
+
         TaskQueue queue = taskQueueService.getQueue(queueId);
         return ResponseEntity.ok(new TaskQueueDTO(queue));
     }
-    
+
     /**
      * Processes the next task in the queue.
      *
@@ -262,19 +262,19 @@ public class TaskQueueController {
             @Parameter(description = "Queue ID", required = true) @PathVariable int queueId,
             @Parameter(description = "Whether to wait for task completion")
             @RequestParam(required = false, defaultValue = "true") boolean wait) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(queueId);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         if (queue.getTasks().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        
+
         CompletableFuture<TaskResult> future = taskQueueService.executeNextTask(queueId,
                 taskService::processTask);
-            
+
         if (wait) {
             // Wait for the task to complete
             try {
@@ -291,7 +291,7 @@ public class TaskQueueController {
             return ResponseEntity.accepted().build();
         }
     }
-    
+
     /**
      * Processes all tasks in the queue.
      *
@@ -310,19 +310,19 @@ public class TaskQueueController {
             @Parameter(description = "Queue ID", required = true) @PathVariable int queueId,
             @Parameter(description = "Whether to wait for all tasks to complete")
             @RequestParam(required = false, defaultValue = "true") boolean wait) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(queueId);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         if (queue.getTasks().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        
+
         CompletableFuture<List<TaskResult>> future = taskQueueService.processAllTasks(queueId,
                 taskService::processTask);
-            
+
         if (wait) {
             // Wait for all tasks to complete
             try {
@@ -330,12 +330,12 @@ public class TaskQueueController {
                 if (results.isEmpty()) {
                     return ResponseEntity.noContent().build();
                 }
-                
+
                 List<TaskResultDTO> resultDTOs = results.stream()
                         .filter(Objects::nonNull)
                         .map(TaskResultDTO::new)
                         .collect(Collectors.toList());
-                        
+
                 return ResponseEntity.ok(resultDTOs);
             } catch (Exception e) {
                 return ResponseEntity.badRequest().build();
@@ -345,11 +345,11 @@ public class TaskQueueController {
             return ResponseEntity.accepted().build();
         }
     }
-    
+
     /**
      * Reorders tasks in a queue.
      *
-     * @param queueId Queue ID
+     * @param queueId       Queue ID
      * @param orderCriteria The criteria to use for ordering (e.g., "dueDate")
      * @return Updated queue
      */
@@ -364,12 +364,12 @@ public class TaskQueueController {
             @Parameter(description = "Queue ID", required = true) @PathVariable int queueId,
             @Parameter(description = "Ordering criteria", example = "dueDate", required = true)
             @RequestParam String orderCriteria) {
-        
+
         TaskQueue queue = taskQueueService.getQueue(queueId);
         if (queue == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         queue.reorderTasks(orderCriteria);
         return ResponseEntity.ok(new TaskQueueDTO(queue));
     }

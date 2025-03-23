@@ -18,7 +18,7 @@ public class TaskQueue {
     private final String name;
     /**
      * -- GETTER --
-     *  Returns all tasks in the queue.
+     * Returns all tasks in the queue.
      *
      * @return A list of tasks
      */
@@ -29,7 +29,7 @@ public class TaskQueue {
     /**
      * Creates a new task queue.
      *
-     * @param id The unique identifier for the queue
+     * @param id   The unique identifier for the queue
      * @param name The name of the queue
      */
     public TaskQueue(int id, String name) {
@@ -61,7 +61,7 @@ public class TaskQueue {
         if (tasks.isEmpty()) {
             return null;
         }
-        
+
         Task task = tasks.removeFirst();
         task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), Status.RUNNING);
         this.updatedAt = LocalDateTime.now();
@@ -101,7 +101,7 @@ public class TaskQueue {
             tasks.sort(Comparator.comparing(Task::getDueDate));
         }
         // Additional ordering criteria could be added here
-        
+
         this.updatedAt = LocalDateTime.now();
     }
 

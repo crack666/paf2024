@@ -20,7 +20,6 @@ public class TaskService {
 
     /**
      * Creates a new task service.
-     *
      */
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
 
@@ -33,30 +32,30 @@ public class TaskService {
     /**
      * Creates a new task.
      *
-     * @param title The title of the task
+     * @param title       The title of the task
      * @param description The description of the task
-     * @param dueDate The due date for the task
-     * @param userId The ID of the user assigned to the task
+     * @param dueDate     The due date for the task
+     * @param userId      The ID of the user assigned to the task
      * @return The created task
      */
     public Task createTask(String title, String description, LocalDateTime dueDate, int userId) {
         Task task = new Task(null, title, description, dueDate, false, Status.CREATED, userId, null, null);
         return taskRepository.save(task);
     }
-    
+
     /**
      * Creates a new runnable task with a specific implementation.
      *
-     * @param title The title of the task
-     * @param description The description of the task
-     * @param dueDate The due date for the task
-     * @param userId The ID of the user assigned to the task
+     * @param title         The title of the task
+     * @param description   The description of the task
+     * @param dueDate       The due date for the task
+     * @param userId        The ID of the user assigned to the task
      * @param taskClassName The fully qualified class name of the task implementation
      * @param scheduledTime The time when the task should be executed
      * @return The created task
      */
-    public Task createRunnableTask(String title, String description, LocalDateTime dueDate, 
-                                  int userId, String taskClassName, LocalDateTime scheduledTime) {
+    public Task createRunnableTask(String title, String description, LocalDateTime dueDate,
+                                   int userId, String taskClassName, LocalDateTime scheduledTime) {
         Task task = new Task(null, title, description, dueDate, userId, taskClassName, scheduledTime);
         return taskRepository.save(task);
     }
@@ -64,22 +63,22 @@ public class TaskService {
     /**
      * Updates an existing task.
      *
-     * @param taskId The ID of the task to update
-     * @param title The new title
+     * @param taskId      The ID of the task to update
+     * @param title       The new title
      * @param description The new description
-     * @param dueDate The new due date
-     * @param status The new status
+     * @param dueDate     The new due date
+     * @param status      The new status
      * @return The updated task, or null if the task is not found
      */
     public Task updateTask(int taskId, String title, String description, LocalDateTime dueDate, Status status) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        
+
         if (optionalTask.isPresent()) {
             Task task = optionalTask.get();
             task.updateDetails(title, description, dueDate, status);
             return taskRepository.save(task);
         }
-        
+
         return null;
     }
 
@@ -91,13 +90,13 @@ public class TaskService {
      */
     public Task completeTask(int taskId) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
-        
+
         if (optionalTask.isPresent()) {
             Task task = optionalTask.get();
             task.markComplete();
             return taskRepository.save(task);
         }
-        
+
         return null;
     }
 
@@ -109,7 +108,7 @@ public class TaskService {
      */
     public Optional<Task> findById(int taskId) {
         Optional<Task> taskOptional = taskRepository.findById(taskId);
-        
+
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
             // Load the task result if available
@@ -119,51 +118,51 @@ public class TaskService {
                 task.setResult(results.getFirst());
             }
         }
-        
+
         return taskOptional;
     }
 
     /**
      * Adds a dependency to a task.
      *
-     * @param taskId The ID of the task
+     * @param taskId           The ID of the task
      * @param dependencyTaskId The ID of the dependency task
      * @return The updated task, or null if either task is not found
      */
     public Task addDependency(int taskId, int dependencyTaskId) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Optional<Task> optionalDependency = taskRepository.findById(dependencyTaskId);
-        
+
         if (optionalTask.isPresent() && optionalDependency.isPresent()) {
             Task task = optionalTask.get();
             Task dependency = optionalDependency.get();
-            
+
             task.addDependency(dependency);
             return taskRepository.save(task);
         }
-        
+
         return null;
     }
 
     /**
      * Removes a dependency from a task.
      *
-     * @param taskId The ID of the task
+     * @param taskId           The ID of the task
      * @param dependencyTaskId The ID of the dependency task to remove
      * @return The updated task, or null if either task is not found
      */
     public Task removeDependency(int taskId, int dependencyTaskId) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         Optional<Task> optionalDependency = taskRepository.findById(dependencyTaskId);
-        
+
         if (optionalTask.isPresent() && optionalDependency.isPresent()) {
             Task task = optionalTask.get();
             Task dependency = optionalDependency.get();
-            
+
             task.removeDependency(dependency);
             return taskRepository.save(task);
         }
-        
+
         return null;
     }
 
@@ -177,22 +176,22 @@ public class TaskService {
         Map<Integer, Set<Integer>> graph = buildDependencyGraph();
         Set<Integer> visited = new HashSet<>();
         Set<Integer> recursionStack = new HashSet<>();
-        
+
         for (Integer taskId : graph.keySet()) {
             if (hasCycle(graph, taskId, visited, recursionStack)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
     private Map<Integer, Set<Integer>> buildDependencyGraph() {
         Map<Integer, Set<Integer>> graph = new HashMap<>();
-        
+
         // Get all tasks from the repository
         List<Task> allTasks = taskRepository.findAll();
-        
+
         // Build the dependency graph using the collected tasks
         for (Task task : allTasks) {
             Set<Integer> dependencies = new HashSet<>();
@@ -201,26 +200,26 @@ public class TaskService {
             }
             graph.put(task.getId(), dependencies);
         }
-        
+
         return graph;
     }
 
-    private boolean hasCycle(Map<Integer, Set<Integer>> graph, int taskId, 
-                            Set<Integer> visited, Set<Integer> recursionStack) {
+    private boolean hasCycle(Map<Integer, Set<Integer>> graph, int taskId,
+                             Set<Integer> visited, Set<Integer> recursionStack) {
         // If node is in recursion stack, there is a cycle
         if (recursionStack.contains(taskId)) {
             return true;
         }
-        
+
         // If node is already visited and not in recursion stack, no cycle through this node
         if (visited.contains(taskId)) {
             return false;
         }
-        
+
         // Mark current node as visited and add to recursion stack
         visited.add(taskId);
         recursionStack.add(taskId);
-        
+
         // Visit all adjacent nodes
         Set<Integer> dependencies = graph.getOrDefault(taskId, Collections.emptySet());
         for (Integer dependencyId : dependencies) {
@@ -228,13 +227,13 @@ public class TaskService {
                 return true;
             }
         }
-        
+
         // Remove from recursion stack
         recursionStack.remove(taskId);
-        
+
         return false;
     }
-    
+
     /**
      * Finds all tasks in the system.
      *
@@ -242,7 +241,7 @@ public class TaskService {
      */
     public List<Task> findAll() {
         List<Task> tasks = taskRepository.findAll();
-        
+
         // Load results for completed tasks
         for (Task task : tasks) {
             if (task.getStatus() == Status.DONE) {
@@ -252,10 +251,10 @@ public class TaskService {
                 }
             }
         }
-        
+
         return tasks;
     }
-    
+
     /**
      * Finds all tasks assigned to a specific user.
      *
@@ -265,7 +264,7 @@ public class TaskService {
     public List<Task> findByUserId(int userId) {
         return taskRepository.findAllByAssignedUserId(userId);
     }
-    
+
     /**
      * Finds all tasks with a specific status.
      *
@@ -277,7 +276,7 @@ public class TaskService {
                 .filter(task -> task.getStatus() == status)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Finds all tasks assigned to a specific user with a specific status.
      *
@@ -290,10 +289,10 @@ public class TaskService {
                 .filter(task -> task.getAssignedUserId() == userId && task.getStatus() == status)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Finds all tasks that are ready to run.
-     * These are tasks that have a taskClassName, are not completed, 
+     * These are tasks that have a taskClassName, are not completed,
      * have all dependencies completed, and are scheduled for now or in the past.
      *
      * @return List of ready to run tasks
@@ -303,7 +302,7 @@ public class TaskService {
                 .filter(Task::isReadyToRun)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Processes a task directly, executing the task implementation.
      * This is primarily used for internal and testing purposes.
@@ -315,10 +314,10 @@ public class TaskService {
         // This is a simplified implementation just to make the code compile
         task.markComplete();
         taskRepository.save(task);
-        
+
         return new de.vfh.paf.tasklist.domain.model.TaskResult(
-                "Task processed", 
-                "Task " + task.getTitle() + " was processed at " + LocalDateTime.now(), 
+                "Task processed",
+                "Task " + task.getTitle() + " was processed at " + LocalDateTime.now(),
                 LocalDateTime.now());
     }
 }

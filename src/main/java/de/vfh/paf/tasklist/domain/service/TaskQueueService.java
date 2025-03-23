@@ -7,12 +7,7 @@ import de.vfh.paf.tasklist.domain.model.TaskResult;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.presentation.websocket.TaskWebSocketController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,7 +31,7 @@ public class TaskQueueService {
     /**
      * Creates a new task queue service.
      *
-     * @param taskRepository The repository for tasks
+     * @param taskRepository       The repository for tasks
      * @param taskResultRepository The repository for task results
      */
     @org.springframework.beans.factory.annotation.Autowired
@@ -44,10 +39,10 @@ public class TaskQueueService {
         this.taskRepository = taskRepository;
         this.taskResultRepository = taskResultRepository;
     }
-    
+
     /**
      * Sets the WebSocket controller (to break circular dependency).
-     * 
+     *
      * @param taskWebSocketController The WebSocket controller for task updates
      */
     @org.springframework.beans.factory.annotation.Autowired
@@ -66,7 +61,7 @@ public class TaskQueueService {
         TaskQueue queue = new TaskQueue(id, name);
         queues.put(id, queue);
         queueProcessedTasks.put(id, new ConcurrentHashMap<>());
-        
+
         // Notify clients about queue creation (if WebSocket controller is available)
         if (taskWebSocketController != null) {
             taskWebSocketController.sendQueueUpdate(id, null, "CREATED");
@@ -78,7 +73,7 @@ public class TaskQueueService {
      * Adds a task to a queue.
      *
      * @param queueId The ID of the queue
-     * @param taskId The ID of the task to add
+     * @param taskId  The ID of the task to add
      * @return true if the task was added, false otherwise
      */
     public boolean enqueueTask(int queueId, int taskId) {
@@ -95,20 +90,20 @@ public class TaskQueueService {
         Task task = optionalTask.get();
         queue.enqueueTask(task);
         taskRepository.save(task);
-        
+
         // Notify clients that a task has been added to the queue (if WebSocket controller is available)
         if (taskWebSocketController != null) {
             taskWebSocketController.sendQueueUpdate(queueId, task, "ADDED");
             taskWebSocketController.sendTaskStatusUpdate(task);
         }
-        
+
         return true;
     }
 
     /**
      * Executes the next task in the queue.
      *
-     * @param queueId The ID of the queue
+     * @param queueId       The ID of the queue
      * @param taskProcessor The function to process the task and generate a result
      * @return A CompletableFuture that will contain the result of the task
      */
@@ -126,7 +121,7 @@ public class TaskQueueService {
         // Save the task with the RUNNING status
         task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), Status.RUNNING);
         taskRepository.save(task);
-        
+
         // Notify that task status is now RUNNING (if WebSocket controller is available)
         if (taskWebSocketController != null) {
             taskWebSocketController.sendQueueUpdate(queueId, task, "STARTED");
@@ -136,30 +131,30 @@ public class TaskQueueService {
         // Execute the task asynchronously
         return CompletableFuture.supplyAsync(() -> {
             TaskResult result = taskProcessor.apply(task);
-            
+
             // Ensure the result has the correct task ID
             if (result != null && result.getTaskId() == null) {
                 result.setTaskId(task.getId());
                 // Save the result to the database
                 taskResultRepository.save(result);
             }
-            
+
             // Mark the task as complete
             task.markComplete();
             taskRepository.save(task);
-            
+
             // Store the completed task and its result with the queue
             if (queueProcessedTasks.containsKey(queueId)) {
                 queueProcessedTasks.get(queueId).put(task.getId(), result);
             }
-            
+
             // Notify that task is now DONE with result (if WebSocket controller is available)
             if (taskWebSocketController != null) {
                 taskWebSocketController.sendQueueUpdate(queueId, task, "COMPLETED");
                 taskWebSocketController.sendTaskStatusUpdate(task);
                 taskWebSocketController.sendTaskResultUpdate(task, result);
             }
-            
+
             return result;
         });
     }
@@ -167,7 +162,7 @@ public class TaskQueueService {
     /**
      * Processes all tasks in the queue in parallel.
      *
-     * @param queueId The ID of the queue
+     * @param queueId       The ID of the queue
      * @param taskProcessor The function to process each task and generate a result
      * @return A CompletableFuture that will contain the results of all tasks
      */
@@ -211,7 +206,7 @@ public class TaskQueueService {
     public List<TaskQueue> getAllQueues() {
         return new ArrayList<>(queues.values());
     }
-    
+
     /**
      * Gets all tasks that have been processed by a specific queue, along with their results.
      *
@@ -221,7 +216,7 @@ public class TaskQueueService {
     public Map<Integer, TaskResult> getProcessedTasksWithResults(int queueId) {
         return queueProcessedTasks.getOrDefault(queueId, Map.of());
     }
-    
+
     /**
      * Gets all tasks associated with a queue, including pending and processed ones.
      *
@@ -233,24 +228,24 @@ public class TaskQueueService {
         if (queue == null) {
             return List.of();
         }
-        
+
         // Get current tasks in the queue
         List<Task> currentTasks = new ArrayList<>(queue.getTasks());
-        
+
         // Get IDs of processed tasks
         Set<Integer> processedTaskIds = queueProcessedTasks.getOrDefault(queueId, Map.of()).keySet();
-        
+
         // Fetch processed tasks from repository
         List<Task> processedTasks = processedTaskIds.stream()
                 .map(taskRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
-        
+
         // Combine both lists
         List<Task> allTasks = new ArrayList<>(currentTasks);
         allTasks.addAll(processedTasks);
-        
+
         return allTasks;
     }
 }

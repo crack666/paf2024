@@ -18,16 +18,16 @@ public class TaskResultDTO {
     // Getters and setters
     @Schema(description = "Title of the result")
     private String title;
-    
+
     @Schema(description = "Detailed result content")
     private String content;
-    
+
     @Schema(description = "Timestamp when the result was produced")
     private LocalDateTime timestamp;
-    
+
     public TaskResultDTO() {
     }
-    
+
     public TaskResultDTO(TaskResult taskResult) {
         this.title = taskResult.getTitle();
         this.content = taskResult.getContent();

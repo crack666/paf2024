@@ -11,58 +11,71 @@
             margin: 0 auto;
             padding: 20px;
         }
+
         .notification {
             border-left: 4px solid #ccc;
             padding: 10px;
             margin-bottom: 10px;
             background-color: #f9f9f9;
         }
+
         .notification.HIGH {
             border-left-color: #ff4d4d;
             background-color: #fff0f0;
         }
+
         .notification.NORMAL {
             border-left-color: #4d94ff;
             background-color: #f0f8ff;
         }
+
         .notification.LOW {
             border-left-color: #7be07b;
             background-color: #f0fff0;
         }
+
         .notification.read {
             opacity: 0.6;
         }
+
         .notification-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
         }
+
         .notification-type {
             font-weight: bold;
         }
+
         .notification-time {
             font-size: 0.8em;
             color: #666;
         }
+
         .notification-message {
             margin-bottom: 5px;
         }
+
         .notification-footer {
             display: flex;
             justify-content: space-between;
             font-size: 0.8em;
             color: #666;
         }
+
         .mark-read {
             cursor: pointer;
             color: #4d94ff;
         }
+
         .control-panel {
             margin-bottom: 20px;
             padding: 15px;
             background-color: #f5f5f5;
             border-radius: 5px;
         }
+
         button {
             padding: 8px 15px;
             margin-right: 10px;
@@ -72,114 +85,119 @@
             border-radius: 3px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #3a7bd5;
         }
+
         input[type="text"], input[type="number"] {
             padding: 8px;
             margin-right: 10px;
             border: 1px solid #ccc;
             border-radius: 3px;
         }
+
         .connection-status {
             margin-top: 10px;
             font-size: 0.9em;
         }
+
         .connection-status.connected {
             color: green;
         }
+
         .connection-status.disconnected {
             color: red;
         }
     </style>
 </head>
 <body>
-    <h1>Task Notification Test</h1>
-    
-    <div class="control-panel">
-        <h2>Connection</h2>
-        <input type="number" id="userId" placeholder="User ID" value="1">
-        <button id="connect">Connect</button>
-        <button id="disconnect">Disconnect</button>
-        <div id="connectionStatus" class="connection-status disconnected">Disconnected</div>
-        
-        <h2>Send Notifications</h2>
-        <input type="text" id="message" placeholder="Message">
-        <select id="type">
-            <option value="INFO">Info</option>
-            <option value="TASK_CREATED">Task Created</option>
-            <option value="TASK_STARTED">Task Started</option>
-            <option value="TASK_COMPLETED">Task Completed</option>
-            <option value="TASK_ERROR">Task Error</option>
-            <option value="TASK_OVERDUE">Task Overdue</option>
-        </select>
-        <select id="urgency">
-            <option value="NORMAL">Normal</option>
-            <option value="HIGH">High</option>
-            <option value="LOW">Low</option>
-        </select>
-        <button id="sendNotification">Send to User</button>
-        <button id="broadcastNotification">Broadcast</button>
-    </div>
-    
-    <h2>Notifications</h2>
-    <div id="notifications"></div>
-    
-    <!-- Include SockJS and STOMP -->
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    
-    <script>
-        // WebSocket connection
-        let stompClient = null;
-        const userId = document.getElementById('userId');
-        const message = document.getElementById('message');
-        const type = document.getElementById('type');
-        const urgency = document.getElementById('urgency');
-        const notificationsContainer = document.getElementById('notifications');
-        const connectionStatus = document.getElementById('connectionStatus');
-        
-        // Connect to WebSocket
-        document.getElementById('connect').addEventListener('click', function() {
-            if (userId.value) {
-                connect(userId.value);
-            } else {
-                alert('Please enter a user ID');
-            }
-        });
-        
-        // Disconnect from WebSocket
-        document.getElementById('disconnect').addEventListener('click', function() {
-            disconnect();
-        });
-        
-        // Send notification to user
-        document.getElementById('sendNotification').addEventListener('click', function() {
-            if (!stompClient || !stompClient.connected) {
-                alert('Please connect first');
-                return;
-            }
-            
-            if (!message.value) {
-                alert('Please enter a message');
-                return;
-            }
-            
-            const data = {
-                userId: parseInt(userId.value),
-                message: message.value,
-                type: type.value,
-                urgency: urgency.value
-            };
-            
-            // Send REST request to create notification
-            fetch('/api/notifications/send', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
+<h1>Task Notification Test</h1>
+
+<div class="control-panel">
+    <h2>Connection</h2>
+    <input type="number" id="userId" placeholder="User ID" value="1">
+    <button id="connect">Connect</button>
+    <button id="disconnect">Disconnect</button>
+    <div id="connectionStatus" class="connection-status disconnected">Disconnected</div>
+
+    <h2>Send Notifications</h2>
+    <input type="text" id="message" placeholder="Message">
+    <select id="type">
+        <option value="INFO">Info</option>
+        <option value="TASK_CREATED">Task Created</option>
+        <option value="TASK_STARTED">Task Started</option>
+        <option value="TASK_COMPLETED">Task Completed</option>
+        <option value="TASK_ERROR">Task Error</option>
+        <option value="TASK_OVERDUE">Task Overdue</option>
+    </select>
+    <select id="urgency">
+        <option value="NORMAL">Normal</option>
+        <option value="HIGH">High</option>
+        <option value="LOW">Low</option>
+    </select>
+    <button id="sendNotification">Send to User</button>
+    <button id="broadcastNotification">Broadcast</button>
+</div>
+
+<h2>Notifications</h2>
+<div id="notifications"></div>
+
+<!-- Include SockJS and STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    // WebSocket connection
+    let stompClient = null;
+    const userId = document.getElementById('userId');
+    const message = document.getElementById('message');
+    const type = document.getElementById('type');
+    const urgency = document.getElementById('urgency');
+    const notificationsContainer = document.getElementById('notifications');
+    const connectionStatus = document.getElementById('connectionStatus');
+
+    // Connect to WebSocket
+    document.getElementById('connect').addEventListener('click', function () {
+        if (userId.value) {
+            connect(userId.value);
+        } else {
+            alert('Please enter a user ID');
+        }
+    });
+
+    // Disconnect from WebSocket
+    document.getElementById('disconnect').addEventListener('click', function () {
+        disconnect();
+    });
+
+    // Send notification to user
+    document.getElementById('sendNotification').addEventListener('click', function () {
+        if (!stompClient || !stompClient.connected) {
+            alert('Please connect first');
+            return;
+        }
+
+        if (!message.value) {
+            alert('Please enter a message');
+            return;
+        }
+
+        const data = {
+            userId: parseInt(userId.value),
+            message: message.value,
+            type: type.value,
+            urgency: urgency.value
+        };
+
+        // Send REST request to create notification
+        fetch('/api/notifications/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Failed to send notification');
@@ -194,94 +212,94 @@
                 console.error('Error sending notification:', error);
                 alert('Error sending notification: ' + error.message);
             });
-        });
-        
-        // Broadcast notification
-        document.getElementById('broadcastNotification').addEventListener('click', function() {
-            if (!stompClient || !stompClient.connected) {
-                alert('Please connect first');
-                return;
-            }
-            
-            if (!message.value) {
-                alert('Please enter a message');
-                return;
-            }
-            
-            // Send notification via WebSocket
-            stompClient.send("/app/notifications.broadcast", {}, JSON.stringify({
-                message: message.value,
-                type: type.value,
-                urgency: urgency.value
-            }));
-            
-            message.value = '';
-        });
-        
-        // Connect to WebSocket
-        function connect(userIdValue) {
-            const socket = new SockJS('/api/ws');
-            stompClient = Stomp.over(socket);
-            
-            // Disable debug logging
-            stompClient.debug = null;
-            
-            stompClient.connect({}, function() {
-                connectionStatus.textContent = 'Connected';
-                connectionStatus.className = 'connection-status connected';
-                
-                // Subscribe to personal notifications
-                stompClient.subscribe('/user/queue/notifications', function(notification) {
-                    const payload = JSON.parse(notification.body);
-                    addNotification(payload);
-                });
-                
-                // Subscribe to broadcast notifications
-                stompClient.subscribe('/topic/notifications', function(notification) {
-                    const payload = JSON.parse(notification.body);
-                    addNotification(payload);
-                });
-                
-                // Subscribe to system notifications
-                stompClient.subscribe('/topic/system', function(notification) {
-                    const payload = JSON.parse(notification.body);
-                    addNotification(payload);
-                });
-                
-                // Request existing notifications
-                stompClient.send("/app/notifications.subscribe", {}, JSON.stringify({
-                    userId: parseInt(userIdValue)
-                }));
-            }, function(error) {
-                console.error('WebSocket connection error:', error);
-                connectionStatus.textContent = 'Connection failed: ' + error;
-                connectionStatus.className = 'connection-status disconnected';
+    });
+
+    // Broadcast notification
+    document.getElementById('broadcastNotification').addEventListener('click', function () {
+        if (!stompClient || !stompClient.connected) {
+            alert('Please connect first');
+            return;
+        }
+
+        if (!message.value) {
+            alert('Please enter a message');
+            return;
+        }
+
+        // Send notification via WebSocket
+        stompClient.send("/app/notifications.broadcast", {}, JSON.stringify({
+            message: message.value,
+            type: type.value,
+            urgency: urgency.value
+        }));
+
+        message.value = '';
+    });
+
+    // Connect to WebSocket
+    function connect(userIdValue) {
+        const socket = new SockJS('/api/ws');
+        stompClient = Stomp.over(socket);
+
+        // Disable debug logging
+        stompClient.debug = null;
+
+        stompClient.connect({}, function () {
+            connectionStatus.textContent = 'Connected';
+            connectionStatus.className = 'connection-status connected';
+
+            // Subscribe to personal notifications
+            stompClient.subscribe('/user/queue/notifications', function (notification) {
+                const payload = JSON.parse(notification.body);
+                addNotification(payload);
             });
+
+            // Subscribe to broadcast notifications
+            stompClient.subscribe('/topic/notifications', function (notification) {
+                const payload = JSON.parse(notification.body);
+                addNotification(payload);
+            });
+
+            // Subscribe to system notifications
+            stompClient.subscribe('/topic/system', function (notification) {
+                const payload = JSON.parse(notification.body);
+                addNotification(payload);
+            });
+
+            // Request existing notifications
+            stompClient.send("/app/notifications.subscribe", {}, JSON.stringify({
+                userId: parseInt(userIdValue)
+            }));
+        }, function (error) {
+            console.error('WebSocket connection error:', error);
+            connectionStatus.textContent = 'Connection failed: ' + error;
+            connectionStatus.className = 'connection-status disconnected';
+        });
+    }
+
+    // Disconnect from WebSocket
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+            stompClient = null;
+            connectionStatus.textContent = 'Disconnected';
+            connectionStatus.className = 'connection-status disconnected';
         }
-        
-        // Disconnect from WebSocket
-        function disconnect() {
-            if (stompClient !== null) {
-                stompClient.disconnect();
-                stompClient = null;
-                connectionStatus.textContent = 'Disconnected';
-                connectionStatus.className = 'connection-status disconnected';
-            }
+    }
+
+    // Add notification to the UI
+    function addNotification(notification) {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = `notification ${notification.urgency || 'NORMAL'}`;
+        notificationElement.dataset.id = notification.notificationId;
+
+        if (notification.read) {
+            notificationElement.classList.add('read');
         }
-        
-        // Add notification to the UI
-        function addNotification(notification) {
-            const notificationElement = document.createElement('div');
-            notificationElement.className = `notification ${notification.urgency || 'NORMAL'}`;
-            notificationElement.dataset.id = notification.notificationId;
-            
-            if (notification.read) {
-                notificationElement.classList.add('read');
-            }
-            
-            const timestamp = notification.timestamp ? new Date(notification.timestamp) : new Date();
-            
-            notificationElement.innerHTML = `
+
+        const timestamp = notification.timestamp ? new Date(notification.timestamp) : new Date();
+
+        notificationElement.innerHTML = `
                 <div class="notification-header">
                     <span class="notification-type">${notification.type || 'INFO'}</span>
                     <span class="notification-time">${timestamp.toLocaleString()}</span>
@@ -293,42 +311,42 @@
                           ${notification.read ? 'style="display:none"' : ''}>Mark as read</span>
                 </div>
             `;
-            
-            // Add to the top of the list
-            notificationsContainer.insertBefore(notificationElement, notificationsContainer.firstChild);
-            
-            // Add click handler for mark as read
+
+        // Add to the top of the list
+        notificationsContainer.insertBefore(notificationElement, notificationsContainer.firstChild);
+
+        // Add click handler for mark as read
+        const markReadButton = notificationElement.querySelector('.mark-read');
+        if (markReadButton) {
+            markReadButton.addEventListener('click', function () {
+                markAsRead(notification.notificationId);
+            });
+        }
+    }
+
+    // Mark notification as read
+    function markAsRead(notificationId) {
+        if (!stompClient || !stompClient.connected) {
+            alert('Please connect first');
+            return;
+        }
+
+        // Send WebSocket request to mark as read
+        stompClient.send("/app/notifications.markRead", {}, JSON.stringify({
+            notificationId: notificationId,
+            userId: parseInt(userId.value)
+        }));
+
+        // Update UI
+        const notificationElement = document.querySelector(`.notification[data-id="${notificationId}"]`);
+        if (notificationElement) {
+            notificationElement.classList.add('read');
             const markReadButton = notificationElement.querySelector('.mark-read');
             if (markReadButton) {
-                markReadButton.addEventListener('click', function() {
-                    markAsRead(notification.notificationId);
-                });
+                markReadButton.style.display = 'none';
             }
         }
-        
-        // Mark notification as read
-        function markAsRead(notificationId) {
-            if (!stompClient || !stompClient.connected) {
-                alert('Please connect first');
-                return;
-            }
-            
-            // Send WebSocket request to mark as read
-            stompClient.send("/app/notifications.markRead", {}, JSON.stringify({
-                notificationId: notificationId,
-                userId: parseInt(userId.value)
-            }));
-            
-            // Update UI
-            const notificationElement = document.querySelector(`.notification[data-id="${notificationId}"]`);
-            if (notificationElement) {
-                notificationElement.classList.add('read');
-                const markReadButton = notificationElement.querySelector('.mark-read');
-                if (markReadButton) {
-                    markReadButton.style.display = 'none';
-                }
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 </html>

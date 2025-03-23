@@ -20,32 +20,32 @@ public class TaskQueueDTO {
     @Setter
     @Schema(description = "Unique identifier of the task queue")
     private int id;
-    
+
     @Setter
     @Schema(description = "Name of the queue")
     private String name;
-    
+
     @Schema(description = "List of tasks in the queue")
     private List<TaskDTO> tasks;
-    
+
     @Schema(description = "When the queue was created")
     private LocalDateTime createdAt;
-    
+
     @Schema(description = "When the queue was last updated")
     private LocalDateTime updatedAt;
-    
+
     @Schema(description = "Number of tasks in the queue")
     private int taskCount;
-    
+
     public TaskQueueDTO() {
     }
-    
+
     public TaskQueueDTO(TaskQueue taskQueue) {
         this.id = taskQueue.getId();
         this.name = taskQueue.getName();
         this.createdAt = taskQueue.getCreatedAt();
         this.updatedAt = taskQueue.getUpdatedAt();
-        
+
         if (taskQueue.getTasks() != null) {
             this.tasks = taskQueue.getTasks().stream()
                     .map(TaskDTO::new)

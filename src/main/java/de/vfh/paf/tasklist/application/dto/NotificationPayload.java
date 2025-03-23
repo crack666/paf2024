@@ -20,18 +20,18 @@ public class NotificationPayload {
     private Integer taskId;
     private LocalDateTime timestamp;
     private boolean read;
-    
+
     /**
      * Default constructor required by JSON serialization
      */
     public NotificationPayload() {
     }
-    
+
     /**
      * Full constructor for the notification payload
      */
     public NotificationPayload(int notificationId, String type, String message, String urgency,
-                              Integer taskId, LocalDateTime timestamp, boolean read) {
+                               Integer taskId, LocalDateTime timestamp, boolean read) {
         this.notificationId = notificationId;
         this.type = type;
         this.message = message;
@@ -40,22 +40,22 @@ public class NotificationPayload {
         this.timestamp = timestamp;
         this.read = read;
     }
-    
+
     /**
      * Factory method to create a payload from a DTO.
-     * 
+     *
      * @param dto The NotificationDTO to convert
      * @return The NotificationPayload
      */
     public static NotificationPayload fromDto(NotificationDTO dto) {
         return new NotificationPayload(
-            dto.getId(),
-            dto.getType(),
-            dto.getMessage(),
-            dto.getUrgency(),
-            dto.getRelatedTaskId(),
-            dto.getTimestamp(),
-            dto.isRead()
+                dto.getId(),
+                dto.getType(),
+                dto.getMessage(),
+                dto.getUrgency(),
+                dto.getRelatedTaskId(),
+                dto.getTimestamp(),
+                dto.isRead()
         );
     }
 

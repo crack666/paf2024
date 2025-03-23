@@ -7,8 +7,8 @@ import de.vfh.paf.tasklist.application.service.TaskManagerService;
 import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
-import de.vfh.paf.tasklist.domain.service.TaskProcessorService;
 import de.vfh.paf.tasklist.domain.service.TaskFactory;
+import de.vfh.paf.tasklist.domain.service.TaskProcessorService;
 import de.vfh.paf.tasklist.domain.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Task Management", description = "APIs for managing tasks in the system")
 public class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
-    
+
     private final TaskService taskService;
     private final TaskManagerService taskManagerService;
     private final TaskFactory taskRegistry;
@@ -64,7 +64,7 @@ public class TaskController {
     })
     public ResponseEntity<TaskDTO> createTask(
             @Parameter(description = "Task details", required = true) @RequestBody TaskDTO taskDTO) {
-        
+
         // If task class name is provided, create a runnable task
         if (taskDTO.getTaskClassName() != null && !taskDTO.getTaskClassName().isEmpty()) {
             Task task = taskService.createRunnableTask(
@@ -112,7 +112,7 @@ public class TaskController {
     /**
      * Updates a task.
      *
-     * @param id Task ID
+     * @param id      Task ID
      * @param taskDTO Task data
      * @return Updated task
      */
@@ -135,11 +135,11 @@ public class TaskController {
                 taskDTO.getDueDate(),
                 taskDTO.getStatus()
         );
-        
+
         if (updatedTask == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new TaskDTO(updatedTask));
     }
 
@@ -159,24 +159,24 @@ public class TaskController {
     public ResponseEntity<TaskDTO> completeTask(
             @Parameter(description = "Task ID", required = true) @PathVariable int id) {
         Task completedTask = taskService.completeTask(id);
-        
+
         if (completedTask == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new TaskDTO(completedTask));
     }
 
     /**
      * Adds a dependency to a task.
      *
-     * @param id Task ID
+     * @param id           Task ID
      * @param dependencyId Dependency task ID
      * @return Updated task
      */
     @PostMapping("/{id}/dependencies/{dependencyId}")
-    @Operation(summary = "Add a task dependency", 
-               description = "Makes one task dependent on another task, with deadlock detection")
+    @Operation(summary = "Add a task dependency",
+            description = "Makes one task dependent on another task, with deadlock detection")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dependency added successfully",
                     content = @Content(schema = @Schema(implementation = TaskDTO.class))),
@@ -191,16 +191,16 @@ public class TaskController {
         if (taskManagerService.wouldCreateDeadlock(id, dependencyId)) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         Task updatedTask = taskService.addDependency(id, dependencyId);
-        
+
         if (updatedTask == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok(new TaskDTO(updatedTask));
     }
-    
+
     /**
      * Gets all tasks in the system.
      *
@@ -217,9 +217,9 @@ public class TaskController {
             @RequestParam(required = false) Status status,
             @Parameter(description = "Filter tasks by user ID (optional)")
             @RequestParam(required = false) Integer userId) {
-        
+
         List<Task> tasks;
-        
+
         // Apply filters based on provided parameters
         if (status != null && userId != null) {
             tasks = taskService.findByUserIdAndStatus(userId, status);
@@ -230,22 +230,22 @@ public class TaskController {
         } else {
             tasks = taskService.findAll();
         }
-        
+
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskDTOs);
     }
-    
+
     /**
      * Gets all available task types.
      *
      * @return List of all available task types
      */
     @GetMapping("/types")
-    @Operation(summary = "Get all task types", 
-              description = "Retrieves a list of all available task types that can be executed")
+    @Operation(summary = "Get all task types",
+            description = "Retrieves a list of all available task types that can be executed")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task types retrieved successfully",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskTypeDTO.class))))
@@ -257,23 +257,23 @@ public class TaskController {
                     return new TaskTypeDTO(s, taskType);
                 })
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskTypes);
     }
-    
+
     /**
      * Executes a task immediately.
      * This endpoint has two modes:
      * 1. Synchronous (wait=true): Waits for the task to complete and returns the result
      * 2. Asynchronous (wait=false): Starts the task in a background thread and returns immediately
      *
-     * @param id Task ID
+     * @param id   Task ID
      * @param wait Whether to wait for task completion
      * @return Executed task with result (if wait=true) or accepted response (if wait=false)
      */
     @PostMapping("/{id}/execute")
-    @Operation(summary = "Execute a task", 
-              description = "Executes a task immediately in a separate thread. Can wait for completion (sync) or return immediately (async).")
+    @Operation(summary = "Execute a task",
+            description = "Executes a task immediately in a separate thread. Can wait for completion (sync) or return immediately (async).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task executed successfully (sync mode)",
                     content = @Content(schema = @Schema(implementation = TaskDTO.class))),
@@ -283,22 +283,22 @@ public class TaskController {
     })
     public ResponseEntity<?> executeTask(
             @Parameter(description = "Task ID", required = true) @PathVariable int id,
-            @Parameter(description = "Whether to wait for task completion", example = "true") 
+            @Parameter(description = "Whether to wait for task completion", example = "true")
             @RequestParam(required = false, defaultValue = "true") boolean wait) {
-        
+
         // Check if task exists
         if (taskService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         if (wait) {
             // Synchronous execution - wait for result
             Task executedTask = taskExecutor.executeTaskSync(id);
-            
+
             if (executedTask == null) {
                 return ResponseEntity.badRequest().build();
             }
-            
+
             return ResponseEntity.ok(new TaskDTO(executedTask));
         } else {
             // Asynchronous execution - return immediately
@@ -313,11 +313,11 @@ public class TaskController {
                         logger.error("Error executing task {} in background: {}", id, ex.getMessage());
                         return null;
                     });
-            
+
             return ResponseEntity.accepted().body("Task execution started in background");
         }
     }
-    
+
     /**
      * Gets thread pool statistics.
      * Useful for monitoring concurrent task execution.
@@ -329,7 +329,7 @@ public class TaskController {
     public ResponseEntity<String> getThreadPoolStats() {
         return ResponseEntity.ok(taskExecutor.getThreadPoolStats());
     }
-    
+
     /**
      * Gets the progress of a running task.
      * This is especially useful for long-running tasks that support progress tracking.
@@ -338,8 +338,8 @@ public class TaskController {
      * @return Task progress information
      */
     @GetMapping("/{id}/progress")
-    @Operation(summary = "Get task progress", 
-              description = "Retrieves progress information for a task, especially useful for long-running tasks")
+    @Operation(summary = "Get task progress",
+            description = "Retrieves progress information for a task, especially useful for long-running tasks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task progress retrieved successfully",
                     content = @Content(schema = @Schema(implementation = TaskProgressDTO.class))),
@@ -347,13 +347,13 @@ public class TaskController {
     })
     public ResponseEntity<TaskProgressDTO> getTaskProgress(
             @Parameter(description = "Task ID", required = true) @PathVariable int id) {
-        
+
         return taskService.findById(id)
                 .map(TaskProgressDTO::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Gets all tasks with a specific status.
      *
@@ -361,20 +361,20 @@ public class TaskController {
      * @return List of tasks with the specified status
      */
     @GetMapping("/status/{status}")
-    @Operation(summary = "Get tasks by status", 
-              description = "Retrieves all tasks with the specified status")
+    @Operation(summary = "Get tasks by status",
+            description = "Retrieves all tasks with the specified status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskDTO.class))))
     })
     public ResponseEntity<List<TaskDTO>> getTasksByStatus(
             @Parameter(description = "Task status", required = true) @PathVariable Status status) {
-        
+
         List<Task> tasks = taskService.findByStatus(status);
         List<TaskDTO> taskDTOs = tasks.stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toList());
-                
+
         return ResponseEntity.ok(taskDTOs);
     }
 }

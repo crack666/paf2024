@@ -27,11 +27,11 @@ public class PersistenceConfig {
                 // Create default admin user
                 User admin = new User(null, "Admin User", "admin@example.com");
                 userRepository.save(admin);
-                
+
                 // Create a test user
                 User testUser = new User(null, "Test User", "test@example.com");
                 userRepository.save(testUser);
-                
+
                 System.out.println("Initialized default users in the database");
             }
         };

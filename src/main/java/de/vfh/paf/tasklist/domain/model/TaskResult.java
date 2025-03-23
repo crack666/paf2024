@@ -1,6 +1,9 @@
 package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -8,22 +11,25 @@ import java.util.Objects;
  * Represents the result of a completed task.
  * This can be any type of computation result, such as a calculation, current time, etc.
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "task_results")
 public class TaskResult {
 
+    // Getters and Setters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
     private String title;
-    
+
     @Column(length = 4000)
     private String content;
-    
+
     @Column(name = "timestamp", updatable = false)
     private LocalDateTime timestamp;
-    
+
     @Column(name = "task_id")
     private Integer taskId;
 
@@ -33,14 +39,14 @@ public class TaskResult {
     public TaskResult() {
         this.timestamp = LocalDateTime.now();
     }
-    
+
     /**
      * Creates a new task result.
      *
-     * @param id The unique identifier for the result
-     * @param title The title of the result
+     * @param id      The unique identifier for the result
+     * @param title   The title of the result
      * @param content The computed content
-     * @param taskId The ID of the task this result belongs to
+     * @param taskId  The ID of the task this result belongs to
      */
     public TaskResult(Integer id, String title, String content, Integer taskId) {
         this.id = id;
@@ -53,55 +59,14 @@ public class TaskResult {
     /**
      * Creates a new task result with an auto-generated ID.
      *
-     * @param title The title of the result
-     * @param content The computed content
+     * @param title     The title of the result
+     * @param content   The computed content
      * @param timestamp The time when the result was computed
      */
     public TaskResult(String title, String content, LocalDateTime timestamp) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp;
-    }
-
-    // Getters and Setters
-    public Integer getId() {
-        return id;
-    }
-    
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-    
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Integer getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
     }
 
     // For backward compatibility
@@ -116,7 +81,7 @@ public class TaskResult {
     public LocalDateTime getComputedAt() {
         return timestamp;
     }
-    
+
     // For backward compatibility
     public String getResult() {
         return content;

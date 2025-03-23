@@ -17,7 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,16 +35,16 @@ import java.util.Optional;
 @Tag(name = "Task Details", description = "APIs for accessing detailed task information")
 public class TaskDetailsController {
     private static final Logger logger = LoggerFactory.getLogger(TaskDetailsController.class);
-    
+
     private final TaskService taskService;
     private final TaskResultRepository taskResultRepository;
-    
+
     @Autowired
     public TaskDetailsController(TaskService taskService, TaskResultRepository taskResultRepository) {
         this.taskService = taskService;
         this.taskResultRepository = taskResultRepository;
     }
-    
+
     /**
      * Gets detailed task information by ID, including task type and result.
      *
@@ -49,8 +52,8 @@ public class TaskDetailsController {
      * @return Enhanced task data
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get detailed task information", 
-              description = "Retrieves a task with enhanced type and result information")
+    @Operation(summary = "Get detailed task information",
+            description = "Retrieves a task with enhanced type and result information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task found",
                     content = @Content(schema = @Schema(implementation = TaskDTO.class))),
@@ -60,16 +63,16 @@ public class TaskDetailsController {
             @Parameter(description = "Task ID", required = true) @PathVariable int id) {
         // Get the task from the repository
         Optional<Task> taskOptional = taskService.findById(id);
-        
+
         if (taskOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         Task task = taskOptional.get();
-        
+
         // Create a task DTO with enhanced information
         TaskDTO taskDTO = new TaskDTO(task);
-        
+
         // Find the most recent result for this task
         List<TaskResult> results = taskResultRepository.findByTaskId(id);
         if (!results.isEmpty()) {
@@ -77,10 +80,10 @@ public class TaskDetailsController {
             TaskResult latestResult = results.getFirst();
             taskDTO.setResult(new TaskResultDTO(latestResult));
         }
-        
+
         return ResponseEntity.ok(taskDTO);
     }
-    
+
     /**
      * Gets task result by task ID.
      *
@@ -88,8 +91,8 @@ public class TaskDetailsController {
      * @return Task result data
      */
     @GetMapping("/{id}/result")
-    @Operation(summary = "Get task result", 
-              description = "Retrieves the result of a task by its ID")
+    @Operation(summary = "Get task result",
+            description = "Retrieves the result of a task by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Result found",
                     content = @Content(schema = @Schema(implementation = TaskResultDTO.class))),
@@ -97,22 +100,22 @@ public class TaskDetailsController {
     })
     public ResponseEntity<TaskResultDTO> getTaskResult(
             @Parameter(description = "Task ID", required = true) @PathVariable int id) {
-        
+
         try {
             // First, check if the task exists
             Optional<Task> taskOptional = taskService.findById(id);
             if (taskOptional.isEmpty()) {
                 logger.info("Task with ID {} not found", id);
             }
-            
+
             // Then, check for results associated with this task ID
             List<TaskResult> results = taskResultRepository.findByTaskId(id);
-            
+
             if (results.isEmpty()) {
                 logger.info("No results found for task ID {}", id);
                 return ResponseEntity.notFound().build();
             }
-            
+
             // Return the most recent result (typically the first in the list)
             TaskResult latestResult = results.getFirst();
             return ResponseEntity.ok(new TaskResultDTO(latestResult));

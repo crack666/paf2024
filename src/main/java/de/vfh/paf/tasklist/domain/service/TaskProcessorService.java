@@ -4,14 +4,14 @@ import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Status;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -20,26 +20,26 @@ import java.util.stream.Collectors;
  * Service for executing tasks.
  * This service is responsible for running tasks at their scheduled time
  * and when all dependencies are met.
- * 
+ * <p>
  * This demonstrates concurrent programming concepts with a thread pool
  * for executing tasks in parallel.
  */
 @Service
 public class TaskProcessorService {
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessorService.class);
-    
+
     private final TaskService taskService;
     private final TaskFactory taskRegistry;
     private final NotificationService notificationService;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     private ExecutorService taskThreadPool;
-    
+
     @Value("${tasklist.concurrent.thread-pool-size:5}")
     private int threadPoolSize;
-    
+
     @Value("${tasklist.concurrent.max-queue-size:100}")
     private int maxQueueSize;
-    
+
     @org.springframework.beans.factory.annotation.Autowired
     public TaskProcessorService(TaskService taskService, TaskFactory taskRegistry,
                                 NotificationService notificationService,
@@ -49,13 +49,13 @@ public class TaskProcessorService {
         this.notificationService = notificationService;
         this.taskResultRepository = taskResultRepository;
     }
-    
+
     @PostConstruct
     public void initialize() {
         // Create a bounded thread pool with a linked blocking queue
         // This demonstrates thread pool management for concurrent task execution
         BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>(maxQueueSize);
-        
+
         // Create a thread pool with custom thread factory to set meaningful names
         taskThreadPool = new ThreadPoolExecutor(
                 threadPoolSize,             // Core pool size
@@ -70,10 +70,10 @@ public class TaskProcessorService {
                     return thread;
                 }
         );
-        
+
         logger.info("TaskExecutor initialized with thread pool size: {}", threadPoolSize);
     }
-    
+
     @PreDestroy
     public void shutdown() {
         logger.info("Shutting down task executor thread pool");
@@ -90,7 +90,7 @@ public class TaskProcessorService {
             Thread.currentThread().interrupt();
         }
     }
-    
+
     /**
      * Executes a task by its ID.
      * The task will only be executed if it's ready to run.
@@ -102,7 +102,7 @@ public class TaskProcessorService {
     public CompletableFuture<Task> executeTask(int taskId) {
         // Create a CompletableFuture for the result
         CompletableFuture<Task> future = new CompletableFuture<>();
-        
+
         // Find the task and check if it's ready to run
         taskService.findById(taskId)
                 .filter(Task::isReadyToRun)
@@ -119,10 +119,10 @@ public class TaskProcessorService {
                         },
                         () -> future.complete(null)
                 );
-        
+
         return future;
     }
-    
+
     /**
      * Executes a task synchronously (blocks until completion).
      * Used when you need the result immediately.
@@ -142,7 +142,7 @@ public class TaskProcessorService {
             return null;
         }
     }
-    
+
     /**
      * Executes the task implementation and updates the task with the result.
      *
@@ -150,9 +150,9 @@ public class TaskProcessorService {
      * @return The updated task with results
      */
     private Task runTask(Task task) {
-        logger.info("Executing task: {} (ID: {}) in thread: {}", 
+        logger.info("Executing task: {} (ID: {}) in thread: {}",
                 task.getTitle(), task.getId(), Thread.currentThread().getName());
-        
+
         try {
             // Update status to running
             task.updateDetails(
@@ -168,7 +168,7 @@ public class TaskProcessorService {
                     task.getDueDate(),
                     Status.RUNNING
             );
-            
+
             // Send notification that task has started
             notificationService.sendNotification(
                     "TASK_STARTED",
@@ -177,27 +177,27 @@ public class TaskProcessorService {
                     String.format("Task '%s' has started execution", updatedTask.getTitle()),
                     updatedTask.getId()
             );
-            
+
             // Get the task implementation
             RunnableTask taskImplementation = taskRegistry.getTaskType(updatedTask.getTaskClassName());
             if (taskImplementation == null) {
                 logger.error("Task implementation not found: {}", updatedTask.getTaskClassName());
                 return updatedTask;
             }
-            
+
             // Run the task implementation
             TaskResult result = taskImplementation.run(updatedTask);
-            
+
             // Update the task with the result
             updatedTask.setResult(result);
             updatedTask.markComplete();
-            
+
             // Save the task result to the database (using JPA repository)
             if (result != null && result.getTaskId() == null) {
                 result.setTaskId(updatedTask.getId());
             }
             taskResultRepository.save(result);
-            
+
             // Save the updated task
             Task completedTask = taskService.updateTask(
                     updatedTask.getId(),
@@ -206,10 +206,10 @@ public class TaskProcessorService {
                     updatedTask.getDueDate(),
                     Status.DONE
             );
-            
+
             // Load the result back into the completed task
             completedTask.setResult(result);
-            
+
             // Send notification that task has completed
             notificationService.sendNotification(
                     "TASK_COMPLETED",
@@ -218,11 +218,11 @@ public class TaskProcessorService {
                     String.format("Task '%s' has been completed", completedTask.getTitle()),
                     completedTask.getId()
             );
-            
+
             return completedTask;
         } catch (Exception e) {
             logger.error("Error executing task: {} (ID: {})", task.getTitle(), task.getId(), e);
-            
+
             // Send notification about task execution error
             notificationService.sendNotification(
                     "TASK_ERROR",
@@ -231,11 +231,11 @@ public class TaskProcessorService {
                     String.format("Error executing task '%s': %s", task.getTitle(), e.getMessage()),
                     task.getId()
             );
-            
+
             return task;
         }
     }
-    
+
     /**
      * Scheduled task that runs every minute to check for tasks that are ready to run.
      * Any ready tasks are executed in parallel using the thread pool.
@@ -243,23 +243,23 @@ public class TaskProcessorService {
     @Scheduled(fixedRateString = "${tasklist.scheduling.task-check-seconds:60}000")
     public void checkForReadyTasks() {
         logger.debug("Checking for ready tasks...");
-        
+
         List<Task> readyTasks = taskService.findReadyToRunTasks();
         logger.debug("Found {} ready tasks", readyTasks.size());
-        
+
         if (!readyTasks.isEmpty()) {
             logger.info("Executing {} ready tasks in parallel", readyTasks.size());
-            
+
             // Execute each ready task in parallel using the thread pool
             List<CompletableFuture<Task>> futures = readyTasks.stream()
                     .map(task -> executeTask(task.getId()))
                     .collect(Collectors.toList());
-            
+
             // Optionally, wait for all tasks to complete
             // CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         }
     }
-    
+
     /**
      * Get the current task thread pool statistics.
      * This can be used for monitoring thread pool usage.
@@ -271,8 +271,8 @@ public class TaskProcessorService {
             ThreadPoolExecutor executor = (ThreadPoolExecutor) taskThreadPool;
             return String.format(
                     "Thread pool stats: " +
-                    "Active threads: %d, Pool size: %d, Core pool size: %d, " +
-                    "Task count: %d, Completed tasks: %d, Queue size: %d",
+                            "Active threads: %d, Pool size: %d, Core pool size: %d, " +
+                            "Task count: %d, Completed tasks: %d, Queue size: %d",
                     executor.getActiveCount(),
                     executor.getPoolSize(),
                     executor.getCorePoolSize(),

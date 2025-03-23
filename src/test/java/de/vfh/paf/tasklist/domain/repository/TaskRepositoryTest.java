@@ -1,7 +1,7 @@
 package de.vfh.paf.tasklist.domain.repository;
 
-import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.Status;
+import de.vfh.paf.tasklist.domain.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,31 +17,31 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ActiveProfiles("test")
 class TaskRepositoryTest {
-    
+
     @Autowired
     private TaskRepository taskRepository;
-    
+
     private Task task1;
     private Task task2;
 
     @BeforeEach
     void setUp() {
         taskRepository.deleteAll();
-        
+
         task1 = new Task();
         task1.setTitle("Task 1");
         task1.setDueDate(LocalDateTime.now().plusDays(1));
         task1.setAssignedUserId(100);
         task1.setStatus(Status.CREATED);
         task1.setCreatedAt(LocalDateTime.now());
-        
+
         task2 = new Task();
         task2.setTitle("Task 2");
         task2.setDueDate(LocalDateTime.now().plusDays(2));
-        task2.setAssignedUserId(100);  
+        task2.setAssignedUserId(100);
         task2.setStatus(Status.CREATED);
         task2.setCreatedAt(LocalDateTime.now());
-        
+
         task1 = taskRepository.save(task1);
         task2 = taskRepository.save(task2);
     }
@@ -55,10 +55,10 @@ class TaskRepositoryTest {
         newTask.setAssignedUserId(200);
         newTask.setStatus(Status.CREATED);
         newTask.setCreatedAt(LocalDateTime.now());
-        
+
         // Act
         Task savedTask = taskRepository.save(newTask);
-        
+
         // Assert
         assertNotNull(savedTask.getId());
         assertEquals("New Task", savedTask.getTitle());
@@ -68,7 +68,7 @@ class TaskRepositoryTest {
     void shouldFindTaskById() {
         // Act
         Optional<Task> foundTask = taskRepository.findById(task1.getId());
-        
+
         // Assert
         assertTrue(foundTask.isPresent());
         assertEquals(task1.getId(), foundTask.get().getId());
@@ -78,7 +78,7 @@ class TaskRepositoryTest {
     void shouldReturnEmptyOptionalForNonExistentTask() {
         // Act
         Optional<Task> foundTask = taskRepository.findById(9999);
-        
+
         // Assert
         assertFalse(foundTask.isPresent());
     }
@@ -93,10 +93,10 @@ class TaskRepositoryTest {
         task3.setStatus(Status.CREATED);
         task3.setCreatedAt(LocalDateTime.now());
         taskRepository.save(task3);
-        
+
         // Act
         List<Task> tasks = taskRepository.findAllByAssignedUserId(100);
-        
+
         // Assert
         assertEquals(2, tasks.size());
         assertTrue(tasks.stream().anyMatch(t -> t.getId().equals(task1.getId())));
@@ -114,15 +114,15 @@ class TaskRepositoryTest {
         dependency.setStatus(Status.CREATED);
         dependency.setCreatedAt(LocalDateTime.now());
         dependency = taskRepository.save(dependency);
-        
+
         task1.addDependency(dependency);
         task2.addDependency(dependency);
         taskRepository.save(task1);
         taskRepository.save(task2);
-        
+
         // Act
         List<Task> dependentTasks = taskRepository.findTasksByDependency(dependency.getId());
-        
+
         // Assert
         assertEquals(2, dependentTasks.size());
         assertTrue(dependentTasks.stream().anyMatch(t -> t.getId().equals(task1.getId())));
@@ -133,7 +133,7 @@ class TaskRepositoryTest {
     void shouldFindOverdueTasks() {
         // Arrange
         LocalDateTime now = LocalDateTime.now();
-        
+
         Task overdueTask1 = new Task();
         overdueTask1.setTitle("Overdue Task 1");
         overdueTask1.setDueDate(now.minusDays(1));
@@ -141,7 +141,7 @@ class TaskRepositoryTest {
         overdueTask1.setCompleted(false);
         overdueTask1.setStatus(Status.CREATED);
         overdueTask1.setCreatedAt(LocalDateTime.now());
-        
+
         Task overdueTask2 = new Task();
         overdueTask2.setTitle("Overdue Task 2");
         overdueTask2.setDueDate(now.minusHours(2));
@@ -149,13 +149,13 @@ class TaskRepositoryTest {
         overdueTask2.setCompleted(false);
         overdueTask2.setStatus(Status.CREATED);
         overdueTask2.setCreatedAt(LocalDateTime.now());
-        
+
         taskRepository.save(overdueTask1);
         taskRepository.save(overdueTask2);
-        
+
         // Act
         List<Task> overdueTasks = taskRepository.findOverdueTasks(now);
-        
+
         // Assert
         assertEquals(2, overdueTasks.size());
         assertTrue(overdueTasks.stream().anyMatch(t -> t.getTitle().equals("Overdue Task 1")));

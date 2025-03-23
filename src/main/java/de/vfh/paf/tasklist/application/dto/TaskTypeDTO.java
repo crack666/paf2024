@@ -17,16 +17,16 @@ public class TaskTypeDTO {
     @Schema(description = "Fully qualified class name of the task",
             example = "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask")
     private String className;
-    
+
     @Schema(description = "Human-readable name of the task", example = "Calculate Pi")
     private String name;
-    
+
     @Schema(description = "Description of what the task does")
     private String description;
-    
+
     public TaskTypeDTO() {
     }
-    
+
     public TaskTypeDTO(String className, RunnableTask taskType) {
         this.className = className;
         this.name = taskType.getName();
