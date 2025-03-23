@@ -146,18 +146,6 @@ public class Task {
     }
 
     /**
-     * Sets the result of the task execution.
-     * This method is intentionally kept to avoid compilation errors in Task.java
-     * and is used by both the previous in-memory implementation and the new JPA implementation.
-     *
-     * @param result The result of the task execution
-     */
-    public void setResult(TaskResult result) {
-        this.result = result;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    /**
      * Adds a dependency to this task.
      *
      * @param task The task that this task depends on
@@ -314,6 +302,18 @@ public class Task {
 
     public TaskResult getResult() {
         return result;
+    }
+
+    /**
+     * Sets the result of the task execution.
+     * This method is intentionally kept to avoid compilation errors in Task.java
+     * and is used by both the previous in-memory implementation and the new JPA implementation.
+     *
+     * @param result The result of the task execution
+     */
+    public void setResult(TaskResult result) {
+        this.result = result;
+        this.updatedAt = LocalDateTime.now();
     }
 
     @Override

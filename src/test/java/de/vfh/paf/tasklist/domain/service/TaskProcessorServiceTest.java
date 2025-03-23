@@ -27,23 +27,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class TaskProcessorServiceTest {
 
+    private final String taskClassName = CalculatePiTask.class.getName();
     @Mock
     private TaskService taskService;
-
     @Mock
     private TaskFactory taskRegistry;
-
     @Mock
     private NotificationService notificationService;
-
     @Mock
     private de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
-
     @InjectMocks
     private TaskProcessorService taskExecutor;
-
     private Task testTask;
-    private final String taskClassName = CalculatePiTask.class.getName();
 
     @BeforeEach
     void setUp() {

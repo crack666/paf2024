@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 public class TaskQueueService {
     private final TaskRepository taskRepository;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
-    private TaskWebSocketController taskWebSocketController; // Not final to allow setter injection
     private final Map<Integer, TaskQueue> queues = new HashMap<>();
     // Keep track of processed tasks for each queue with their results
     private final Map<Integer, Map<Integer, TaskResult>> queueProcessedTasks = new ConcurrentHashMap<>();
     private final AtomicInteger queueIdGenerator = new AtomicInteger(1);
     private final AtomicInteger resultIdGenerator = new AtomicInteger(1);
+    private TaskWebSocketController taskWebSocketController; // Not final to allow setter injection
 
     /**
      * Creates a new task queue service.

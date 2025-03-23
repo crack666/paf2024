@@ -3,6 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+/PatternsAndFrameworks_Frontend/
 
 ### STS ###
 .apt_generated

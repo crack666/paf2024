@@ -21,6 +21,16 @@ public class CalculatePiTask implements RunnableTask {
     // Progress tracking for all running tasks (taskId -> progress data)
     private static final ConcurrentHashMap<Integer, ProgressData> taskProgress = new ConcurrentHashMap<>();
 
+    /**
+     * Gets the current progress of a task.
+     *
+     * @param taskId The ID of the task
+     * @return The progress data, or null if task is not running
+     */
+    public static ProgressData getProgress(int taskId) {
+        return taskProgress.get(taskId);
+    }
+
     @Override
     public TaskResult run(Task task) {
         // Extract the number of iterations from task description, or use default
@@ -68,16 +78,6 @@ public class CalculatePiTask implements RunnableTask {
         return "Calculates the value of Pi using the Leibniz formula. " +
                 "You can specify the number of iterations using 'iterations=X' in the task description. " +
                 "This task supports progress tracking during execution.";
-    }
-
-    /**
-     * Gets the current progress of a task.
-     *
-     * @param taskId The ID of the task
-     * @return The progress data, or null if task is not running
-     */
-    public static ProgressData getProgress(int taskId) {
-        return taskProgress.get(taskId);
     }
 
     /**
@@ -131,13 +131,13 @@ public class CalculatePiTask implements RunnableTask {
         private final int totalIterations;
         private final AtomicInteger currentIteration;
         @Getter
+        private final LocalDateTime startTime;
+        @Getter
         @Setter
         private volatile double currentValue;
         @Setter
         @Getter
         private volatile double finalValue;
-        @Getter
-        private final LocalDateTime startTime;
 
         public ProgressData(int totalIterations) {
             this.totalIterations = totalIterations;

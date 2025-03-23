@@ -155,12 +155,6 @@ public class TaskProcessorService {
 
         try {
             // Update status to running
-            task.updateDetails(
-                    task.getTitle(),
-                    task.getDescription(),
-                    task.getDueDate(),
-                    Status.RUNNING
-            );
             Task updatedTask = taskService.updateTask(
                     task.getId(),
                     task.getTitle(),
@@ -267,8 +261,7 @@ public class TaskProcessorService {
      * @return A string containing thread pool statistics
      */
     public String getThreadPoolStats() {
-        if (taskThreadPool instanceof ThreadPoolExecutor) {
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) taskThreadPool;
+        if (taskThreadPool instanceof ThreadPoolExecutor executor) {
             return String.format(
                     "Thread pool stats: " +
                             "Active threads: %d, Pool size: %d, Core pool size: %d, " +
