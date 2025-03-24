@@ -50,7 +50,7 @@ public class TaskProcessorServiceTest {
         when(notificationService.sendNotification(anyString(), anyString(), anyInt(), anyString(), any())).thenReturn(true);
 
         // Create a test task
-        testTask = new Task(1, "Test Task", "Description", LocalDateTime.now().plusDays(1), TaskStatus.QUEUED, 1, taskClassName, null);
+        testTask = new Task(1, "Test Task", "Description", LocalDateTime.now().plusDays(1), TaskStatus.QUEUED, 1, taskClassName);
 
         // Set the task as ready to run
         ReflectionTestUtils.setField(testTask, "dependencies", new ArrayList<>());
@@ -114,7 +114,7 @@ public class TaskProcessorServiceTest {
 
         // Mock task service for multiple tasks
         for (int i = 1; i <= taskCount; i++) {
-            Task task = new Task(i, "Test Task " + i, "Description " + i, LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName, null);
+            Task task = new Task(i, "Test Task " + i, "Description " + i, LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
             ReflectionTestUtils.setField(task, "dependencies", new ArrayList<>());
             tasks.add(task);
             when(taskService.findById(i)).thenReturn(Optional.of(task));

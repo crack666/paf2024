@@ -37,12 +37,11 @@ public class TaskService {
      * @param dueDate       The due date for the task
      * @param userId        The ID of the user assigned to the task
      * @param taskClassName The fully qualified class name of the task implementation
-     * @param scheduledTime The time when the task should be executed
      * @return The created task
      */
     public Task createRunnableTask(String title, String description, LocalDateTime dueDate,
-                                   int userId, String taskClassName, LocalDateTime scheduledTime) {
-        Task task = new Task(null, title, description, dueDate, userId, taskClassName, scheduledTime);
+                                   int userId, String taskClassName) {
+        Task task = new Task(null, title, description, dueDate, userId, taskClassName);
         return taskRepository.save(task);
     }
 

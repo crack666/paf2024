@@ -1,8 +1,8 @@
 package de.vfh.paf.tasklist.application.dto;
 
-import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
+import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,9 +51,6 @@ public class TaskDTO {
             example = "CalculatePiTask")
     private String taskType;
 
-    @Schema(description = "Time when the task should be executed",
-            example = "2025-12-31T10:00:00")
-    private LocalDateTime scheduledTime;
 
     @Schema(description = "Creation timestamp of the task")
     private LocalDateTime createdAt;
@@ -103,7 +100,6 @@ public class TaskDTO {
             this.taskType = "Standard Task";
         }
 
-        this.scheduledTime = task.getScheduledTime();
         this.createdAt = task.getCreatedAt();
         this.updatedAt = task.getUpdatedAt();
 

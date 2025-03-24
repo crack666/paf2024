@@ -1,7 +1,6 @@
 package de.vfh.paf.tasklist.domain.tasks;
 
 import de.vfh.paf.tasklist.domain.model.AbstractRunnableTask;
-import de.vfh.paf.tasklist.domain.model.RunnableTask;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import lombok.Getter;

@@ -41,13 +41,13 @@ public class DataInitializer {
 
                 // Create tasks
                 Task task1 = new Task(null, "Calculate Pi Demo Task","Create a comprehensive project plan for the Q2 release",
-                        LocalDateTime.now().plusDays(5), TaskStatus.CREATED, john.getId(), "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+                        LocalDateTime.now().plusDays(5), TaskStatus.CREATED, john.getId(), "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
                 Task task2 = new Task(null, "Generate Sales Report","type=Sales",
-                        LocalDateTime.now().plusDays(2), TaskStatus.CREATED, jane.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask", LocalDateTime.now());
+                        LocalDateTime.now().plusDays(2), TaskStatus.CREATED, jane.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask");
 
                 Task task3 = new Task(null, "Generate Performance Report","type=Performance",
-                        LocalDateTime.now().plusDays(3), TaskStatus.CREATED, admin.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask", LocalDateTime.now());
+                        LocalDateTime.now().plusDays(3), TaskStatus.CREATED, admin.getId(), "de.vfh.paf.tasklist.domain.tasks.GenerateReportTask");
 
                 List<Task> tasks = Arrays.asList(task1, task2, task3);
                 taskRepository.saveAll(tasks);

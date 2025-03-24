@@ -2,6 +2,7 @@ package de.vfh.paf.tasklist.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class Task {
     @Setter
     @Getter
     private String title;
+
     @Setter
     @Getter
     private String description;
@@ -33,6 +35,7 @@ public class Task {
     @Setter
     @Getter
     @Column(name = "due_date")
+    @NonNull
     private LocalDateTime dueDate; // Time when the task should be executed
 
     @Setter
@@ -43,6 +46,11 @@ public class Task {
     @Getter
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Getter
+    @Setter
+    @Column(name="completed_at")
+    private LocalDateTime completedAt;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus taskStatus;
@@ -67,10 +75,6 @@ public class Task {
     private String taskClassName; // Fully qualified class name of the task implementation
 
     @Getter
-    @Column(name = "scheduled_time")
-    private LocalDateTime scheduledTime; // Time when the task should be executed
-
-    @Getter
     @Transient // We'll handle this separately due to its complex structure
     private TaskResult result; // Result of the task execution
 
@@ -91,10 +95,9 @@ public class Task {
      * @param dueDate        The due date for the task
      * @param assignedUserId The ID of the user assigned to the task
      * @param taskClassName  The class name of the task implementation
-     * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
-        this(id, title, description, dueDate, TaskStatus.CREATED, assignedUserId, taskClassName, scheduledTime);
+    public Task(Integer id, String title, String description, LocalDateTime dueDate, Integer assignedUserId, String taskClassName) {
+        this(id, title, description, dueDate, TaskStatus.CREATED, assignedUserId, taskClassName);
     }
 
     /**
@@ -107,9 +110,8 @@ public class Task {
      * @param taskStatus     The status of the task
      * @param assignedUserId The ID of the user assigned to the task
      * @param taskClassName  The class name of the task implementation
-     * @param scheduledTime  The time when the task should be executed
      */
-    public Task(Integer id, String title, String description, LocalDateTime dueDate, TaskStatus taskStatus, Integer assignedUserId, String taskClassName, LocalDateTime scheduledTime) {
+    public Task(Integer id, String title, String description, @NonNull LocalDateTime dueDate, TaskStatus taskStatus, Integer assignedUserId, String taskClassName) {
         if (taskClassName == null) { throw new IllegalArgumentException("Task class name must not be null"); }
         this.id = id;
         this.title = title;
@@ -119,7 +121,6 @@ public class Task {
         this.taskStatus = taskStatus;
         this.assignedUserId = assignedUserId;
         this.taskClassName = taskClassName;
-        this.scheduledTime = scheduledTime;
     }
 
     /**
@@ -128,6 +129,7 @@ public class Task {
     public void markComplete() {
         this.taskStatus = TaskStatus.DONE;
         this.updatedAt = LocalDateTime.now();
+        this.completedAt = LocalDateTime.now();
     }
 
     /**
@@ -144,17 +146,18 @@ public class Task {
         this.dueDate = dueDate;
         this.taskStatus = taskStatus;
         this.updatedAt = LocalDateTime.now();
+        if (taskStatus  == TaskStatus.DONE && this.completedAt == null) {
+            this.completedAt = LocalDateTime.now();
+        }
     }
 
     /**
      * Updates the scheduling details of the task.
      *
      * @param taskClassName The class name of the task implementation
-     * @param scheduledTime The time when the task should be executed
      */
-    public void updateScheduling(String taskClassName, LocalDateTime scheduledTime) {
+    public void updateScheduling(String taskClassName) {
         this.taskClassName = taskClassName;
-        this.scheduledTime = scheduledTime;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -164,7 +167,7 @@ public class Task {
      * @param task The task that this task depends on
      */
     public void addDependency(Task task) {
-        if (!dependencies.contains(task) && task.getId() != this.id) {
+        if (!dependencies.contains(task) && !Objects.equals(task.getId(), this.id)) {
             dependencies.add(task);
             this.updatedAt = LocalDateTime.now();
         }
@@ -199,7 +202,7 @@ public class Task {
             System.out.println("Task " + id + " not ready: no class");
             return false;
         }
-        if (scheduledTime != null && scheduledTime.isAfter(LocalDateTime.now())) {
+        if (dueDate.isAfter(LocalDateTime.now())) {
             System.out.println("Task " + id + " not ready: scheduled in future");
             return false;
         }
@@ -208,7 +211,7 @@ public class Task {
             return false;
         }
 
-        if (scheduledTime != null && scheduledTime.isAfter(LocalDateTime.now())) {
+        if (dueDate.isBefore(LocalDateTime.now())) {
             return false;
         }
 
@@ -230,10 +233,6 @@ public class Task {
 
     public TaskStatus getStatus() {
         return taskStatus;
-    }
-
-    public void setStatus(TaskStatus taskStatus) {
-        this.taskStatus = taskStatus;
     }
     /**
      * Sets the result of the task execution.

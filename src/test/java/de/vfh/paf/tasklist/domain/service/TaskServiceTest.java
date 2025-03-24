@@ -46,7 +46,7 @@ class TaskServiceTest {
         int userId = 100;
 
         // Act
-        Task createdTask = taskService.createRunnableTask(title, description, dueDate, userId, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task createdTask = taskService.createRunnableTask(title, description, dueDate, userId, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Assert
         assertNotNull(createdTask);
@@ -65,7 +65,7 @@ class TaskServiceTest {
     @Test
     void shouldUpdateTask() {
         // Arrange
-        Task task = taskService.createRunnableTask("Original Task", "Original description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task = taskService.createRunnableTask("Original Task", "Original description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         String newTitle = "Updated Task";
         String newDescription = "Updated description";
@@ -91,7 +91,7 @@ class TaskServiceTest {
     @Test
     void shouldCompleteTask() {
         // Arrange
-        Task task = taskService.createRunnableTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task = taskService.createRunnableTask("Test Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
         assertNotEquals(TaskStatus.DONE, task.getStatus());
 
         // Act
@@ -108,8 +108,8 @@ class TaskServiceTest {
     @Test
     void shouldAddDependency() {
         // Arrange
-        Task task = taskService.createRunnableTask("Main Task", "Description", LocalDateTime.now().plusDays(2), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task dependency = taskService.createRunnableTask("Dependency Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task = taskService.createRunnableTask("Main Task", "Description", LocalDateTime.now().plusDays(2), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task dependency = taskService.createRunnableTask("Dependency Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Act
         Task taskWithDependency = taskService.addDependency(task.getId(), dependency.getId());
@@ -129,8 +129,8 @@ class TaskServiceTest {
     @Test
     void shouldRemoveDependency() {
         // Arrange
-        Task task = taskService.createRunnableTask("Main Task", "Description", LocalDateTime.now().plusDays(2), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task dependency = taskService.createRunnableTask("Dependency Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task = taskService.createRunnableTask("Main Task", "Description", LocalDateTime.now().plusDays(2), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task dependency = taskService.createRunnableTask("Dependency Task", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
         taskService.addDependency(task.getId(), dependency.getId());
 
         // Act
@@ -148,9 +148,9 @@ class TaskServiceTest {
     @Test
     void shouldDetectDeadlock() {
         // Arrange
-        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Create a cycle: task1 -> task2 -> task3 -> task1
         taskService.addDependency(task1.getId(), task2.getId());
@@ -167,8 +167,8 @@ class TaskServiceTest {
     @Test
     void shouldDetectDeadlockWithTwoTasks() {
         // Arrange
-        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Create a cycle: task1 -> task2 -> task1
         taskService.addDependency(task1.getId(), task2.getId());
@@ -184,9 +184,9 @@ class TaskServiceTest {
     @Test
     void shouldNotDetectDeadlockWithoutCycle() {
         // Arrange
-        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Create a linear dependency chain: task1 -> task2 -> task3
         taskService.addDependency(task1.getId(), task2.getId());
@@ -202,11 +202,11 @@ class TaskServiceTest {
     @Test
     void shouldDetectDeadlockInComplexDependencyGraph() {
         // Arrange
-        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task4 = taskService.createRunnableTask("Task 4", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
-        Task task5 = taskService.createRunnableTask("Task 5", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task2 = taskService.createRunnableTask("Task 2", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task3 = taskService.createRunnableTask("Task 3", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task1 = taskService.createRunnableTask("Task 1", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task4 = taskService.createRunnableTask("Task 4", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
+        Task task5 = taskService.createRunnableTask("Task 5", "Description", LocalDateTime.now().plusDays(1), 100, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Create a complex dependency graph with a cycle
         // task1 -> task2 -> task3 -> task5

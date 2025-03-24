@@ -79,8 +79,7 @@ public class TaskController {
                     taskDTO.getDescription(),
                     taskDTO.getDueDate(),
                     taskDTO.getAssignedUserId(),
-                    taskClassName,
-                    taskDTO.getScheduledTime()
+                    taskClassName
             );
             return ResponseEntity.ok(new TaskDTO(task));
         }
