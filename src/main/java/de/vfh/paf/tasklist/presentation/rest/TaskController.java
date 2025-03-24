@@ -132,8 +132,7 @@ public class TaskController {
                 id,
                 taskDTO.getTitle(),
                 taskDTO.getDescription(),
-                taskDTO.getDueDate(),
-                taskDTO.getTaskStatus()
+                taskDTO.getDueDate()
         );
 
         if (updatedTask == null) {

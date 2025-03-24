@@ -48,7 +48,7 @@ class UserTest {
     void shouldAddAndGetTask() {
         // Arrange
         User user = new User(1, "John Doe", "john.doe@example.com");
-        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), 1, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask", LocalDateTime.now());
+        Task task = new Task(1, "Test Task", "Description 1", LocalDateTime.now().plusDays(1), 1, "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
         // Act
         user.addTask(task);

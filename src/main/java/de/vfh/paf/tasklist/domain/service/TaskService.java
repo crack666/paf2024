@@ -52,15 +52,14 @@ public class TaskService {
      * @param title       The new title
      * @param description The new description
      * @param dueDate     The new due date
-     * @param taskStatus  The new status
      * @return The updated task, or null if the task is not found
      */
-    public Task updateTask(int taskId, String title, String description, LocalDateTime dueDate, TaskStatus taskStatus) {
+    public Task updateTask(int taskId, String title, String description, LocalDateTime dueDate) {
         Optional<Task> optionalTask = taskRepository.findById(taskId);
 
         if (optionalTask.isPresent()) {
             Task task = optionalTask.get();
-            task.updateDetails(title, description, dueDate, taskStatus);
+            task.updateDetails(title, description, dueDate);
             return taskRepository.save(task);
         }
 

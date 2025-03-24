@@ -32,6 +32,7 @@ public class TaskProcessorService {
     private final TaskFactory taskRegistry;
     private final NotificationService notificationService;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
+    private final de.vfh.paf.tasklist.domain.repository.TaskRepository taskRepository;
     private ExecutorService taskThreadPool;
 
     @Value("${tasklist.concurrent.thread-pool-size:5}")
@@ -43,11 +44,13 @@ public class TaskProcessorService {
     @org.springframework.beans.factory.annotation.Autowired
     public TaskProcessorService(TaskService taskService, TaskFactory taskRegistry,
                                 NotificationService notificationService,
-                                de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository) {
+                                de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository,
+                                de.vfh.paf.tasklist.domain.repository.TaskRepository taskRepository) {
         this.taskService = taskService;
         this.taskRegistry = taskRegistry;
         this.notificationService = notificationService;
         this.taskResultRepository = taskResultRepository;
+        this.taskRepository = taskRepository;
     }
 
     @PostConstruct
@@ -155,66 +158,55 @@ public class TaskProcessorService {
 
         try {
             // Update status to running
-            Task updatedTask = taskService.updateTask(
-                    task.getId(),
-                    task.getTitle(),
-                    task.getDescription(),
-                    task.getDueDate(),
-                    TaskStatus.RUNNING
-            );
+            if (!task.transitionTo(TaskStatus.RUNNING)) {
+                logger.error("Invalid state transition for task: {} (ID: {})", task.getTitle(), task.getId());
+                return task;
+            }
+
+            taskRepository.save(task);
 
             // Send notification that task has started
             notificationService.sendNotification(
                     "TASK_STARTED",
                     "NORMAL",
-                    updatedTask.getAssignedUserId(),
-                    String.format("Task '%s' has started execution", updatedTask.getTitle()),
-                    updatedTask.getId()
+                    task.getAssignedUserId(),
+                    String.format("Task '%s' has started execution", task.getTitle()),
+                    task.getId()
             );
 
             // Get the task implementation
-            RunnableTask taskImplementation = taskRegistry.getTaskType(updatedTask.getTaskClassName());
+            RunnableTask taskImplementation = taskRegistry.getTaskType(task.getTaskClassName());
             if (taskImplementation == null) {
-                logger.error("Task implementation not found: {}", updatedTask.getTaskClassName());
-                return updatedTask;
+                logger.error("Task implementation not found: {}", task.getTaskClassName());
+                return task;
             }
 
             // Run the task implementation
-            TaskResult result = taskImplementation.run(updatedTask);
+            TaskResult result = taskImplementation.run(task);
 
             // Update the task with the result
-            updatedTask.setResult(result);
-            updatedTask.markComplete();
+            task.setResult(result);
+            task.markComplete();
 
             // Save the task result to the database (using JPA repository)
             if (result != null && result.getTaskId() == null) {
-                result.setTaskId(updatedTask.getId());
+                result.setTaskId(task.getId());
+                taskResultRepository.save(result);
             }
-            taskResultRepository.save(result);
+            taskRepository.save(task);
 
-            // Save the updated task
-            Task completedTask = taskService.updateTask(
-                    updatedTask.getId(),
-                    updatedTask.getTitle(),
-                    updatedTask.getDescription(),
-                    updatedTask.getDueDate(),
-                    TaskStatus.DONE
-            );
 
-            // Load the result back into the completed task
-            completedTask.setResult(result);
-
-            logger.error("TASK_COMPLETED notification for: {}", completedTask.getId());
+            logger.error("TASK_COMPLETED notification for: {}", task.getId());
             // Send notification that task has completed
             notificationService.sendNotification(
                     "TASK_COMPLETED",
                     "HIGH",
-                    completedTask.getAssignedUserId(),
-                    String.format("Task '%s' has been completed", completedTask.getTitle()),
-                    completedTask.getId()
+                    task.getAssignedUserId(),
+                    String.format("Task '%s' has been completed", task.getTitle()),
+                    task.getId()
             );
 
-            return completedTask;
+            return task;
         } catch (Exception e) {
             logger.error("Error executing task: {} (ID: {})", task.getTitle(), task.getId(), e);
 

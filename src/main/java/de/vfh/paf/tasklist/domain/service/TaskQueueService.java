@@ -6,6 +6,8 @@ import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
 import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.presentation.websocket.TaskWebSocketController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
  */
 @org.springframework.stereotype.Service
 public class TaskQueueService {
+    private static final Logger logger = LoggerFactory.getLogger(TaskQueueService.class);
+
     private final TaskRepository taskRepository;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     private final Map<Integer, TaskQueue> queues = new HashMap<>();
@@ -119,7 +123,9 @@ public class TaskQueueService {
         }
 
         // Save the task with the RUNNING status
-        task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), TaskStatus.RUNNING);
+        if (!task.transitionTo(TaskStatus.RUNNING)) {
+            logger.error("executeNextTask: Task {} (ID: {}) could not transition to status RUNNING.", task.getTitle(), task.getId());
+        }
         taskRepository.save(task);
 
         // Notify that task status is now RUNNING (if WebSocket controller is available)

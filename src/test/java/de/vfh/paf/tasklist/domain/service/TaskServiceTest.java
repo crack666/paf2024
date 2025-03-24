@@ -73,7 +73,8 @@ class TaskServiceTest {
         TaskStatus newTaskStatus = TaskStatus.QUEUED;
 
         // Act
-        Task updatedTask = taskService.updateTask(task.getId(), newTitle, newDescription, newDueDate, newTaskStatus);
+        task.transitionTo(TaskStatus.QUEUED);
+        Task updatedTask = taskService.updateTask(task.getId(), newTitle, newDescription, newDueDate);
 
         // Assert
         assertNotNull(updatedTask);
@@ -95,6 +96,8 @@ class TaskServiceTest {
         assertNotEquals(TaskStatus.DONE, task.getStatus());
 
         // Act
+        task.transitionTo(TaskStatus.QUEUED);
+        task.transitionTo(TaskStatus.RUNNING);
         Task completedTask = taskService.completeTask(task.getId());
 
         // Assert

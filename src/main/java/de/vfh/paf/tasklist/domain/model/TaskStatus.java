@@ -19,5 +19,14 @@ public enum TaskStatus {
     RUNNING,
 
     @Schema(description = "Task has been completed successfully")
-    DONE
+    DONE;
+
+    public boolean canTransitionTo(TaskStatus nextStatus) {
+        return switch (this) {
+            case CREATED -> nextStatus == QUEUED;
+            case QUEUED -> nextStatus == RUNNING;
+            case RUNNING -> nextStatus == DONE;
+            default -> false;
+        };
+    }
 }

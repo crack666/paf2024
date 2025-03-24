@@ -127,9 +127,7 @@ public class Task {
      * Marks the task as complete and updates its status.
      */
     public void markComplete() {
-        this.taskStatus = TaskStatus.DONE;
-        this.updatedAt = LocalDateTime.now();
-        this.completedAt = LocalDateTime.now();
+        this.transitionTo(TaskStatus.DONE);
     }
 
     /**
@@ -138,17 +136,26 @@ public class Task {
      * @param title       The new title
      * @param description The new description
      * @param dueDate     The new due date
-     * @param taskStatus      The new status
      */
-    public void updateDetails(String title, String description, LocalDateTime dueDate, TaskStatus taskStatus) {
+    public void updateDetails(String title, String description, LocalDateTime dueDate) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
         this.taskStatus = taskStatus;
         this.updatedAt = LocalDateTime.now();
-        if (taskStatus  == TaskStatus.DONE && this.completedAt == null) {
+    }
+
+
+    public boolean transitionTo(TaskStatus newStatus) {
+        if (!this.taskStatus.canTransitionTo(newStatus)) {
+            return false;
+        }
+        this.taskStatus = newStatus;
+        this.updatedAt = LocalDateTime.now();
+        if (newStatus == TaskStatus.DONE && this.completedAt == null) {
             this.completedAt = LocalDateTime.now();
         }
+        return true;
     }
 
     /**
@@ -204,14 +211,6 @@ public class Task {
         }
         if (dueDate.isAfter(LocalDateTime.now())) {
             System.out.println("Task " + id + " not ready: scheduled in future");
-            return false;
-        }
-
-        if (taskStatus != TaskStatus.QUEUED || taskClassName == null) {
-            return false;
-        }
-
-        if (dueDate.isBefore(LocalDateTime.now())) {
             return false;
         }
 

@@ -50,17 +50,17 @@ public class TaskProcessorServiceTest {
         when(notificationService.sendNotification(anyString(), anyString(), anyInt(), anyString(), any())).thenReturn(true);
 
         // Create a test task
-        testTask = new Task(1, "Test Task", "Description", LocalDateTime.now().plusDays(1), TaskStatus.QUEUED, 1, taskClassName);
+        testTask = new Task(1, "Test Task", "Description", LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
 
         // Set the task as ready to run
         ReflectionTestUtils.setField(testTask, "dependencies", new ArrayList<>());
 
         // Configure task service mock
         when(taskService.findById(1)).thenReturn(Optional.of(testTask));
-        when(taskService.updateTask(anyInt(), any(), any(), any(), any()))
+        when(taskService.updateTask(anyInt(), any(), any(), any()))
                 .thenAnswer(invocation -> {
                     TaskStatus taskStatus = invocation.getArgument(4);
-                    testTask.updateDetails(testTask.getTitle(), testTask.getDescription(), testTask.getDueDate(), taskStatus);
+                    testTask.updateDetails(testTask.getTitle(), testTask.getDescription(), testTask.getDueDate());
                     return testTask;
                 });
 
@@ -82,7 +82,7 @@ public class TaskProcessorServiceTest {
 
         // Verify interactions
         verify(taskService).findById(1);
-        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any(), any());
+        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any());
         verify(taskRegistry).getTaskType(taskClassName);
     }
 
@@ -101,7 +101,7 @@ public class TaskProcessorServiceTest {
 
         // Verify interactions
         verify(taskService).findById(1);
-        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any(), any());
+        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any());
         verify(taskRegistry).getTaskType(taskClassName);
     }
 

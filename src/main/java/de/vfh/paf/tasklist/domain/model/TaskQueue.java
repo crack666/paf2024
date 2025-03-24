@@ -46,7 +46,7 @@ public class TaskQueue {
      */
     public void enqueueTask(Task task) {
         if (!tasks.contains(task)) {
-            task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), TaskStatus.QUEUED);
+            task.transitionTo(TaskStatus.QUEUED);
             tasks.add(task);
             this.updatedAt = LocalDateTime.now();
         }
@@ -63,7 +63,7 @@ public class TaskQueue {
         }
 
         Task task = tasks.removeFirst();
-        task.updateDetails(task.getTitle(), task.getDescription(), task.getDueDate(), TaskStatus.RUNNING);
+        task.transitionTo(TaskStatus.RUNNING);
         this.updatedAt = LocalDateTime.now();
         return task;
     }

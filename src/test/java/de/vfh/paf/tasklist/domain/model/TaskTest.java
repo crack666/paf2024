@@ -66,6 +66,8 @@ class TaskTest {
         assertEquals(TaskStatus.CREATED, task.getStatus());
 
         // Act
+        task.transitionTo(TaskStatus.QUEUED);
+        task.transitionTo(TaskStatus.RUNNING);
         task.markComplete();
 
         // Assert
@@ -82,7 +84,8 @@ class TaskTest {
         TaskStatus newTaskStatus = TaskStatus.QUEUED;
 
         // Act
-        task.updateDetails(newTitle, newDescription, newDueDate, newTaskStatus);
+        task.transitionTo(newTaskStatus);
+        task.updateDetails(newTitle, newDescription, newDueDate);
 
         // Assert
         assertEquals(newTitle, task.getTitle());
