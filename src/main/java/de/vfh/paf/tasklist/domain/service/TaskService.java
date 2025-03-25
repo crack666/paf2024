@@ -258,6 +258,8 @@ public class TaskService {
     public List<Task> findByStatus(TaskStatus taskStatus) {
         return findAll().stream()
                 .filter(task -> task.getStatus() == taskStatus)
+                //order by dueDate descending
+                .sorted(Comparator.comparing(Task::getDueDate).reversed())
                 .collect(Collectors.toList());
     }
 

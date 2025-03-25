@@ -29,7 +29,7 @@ public class TaskProcessorService {
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessorService.class);
 
     private final TaskService taskService;
-    private final TaskFactory taskRegistry;
+    private final TaskFactory taskFactory;
     private final NotificationService notificationService;
     private final de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     private final de.vfh.paf.tasklist.domain.repository.TaskRepository taskRepository;
@@ -42,12 +42,12 @@ public class TaskProcessorService {
     private int maxQueueSize;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public TaskProcessorService(TaskService taskService, TaskFactory taskRegistry,
+    public TaskProcessorService(TaskService taskService, TaskFactory taskFactory,
                                 NotificationService notificationService,
                                 de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository,
                                 de.vfh.paf.tasklist.domain.repository.TaskRepository taskRepository) {
         this.taskService = taskService;
-        this.taskRegistry = taskRegistry;
+        this.taskFactory = taskFactory;
         this.notificationService = notificationService;
         this.taskResultRepository = taskResultRepository;
         this.taskRepository = taskRepository;
@@ -74,7 +74,7 @@ public class TaskProcessorService {
                 }
         );
 
-        logger.info("TaskExecutor initialized with thread pool size: {}", threadPoolSize);
+        logger.info("taskProcessor initialized with thread pool size: {}", threadPoolSize);
     }
 
     @PreDestroy
@@ -175,7 +175,7 @@ public class TaskProcessorService {
             );
 
             // Get the task implementation
-            RunnableTask taskImplementation = taskRegistry.getTaskType(task.getTaskClassName());
+            RunnableTask taskImplementation = taskFactory.getTaskType(task.getTaskClassName());
             if (taskImplementation == null) {
                 logger.error("Task implementation not found: {}", task.getTaskClassName());
                 return task;

@@ -363,7 +363,7 @@ The application follows a clean DDD architecture:
     - `TaskProcessorService.java` - Concurrent task execution service with thread pool
     - `TaskQueueService.java` - Management of task queues and execution
     - `NotificationService.java` - Notification management and delivery
-    - `TaskRegistry.java` - Registry of available task implementations
+    - `TaskFactory.java` - Registry of available task implementations
   - `/tasklist/domain/tasks/` - Concrete task implementations
     - `CalculatePiTask.java` - Task that calculates Pi with progress tracking
     - `GenerateReportTask.java` - Task that generates reports

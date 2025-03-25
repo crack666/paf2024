@@ -38,15 +38,15 @@ public class TaskController {
 
     private final TaskService taskService;
     private final TaskManagerService taskManagerService;
-    private final TaskFactory taskRegistry;
-    private final TaskProcessorService taskExecutor;
+    private final TaskFactory taskFactory;
+    private final TaskProcessorService taskProcessor;
 
     public TaskController(TaskService taskService, TaskManagerService taskManagerService,
-                          TaskFactory taskRegistry, TaskProcessorService taskExecutor) {
+                          TaskFactory taskFactory, TaskProcessorService taskProcessor) {
         this.taskService = taskService;
         this.taskManagerService = taskManagerService;
-        this.taskRegistry = taskRegistry;
-        this.taskExecutor = taskExecutor;
+        this.taskFactory = taskFactory;
+        this.taskProcessor = taskProcessor;
     }
 
     /**
@@ -67,7 +67,7 @@ public class TaskController {
 
         if (taskDTO.getTaskType() != null && !taskDTO.getTaskType().isEmpty()) {
             // Lookup: Ermittele den zugehörigen RunnableTask anhand des simplen Namens
-            RunnableTask taskTypeImpl = taskRegistry.getTaskType(taskDTO.getTaskType());
+            RunnableTask taskTypeImpl = taskFactory.getTaskType(taskDTO.getTaskType());
             if (taskTypeImpl == null) {
                 // Ungültiger Task-Typ
                 return ResponseEntity.badRequest().build();
@@ -250,9 +250,9 @@ public class TaskController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskTypeDTO.class))))
     })
     public ResponseEntity<List<TaskTypeDTO>> getTaskTypes() {
-        List<TaskTypeDTO> taskTypes = taskRegistry.getTaskTypeMap().keySet().stream()
+        List<TaskTypeDTO> taskTypes = taskFactory.getTaskTypeMap().keySet().stream()
                 .map(s -> {
-                    RunnableTask taskType = taskRegistry.getTaskType(s);
+                    RunnableTask taskType = taskFactory.getTaskType(s);
                     return new TaskTypeDTO(s, taskType);
                 })
                 .collect(Collectors.toList());
@@ -292,7 +292,7 @@ public class TaskController {
 
         if (wait) {
             // Synchronous execution - wait for result
-            Task executedTask = taskExecutor.executeTaskSync(id);
+            Task executedTask = taskProcessor.executeTaskSync(id);
 
             if (executedTask == null) {
                 return ResponseEntity.badRequest().build();
@@ -301,7 +301,7 @@ public class TaskController {
             return ResponseEntity.ok(new TaskDTO(executedTask));
         } else {
             // Asynchronous execution - return immediately
-            taskExecutor.executeTask(id)
+            taskProcessor.executeTask(id)
                     .thenApply(task -> {
                         if (task != null) {
                             logger.info("Task {} executed successfully in background", id);
@@ -326,7 +326,7 @@ public class TaskController {
     @GetMapping("/thread-pool-stats")
     @Operation(summary = "Get thread pool statistics", description = "Returns statistics about the task executor thread pool")
     public ResponseEntity<String> getThreadPoolStats() {
-        return ResponseEntity.ok(taskExecutor.getThreadPoolStats());
+        return ResponseEntity.ok(taskProcessor.getThreadPoolStats());
     }
 
     /**

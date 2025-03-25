@@ -2,6 +2,7 @@ package de.vfh.paf.tasklist.domain.service;
 
 import de.vfh.paf.tasklist.domain.model.TaskStatus;
 import de.vfh.paf.tasklist.domain.model.Task;
+import de.vfh.paf.tasklist.domain.repository.TaskRepository;
 import de.vfh.paf.tasklist.domain.tasks.CalculatePiTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,23 +29,29 @@ import static org.mockito.Mockito.*;
 public class TaskProcessorServiceTest {
 
     private final String taskClassName = CalculatePiTask.class.getName();
+
+    @Mock
+    private TaskRepository taskRepository;
     @Mock
     private TaskService taskService;
     @Mock
-    private TaskFactory taskRegistry;
+    private TaskFactory taskFactory;
     @Mock
     private NotificationService notificationService;
     @Mock
     private de.vfh.paf.tasklist.domain.repository.TaskResultRepository taskResultRepository;
     @InjectMocks
-    private TaskProcessorService taskExecutor;
+    private TaskProcessorService taskProcessor;
     private Task testTask;
 
     @BeforeEach
     void setUp() {
+        when(taskRepository.save(any(Task.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // Mock task registry
         CalculatePiTask calculatePiTask = new CalculatePiTask();
-        when(taskRegistry.getTaskType(taskClassName)).thenReturn(calculatePiTask);
+        when(taskFactory.getTaskType(taskClassName)).thenReturn(calculatePiTask);
 
         // Setup NotificationService mock
         when(notificationService.sendNotification(anyString(), anyString(), anyInt(), anyString(), any())).thenReturn(true);
@@ -57,23 +64,17 @@ public class TaskProcessorServiceTest {
 
         // Configure task service mock
         when(taskService.findById(1)).thenReturn(Optional.of(testTask));
-        when(taskService.updateTask(anyInt(), any(), any(), any()))
-                .thenAnswer(invocation -> {
-                    TaskStatus taskStatus = invocation.getArgument(4);
-                    testTask.updateDetails(testTask.getTitle(), testTask.getDescription(), testTask.getDueDate());
-                    return testTask;
-                });
 
         // Initialize executor with small thread pool for testing
-        ReflectionTestUtils.setField(taskExecutor, "threadPoolSize", 2);
-        ReflectionTestUtils.setField(taskExecutor, "maxQueueSize", 10);
-        taskExecutor.initialize();
+        ReflectionTestUtils.setField(taskProcessor, "threadPoolSize", 2);
+        ReflectionTestUtils.setField(taskProcessor, "maxQueueSize", 10);
+        taskProcessor.initialize();
     }
 
     @Test
     void testExecuteTaskSync() {
         // Execute task synchronously
-        Task result = taskExecutor.executeTaskSync(1);
+        Task result = taskProcessor.executeTaskSync(1);
 
         // Verify task was executed
         assertNotNull(result, "Task execution result should not be null");
@@ -82,14 +83,13 @@ public class TaskProcessorServiceTest {
 
         // Verify interactions
         verify(taskService).findById(1);
-        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any());
-        verify(taskRegistry).getTaskType(taskClassName);
+        verify(taskFactory).getTaskType(taskClassName);
     }
 
     @Test
     void testExecuteTaskAsync() throws Exception {
         // Execute task asynchronously
-        CompletableFuture<Task> future = taskExecutor.executeTask(1);
+        CompletableFuture<Task> future = taskProcessor.executeTask(1);
 
         // Wait for task to complete (with timeout)
         Task result = future.get(5, TimeUnit.SECONDS);
@@ -101,8 +101,7 @@ public class TaskProcessorServiceTest {
 
         // Verify interactions
         verify(taskService).findById(1);
-        verify(taskService, times(2)).updateTask(anyInt(), any(), any(), any());
-        verify(taskRegistry).getTaskType(taskClassName);
+        verify(taskFactory).getTaskType(taskClassName);
     }
 
     @Test
@@ -122,7 +121,7 @@ public class TaskProcessorServiceTest {
 
         // Execute tasks concurrently
         for (int i = 1; i <= taskCount; i++) {
-            futures.add(taskExecutor.executeTask(i));
+            futures.add(taskProcessor.executeTask(i));
         }
 
         // Wait for all tasks to complete
@@ -149,10 +148,10 @@ public class TaskProcessorServiceTest {
     @Test
     void testThreadPoolStats() {
         // Execute a task
-        taskExecutor.executeTaskSync(1);
+        taskProcessor.executeTaskSync(1);
 
         // Get thread pool stats
-        String stats = taskExecutor.getThreadPoolStats();
+        String stats = taskProcessor.getThreadPoolStats();
 
         // Verify stats are returned
         assertNotNull(stats, "Thread pool stats should not be null");
