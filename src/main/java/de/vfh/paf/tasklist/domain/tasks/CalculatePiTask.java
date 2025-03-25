@@ -109,9 +109,10 @@ public class CalculatePiTask extends AbstractRunnableTask {
                 progressData.setCurrentValue(currentPi);
 
                 // Add small delay to simulate longer-running task
-                if (iterations > 100000) {
+                if (iterations >= 100) {
                     try {
-                        Thread.sleep(10);
+                        System.out.println("sleeping...");
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }

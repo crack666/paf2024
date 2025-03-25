@@ -1,6 +1,7 @@
 package de.vfh.paf.tasklist.domain.repository;
 
 import de.vfh.paf.tasklist.domain.model.Notification;
+import de.vfh.paf.tasklist.domain.model.NotificationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,8 +33,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
      * @return List of notifications for the user with the specified read status
      */
     @Query("SELECT n FROM Notification n WHERE n.userId = :userId AND " +
-            "((:isRead = true AND (n.status = 'READ' OR n.status = 'ARCHIVED')) OR " +
-            "(:isRead = false AND n.status != 'READ' AND n.status != 'ARCHIVED'))")
+            "((:isRead = true AND n.status IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED)) OR " +
+            "(:isRead = false AND n.status NOT IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED))) " +
+            "ORDER BY n.createdAt DESC")
     List<Notification> findByUserIdAndReadStatus(@Param("userId") Integer userId, @Param("isRead") boolean isRead);
 
     /**

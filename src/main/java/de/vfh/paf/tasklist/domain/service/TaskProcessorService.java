@@ -68,7 +68,7 @@ public class TaskProcessorService {
                 workQueue,
                 r -> {
                     Thread thread = Thread.ofVirtual()
-                            .name("task-executor-")
+                            .name("task-executor")
                             .unstarted(r);
                     return thread;
                 }
@@ -196,7 +196,7 @@ public class TaskProcessorService {
             taskRepository.save(task);
 
 
-            logger.error("TASK_COMPLETED notification for: {}", task.getId());
+            logger.info("TASK_COMPLETED notification for: {}", task.getId());
             // Send notification that task has completed
             notificationService.sendNotification(
                     "TASK_COMPLETED",

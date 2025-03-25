@@ -210,7 +210,7 @@ public class Task {
             return false;
         }
         if (dueDate.isAfter(LocalDateTime.now())) {
-            System.out.println("Task " + id + " not ready: scheduled in future");
+            System.out.println("Task " + id + " not ready: scheduled in future. LocalTime: "+LocalDateTime.now()+" dueDate: "+dueDate);
             return false;
         }
 

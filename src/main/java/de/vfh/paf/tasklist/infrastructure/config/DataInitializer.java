@@ -40,6 +40,8 @@ public class DataInitializer {
                 userRepository.saveAll(users);
 
                 // Create tasks
+                if (taskRepository.findAll().isEmpty()) {
+
                 Task task1 = new Task(null, "Calculate Pi Demo Task","Create a comprehensive project plan for the Q2 release",
                         LocalDateTime.now().plusDays(5), TaskStatus.CREATED, john.getId(), "de.vfh.paf.tasklist.domain.tasks.CalculatePiTask");
 
@@ -55,6 +57,7 @@ public class DataInitializer {
                 // Add task dependencies
                 task3.addDependency(task2);
                 taskRepository.save(task3);
+                }
 
                 // Create notifications
                 Notification notification1 = new Notification(null, "Welcome to the Task List application!",
@@ -62,14 +65,14 @@ public class DataInitializer {
                 notification1.send();
 
                 Notification notification2 = new Notification(null, "Create a new task to get going!",
-                        "HIGH", "TASK_ASSIGNED", jane.getId(), task2.getId());
+                        "HIGH", "TASK_ASSIGNED", jane.getId(), null);
                 notification2.send();
 
                 List<Notification> notifications = Arrays.asList(notification1, notification2);
                 notificationRepository.saveAll(notifications);
 
                 System.out.println("Initialized sample data with " + users.size() + " users, " +
-                        tasks.size() + " tasks, and " + notifications.size() + " notifications");
+                        /*tasks.size() + " tasks, and " +*/ notifications.size() + " notifications");
             }
         };
     }
