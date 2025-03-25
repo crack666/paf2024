@@ -4,9 +4,11 @@ import de.vfh.paf.tasklist.application.dto.TaskDTO;
 import de.vfh.paf.tasklist.application.dto.TaskResultDTO;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
+import de.vfh.paf.tasklist.domain.tasks.CalculatePiTask;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -117,6 +119,42 @@ public class TaskWebSocketController {
         } catch (Exception e) {
             // Log the error but don't let it crash the application
             System.err.println("Error sending queue update for queue ID " + queueId + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Sends a task progress update to clients.
+     *
+     * @param taskId         The ID of the task
+     * @param progressDataObj   The progress data to send
+     */
+    public void sendTaskProgressUpdate(int taskId, Object progressDataObj) {
+        try {
+            // Konvertiere das progressDataObj (z.B. vom Typ CalculatePiTask.ProgressData)
+            // in eine Map, die zusätzlich die taskId enthält.
+            CalculatePiTask.ProgressData progressData = (CalculatePiTask.ProgressData) progressDataObj;
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("taskId", taskId);
+            payload.put("totalIterations", progressData.getTotalIterations());
+            payload.put("currentIteration", progressData.getCurrentIteration());
+            payload.put("startTime", progressData.getStartTime());
+            payload.put("currentValue", progressData.getCurrentValue());
+            payload.put("finalValue", progressData.getFinalValue());
+            payload.put("progressPercentage", progressData.getProgressPercentage());
+            payload.put("elapsedTimeMillis", progressData.getElapsedTimeMillis());
+            payload.put("estimatedTimeRemainingMillis", progressData.getEstimatedTimeRemainingMillis());
+
+            // Falls progressData selbst dieses Feld nicht enthält, kann es aus dem Event extrahiert werden.
+            // Nehmen wir an, dass der TaskProgressEvent den completed-Status bereits enthält,
+            // und dieser in der Nachricht enthalten ist. Falls nicht, kann man hier z.B. prüfen,
+            // ob currentIteration == totalIterations:
+            boolean completed = (progressData.getCurrentIteration() >= progressData.getTotalIterations());
+            payload.put("completed", completed);
+
+            // Sende alle Fortschrittsupdates an einen festen Topic
+            messagingTemplate.convertAndSend("/topic/tasks/progress", payload);
+        } catch (Exception e) {
+            System.err.println("Error sending task progress update for task ID " + taskId + ": " + e.getMessage());
         }
     }
 }

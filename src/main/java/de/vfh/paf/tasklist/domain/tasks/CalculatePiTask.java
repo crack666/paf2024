@@ -1,5 +1,6 @@
 package de.vfh.paf.tasklist.domain.tasks;
 
+import de.vfh.paf.tasklist.domain.events.TaskProgressEvent;
 import de.vfh.paf.tasklist.domain.model.AbstractRunnableTask;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
@@ -9,6 +10,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * A task that calculates Pi to a specified number of decimal places.
@@ -20,7 +23,11 @@ public class CalculatePiTask extends AbstractRunnableTask {
 
     // Progress tracking for all running tasks (taskId -> progress data)
     private static final ConcurrentHashMap<Integer, ProgressData> taskProgress = new ConcurrentHashMap<>();
+    private static ApplicationEventPublisher eventPublisher;
 
+    public static void setEventPublisher(ApplicationEventPublisher publisher) {
+        eventPublisher = publisher;
+    }
     /**
      * Gets the current progress of a task.
      *
@@ -52,7 +59,7 @@ public class CalculatePiTask extends AbstractRunnableTask {
 
         try {
             // Calculate Pi using the Leibniz formula with progress tracking
-            double pi = calculatePi(iterations, progressData);
+            double pi = calculatePi(iterations, progressData, task.getId());
 
             // Create a detailed result
             String resultText = String.format("Calculated Pi to %d iterations. Result: %.10f",
@@ -65,6 +72,11 @@ public class CalculatePiTask extends AbstractRunnableTask {
             // Ensure progress is set to 100% when done
             progressData.setCurrentIteration(iterations);
             progressData.setCurrentValue(progressData.getFinalValue());
+
+            // Sende ein finales Update mit completed=true
+            if (eventPublisher != null) {
+                eventPublisher.publishEvent(new TaskProgressEvent(task.getId(), progressData, true));
+            }
         }
     }
 
@@ -88,7 +100,7 @@ public class CalculatePiTask extends AbstractRunnableTask {
      * @param progressData The object to track progress in
      * @return The calculated value of Pi
      */
-    private double calculatePi(int iterations, ProgressData progressData) {
+    private double calculatePi(int iterations, ProgressData progressData, int taskId) {
         double sum = 0.0;
 
         // Add a slight delay to make progress tracking more observable
@@ -107,6 +119,11 @@ public class CalculatePiTask extends AbstractRunnableTask {
                 double currentPi = 4 * sum;
                 progressData.setCurrentIteration(i + 1);
                 progressData.setCurrentValue(currentPi);
+
+                // Publish progress event if publisher is set
+                if (eventPublisher != null) {
+                    eventPublisher.publishEvent(new TaskProgressEvent(taskId, progressData, false));
+                }
 
                 // Add small delay to simulate longer-running task
                 if (iterations >= 100) {
