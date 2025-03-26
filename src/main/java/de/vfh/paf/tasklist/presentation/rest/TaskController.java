@@ -199,6 +199,34 @@ public class TaskController {
 
         return ResponseEntity.ok(new TaskDTO(updatedTask));
     }
+    
+    /**
+     * Removes a dependency from a task.
+     *
+     * @param id           Task ID
+     * @param dependencyId Dependency task ID to remove
+     * @return Updated task
+     */
+    @DeleteMapping("/{id}/dependencies/{dependencyId}")
+    @Operation(summary = "Remove a task dependency",
+            description = "Removes a dependency from a task")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dependency removed successfully",
+                    content = @Content(schema = @Schema(implementation = TaskDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Task not found")
+    })
+    public ResponseEntity<TaskDTO> removeDependency(
+            @Parameter(description = "Task ID", required = true) @PathVariable int id,
+            @Parameter(description = "Dependency task ID", required = true) @PathVariable int dependencyId
+    ) {
+        Task updatedTask = taskService.removeDependency(id, dependencyId);
+
+        if (updatedTask == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(new TaskDTO(updatedTask));
+    }
 
     /**
      * Gets all tasks in the system.

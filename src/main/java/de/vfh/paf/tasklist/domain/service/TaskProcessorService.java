@@ -229,6 +229,20 @@ public class TaskProcessorService {
      */
     @Scheduled(fixedRateString = "${tasklist.scheduling.task-check-seconds:10}000")
     public void checkForReadyTasks() {
+        logger.debug("Detecting deadlocks...");
+        if(taskService.detectDeadlocks()){
+            logger.info("Found deadlocks in task dependencies");
+            
+            // Send notification about deadlock
+            // We use a system broadcast message with type DEADLOCK_DETECTED
+            // The notificationService will ensure it's only sent once until read
+            notificationService.broadcastSystemNotification(
+                    "DEADLOCK_DETECTED",
+                    "Circular dependencies detected between tasks. Please resolve the deadlock by removing problematic dependencies.",
+                    "HIGH"
+            );
+        }
+
         logger.debug("Checking for ready tasks...");
 
         List<Task> readyTasks = taskService.findReadyToRunTasks();
