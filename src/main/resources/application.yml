@@ -46,7 +46,7 @@ springdoc:
 tasklist:
   scheduling:
     notification-check-minutes: 1
-    task-check-seconds: 15
+    task-check-seconds: 20
   concurrent:
     thread-pool-size: 5
     max-queue-size: 100

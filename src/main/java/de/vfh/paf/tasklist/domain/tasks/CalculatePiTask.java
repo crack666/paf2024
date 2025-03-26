@@ -129,7 +129,7 @@ public class CalculatePiTask extends AbstractRunnableTask {
                 if (iterations >= 100) {
                     try {
                         System.out.println("sleeping...");
-                        Thread.sleep(100);
+                        Thread.sleep(150);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
