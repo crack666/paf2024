@@ -4,7 +4,7 @@ A Domain-Driven Design (DDD) implementation of a task management application for
 
 ## Project Overview
 
-This application demonstrates the implementation of Domain-Driven Design patterns and concurrency concepts:
+This application demonstrates the implementation of Domain-Driven Design patterns and concurrency concepts. The project consists of a Java Spring Boot backend and a Vue.js frontend, integrated into a single repository:
 
 - **Task Management:** Create, update, complete, and track tasks
 - **Dependency Management:** Add dependencies between tasks with deadlock detection
@@ -35,6 +35,7 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 
 ## Technical Stack
 
+### Backend
 - Java 21
 - Spring Boot 3.1.5
 - PostgreSQL Database 
@@ -46,6 +47,14 @@ This application demonstrates the implementation of Domain-Driven Design pattern
   - CompletableFuture for asynchronous task processing
   - BlockingQueue for thread coordination
   - Atomic variables for thread-safe operations
+
+### Frontend
+- Vue 3 (Composition API)
+- Vite as build tool
+- Pinia for state management
+- Vue Router for navigation
+- SockJS and StompJS for WebSocket communication
+- Element Plus for UI components
 
 ## Running the Application
 
@@ -343,7 +352,9 @@ If you encounter any issues:
 
 ## Project Structure
 
-The application follows a clean DDD architecture:
+The application is structured with a clean DDD architecture and is organized into two main parts:
+
+### Backend (`/src`)
 
 - **Domain Layer**: Core business logic (models, repositories, services)
   - `/tasklist/domain/model/` - Domain entities and interfaces
@@ -397,6 +408,30 @@ The application follows a clean DDD architecture:
     - `NotificationController.java` - REST endpoints for notification management
   - `/tasklist/presentation/websocket/` - WebSocket controllers
     - `NotificationWebSocketController.java` - Real-time notification handling
+
+### Frontend (`/PatternsAndFrameworks_Frontend`)
+
+- **Components**: Reusable UI components
+  - `Header.vue` - Application header with navigation and connection status
+  - `NotificationContainer.vue` - Real-time notification display
+  - `QueueList.vue` - Task queue visualization
+  - Various UI components for tasks, notifications, and forms
+
+- **Pages**: Application views
+  - `Dashboard.vue` - Main dashboard showing tasks and queues
+  - `Tasks.vue` - Task management interface
+  - `TaskQueues.vue` - Queue management and visualization
+  - `Notifications.vue` - Notification management
+
+- **Stores**: State management using Pinia
+  - `auth.js` - User authentication and session management
+  - `notification.js` - Notification state and operations
+  - `queue.js` - Queue state and operations
+  - `task.js` - Task state and operations
+
+- **Services**: API and WebSocket communication
+  - `api.js` - REST API communication with backend
+  - `websocket.js` - Real-time communication via WebSocket
 
 ## Frontend Components
 
