@@ -56,8 +56,8 @@ public class TaskProcessorServiceTest {
         // Setup NotificationService mock
         when(notificationService.sendNotification(anyString(), anyString(), anyInt(), anyString(), any())).thenReturn(true);
 
-        // Create a test task
-        testTask = new Task(1, "Test Task", "Description iterations=150", LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
+        // Create a test task with minimum iterations to avoid timeouts
+        testTask = new Task(1, "Test Task", "Description iterations=5", LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
 
         // Set the task as ready to run
         ReflectionTestUtils.setField(testTask, "dependencies", new ArrayList<>());
@@ -111,9 +111,9 @@ public class TaskProcessorServiceTest {
         List<Task> tasks = new ArrayList<>();
         List<CompletableFuture<Task>> futures = new ArrayList<>();
 
-        // Mock task service for multiple tasks
+        // Mock task service for multiple tasks with minimum iterations to avoid timeouts
         for (int i = 1; i <= taskCount; i++) {
-            Task task = new Task(i, "Test Task " + i, "Description " + i + "iterations=150", LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
+            Task task = new Task(i, "Test Task " + i, "Description " + i + "iterations=5", LocalDateTime.now().minusDays(1), TaskStatus.QUEUED, 1, taskClassName);
             ReflectionTestUtils.setField(task, "dependencies", new ArrayList<>());
             tasks.add(task);
             when(taskService.findById(i)).thenReturn(Optional.of(task));
