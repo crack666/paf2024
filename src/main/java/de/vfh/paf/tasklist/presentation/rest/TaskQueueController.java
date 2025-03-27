@@ -20,10 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -55,9 +52,23 @@ public class TaskQueueController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskQueueDTO.class))))
     })
     public ResponseEntity<List<TaskQueueDTO>> getAllQueues() {
-        List<TaskQueueDTO> queueDTOs = taskQueueService.getAllQueues().stream()
-                .map(TaskQueueDTO::new)
-                .collect(Collectors.toList());
+        List<TaskQueue> allQueues = taskQueueService.getAllQueues();
+        List<TaskQueueDTO> queueDTOs = new ArrayList<>();
+        
+        for (TaskQueue queue : allQueues) {
+            TaskQueueDTO dto = new TaskQueueDTO(queue);
+            
+            // Get all tasks for this queue, including completed ones
+            List<Task> allTasks = taskQueueService.getAllQueueTasks(queue.getId());
+            
+            // Convert to DTOs and set to the queue DTO
+            List<TaskDTO> taskDTOs = allTasks.stream()
+                    .map(TaskDTO::new)
+                    .collect(Collectors.toList());
+            
+            dto.setTasks(taskDTOs);
+            queueDTOs.add(dto);
+        }
 
         return ResponseEntity.ok(queueDTOs);
     }
@@ -83,7 +94,20 @@ public class TaskQueueController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new TaskQueueDTO(queue));
+        // Create the DTO with basic information
+        TaskQueueDTO dto = new TaskQueueDTO(queue);
+        
+        // Get all tasks for this queue, including completed ones
+        List<Task> allTasks = taskQueueService.getAllQueueTasks(id);
+        
+        // Convert to DTOs and set to the queue DTO
+        List<TaskDTO> taskDTOs = allTasks.stream()
+                .map(TaskDTO::new)
+                .collect(Collectors.toList());
+        
+        dto.setTasks(taskDTOs);
+
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -240,8 +264,21 @@ public class TaskQueueController {
             return ResponseEntity.notFound().build();
         }
 
+        // Create proper DTO with all tasks
         TaskQueue queue = taskQueueService.getQueue(queueId);
-        return ResponseEntity.ok(new TaskQueueDTO(queue));
+        TaskQueueDTO dto = new TaskQueueDTO(queue);
+        
+        // Get all tasks for this queue, including completed ones
+        List<Task> allTasks = taskQueueService.getAllQueueTasks(queueId);
+        
+        // Convert to DTOs and set to the queue DTO
+        List<TaskDTO> taskDTOs = allTasks.stream()
+                .map(TaskDTO::new)
+                .collect(Collectors.toList());
+        
+        dto.setTasks(taskDTOs);
+        
+        return ResponseEntity.ok(dto);
     }
 
     /**

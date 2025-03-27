@@ -3,6 +3,7 @@ package de.vfh.paf.tasklist.infrastructure.config;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.model.TaskQueue;
 import de.vfh.paf.tasklist.domain.model.TaskResult;
+import de.vfh.paf.tasklist.domain.repository.TaskResultRepository;
 import de.vfh.paf.tasklist.domain.service.NotificationService;
 import de.vfh.paf.tasklist.domain.service.TaskQueueService;
 import de.vfh.paf.tasklist.domain.service.TaskService;
@@ -34,6 +35,7 @@ public class TaskListStartupRunner implements ApplicationRunner {
     private final TaskQueueService taskQueueService;
     private final NotificationService notificationService;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final TaskResultRepository taskResultRepository;
 
     @Value("${tasklist.scheduling.notification-check-minutes:1}")
     private int notificationCheckMinutes;
@@ -44,10 +46,11 @@ public class TaskListStartupRunner implements ApplicationRunner {
     public TaskListStartupRunner(
             TaskService taskService,
             TaskQueueService taskQueueService,
-            NotificationService notificationService) {
+            NotificationService notificationService, TaskResultRepository taskResultRepository) {
         this.taskService = taskService;
         this.taskQueueService = taskQueueService;
         this.notificationService = notificationService;
+        this.taskResultRepository = taskResultRepository;
     }
 
     @Override
@@ -116,7 +119,8 @@ public class TaskListStartupRunner implements ApplicationRunner {
         resultsFuture.thenAccept(results -> {
             log.info("All tasks processed, results: {}", results.size());
             results.forEach(result ->
-                    log.info("Task result: {} - {}", result.getName(), result.getResultValue())
+                    log.info("Task result: {} - {}", result.getName(), taskResultRepository.save(result))
+
             );
         });
 
