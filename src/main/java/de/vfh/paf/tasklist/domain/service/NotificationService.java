@@ -71,21 +71,25 @@ public class NotificationService {
 
         for (Task task : overdueTasks) {
             // Check if there's already an active (unread) notification for this task being overdue
-            List<Notification> existingNotifications =
-                    notificationRepository.findByTypeAndUserIdAndRelatedTaskId(
-                            "TASK_OVERDUE", task.getAssignedUserId(), task.getId());
+            // regardless of which user it was sent to
+            List<Notification> existingNotifications = 
+                    notificationRepository.findUnreadByTypeAndRelatedTaskId("TASK_OVERDUE", task.getId());
 
-            // Skip if there's at least one unread overdue notification for this task
-            if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
+            // Skip if there's at least one unread overdue notification for this task (for any user)
+            if (!existingNotifications.isEmpty()) {
+                org.slf4j.LoggerFactory.getLogger(NotificationService.class).debug(
+                    "Skipping notification for overdue task {}: existing unread notification found", task.getId());
                 continue;
             }
 
             String message = String.format("Task '%s' is overdue. Due date was %s",
-                    task.getTitle(), task.getDueDate());
+                    task.getTitle(), task.getDueDate().toString());
 
             boolean sent = sendNotification("TASK_OVERDUE", "HIGH", task.getAssignedUserId(), message, task.getId());
             if (sent) {
                 notificationsSent++;
+                org.slf4j.LoggerFactory.getLogger(NotificationService.class).info(
+                    "Sent notification for overdue task {}", task.getId());
             }
         }
 
@@ -114,13 +118,33 @@ public class NotificationService {
      * @return true if the notification was sent successfully, false otherwise
      */
     public boolean sendNotification(String type, String urgency, int userId, String message, Integer relatedTaskId) {
-        // Get existing notifications of this type for this user/task
-        List<Notification> existingNotifications =
-                notificationRepository.findByTypeAndUserIdAndRelatedTaskId(type, userId, relatedTaskId);
-
-        // Only send a new notification if there are no unread notifications of this type
-        if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
-            return false;
+        // For task-related notifications, we need to check if there's already ANY notification
+        // of this type for this task ID (regardless of user or read status) to prevent duplicates
+        if (relatedTaskId != null && (
+                type.equals("TASK_OVERDUE") || 
+                type.equals("TASK_STARTED") || 
+                type.equals("TASK_COMPLETED") || 
+                type.equals("TASK_ERROR") ||
+                type.equals("DEADLOCK_DETECTED"))) {
+                
+            List<Notification> existingTaskNotifications = 
+                    notificationRepository.findByTypeAndRelatedTaskId(type, relatedTaskId);
+                    
+            if (!existingTaskNotifications.isEmpty()) {
+                org.slf4j.LoggerFactory.getLogger(NotificationService.class).debug(
+                    "Skipping notification of type {} for task {}: notification already exists (read or unread)", 
+                    type, relatedTaskId);
+                return false;
+            }
+        } else {
+            // For user-specific notifications (non-task related), check if the user already 
+            // has an unread notification of this type
+            List<Notification> existingUserNotifications =
+                    notificationRepository.findByTypeAndUserIdAndRelatedTaskId(type, userId, relatedTaskId);
+                    
+            if (existingUserNotifications.stream().anyMatch(n -> !n.isRead())) {
+                return false;
+            }
         }
 
         // Create notification in CREATED state - let JPA generate the ID
@@ -161,14 +185,29 @@ public class NotificationService {
      * @return true if the notification was sent successfully
      */
     public boolean broadcastSystemNotification(String type, String message, String urgency, Integer relatedTaskId) {
-        // For system broadcasts, we use user ID 0
-        // Check if there's already an unread system notification of this type
-        List<Notification> existingNotifications =
-                notificationRepository.findByTypeAndReadStatus(type, false);
-
-        // Only send if there are no unread notifications of this type
-        if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
-            return false;
+        // For task-related system notifications, check if there's already ANY notification
+        // with this type and task ID (regardless of read status) to prevent duplicates
+        if (relatedTaskId != null) {
+            List<Notification> existingTaskNotifications = 
+                    notificationRepository.findByTypeAndRelatedTaskId(type, relatedTaskId);
+                    
+            if (!existingTaskNotifications.isEmpty()) {
+                org.slf4j.LoggerFactory.getLogger(NotificationService.class).debug(
+                    "Skipping system broadcast of type {} for task {}: notification already exists (read or unread)", 
+                    type, relatedTaskId);
+                return false;
+            }
+        } else {
+            // For non-task related system broadcasts, check if there's any unread notification of this type
+            List<Notification> existingNotifications =
+                    notificationRepository.findByTypeAndReadStatus(type, false);
+                    
+            // Only send if there are no unread notifications of this type
+            if (!existingNotifications.isEmpty()) {
+                org.slf4j.LoggerFactory.getLogger(NotificationService.class).debug(
+                    "Skipping system broadcast of type {}: existing unread notification found", type);
+                return false;
+            }
         }
 
         Notification notification = new Notification(null, message, urgency, type, 0, relatedTaskId); // System user ID is 0

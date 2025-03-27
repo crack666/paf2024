@@ -75,4 +75,29 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             "(:isRead = false AND n.status NOT IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED))) " +
             "ORDER BY n.createdAt DESC")
     List<Notification> findByTypeAndReadStatus(@Param("type") String type, @Param("isRead") boolean isRead);
+    
+    /**
+     * Finds unread notifications by type and related task ID only (regardless of user).
+     * This is used to check for duplicates across all users for a specific task.
+     *
+     * @param type The notification type
+     * @param relatedTaskId The related task ID
+     * @return List of unread notifications of the specified type for the specified task
+     */
+    @Query("SELECT n FROM Notification n WHERE n.type = :type AND n.relatedTaskId = :relatedTaskId AND " +
+           "n.status NOT IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED) " +
+           "ORDER BY n.createdAt DESC")
+    List<Notification> findUnreadByTypeAndRelatedTaskId(@Param("type") String type, @Param("relatedTaskId") Integer relatedTaskId);
+    
+    /**
+     * Finds all notifications by type and related task ID only (regardless of user and read status).
+     * This is used to check for duplicates across all users for a specific task, regardless of read status.
+     *
+     * @param type The notification type
+     * @param relatedTaskId The related task ID
+     * @return List of notifications of the specified type for the specified task
+     */
+    @Query("SELECT n FROM Notification n WHERE n.type = :type AND n.relatedTaskId = :relatedTaskId " +
+           "ORDER BY n.createdAt DESC")
+    List<Notification> findByTypeAndRelatedTaskId(@Param("type") String type, @Param("relatedTaskId") Integer relatedTaskId);
 }
