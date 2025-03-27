@@ -39,7 +39,12 @@ const dependencyError = ref('');
 const newTask = ref({
   title: '',
   description: '',
-  dueDate: new Date(Date.now() + 24*60*60*1000).toISOString().slice(0, 16),
+  // Set default due date to 2 days in the past
+  dueDate: (() => {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    return twoDaysAgo.toISOString().slice(0, 16);
+  })(),
   assignedUserId: null,
   taskType: '',
   typeParams: {}
@@ -129,10 +134,14 @@ async function loadTaskTypes() {
 
 // Display the create task modal
 function openCreateTaskModal() {
+  // Set date to current date minus 2 days
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  
   newTask.value = {
     title: '',
     description: '',
-    dueDate: new Date().toISOString().slice(0, 16),
+    dueDate: twoDaysAgo.toISOString().slice(0, 16),
     assignedUserId: authStore.user.id,
     taskType: '',
     typeParams: {}
