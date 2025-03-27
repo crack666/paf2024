@@ -13,7 +13,7 @@ This application demonstrates the implementation of Domain-Driven Design pattern
 - **Asynchronous Processing:** Support for both synchronous and asynchronous task execution
 - **Progress Tracking:** Monitor real-time progress of long-running tasks with visual indicators
 - **User Management:** Create, update, and manage users with their assigned tasks
-- **Real-time Notifications:** Receive and manage real-time notifications for task events via WebSocket
+- **Real-time Notifications:** Receive and manage real-time notifications for task events, deadlocks, and system alerts via WebSocket
 - **Task Status Visualization:** View task taskStatus with intuitive icons and real-time updates
 - **Task Queue Management UI:** Filter and view tasks by taskStatus with automatic data refreshing
 
@@ -256,9 +256,11 @@ The application provides the following main endpoints:
 - `POST /api/notifications/broadcast` - Broadcast a notification to all users
 
 ### Task Queue Management
-- `GET /api/task-queues` - List all task queues
+- `GET /api/task-queues` - List all task queues (includes tasks with correct status)
 - `GET /api/task-queues/{id}` - Get a specific task queue
-- `GET /api/task-queues/{id}/tasks` - Get all tasks in a queue (with optional filtering by taskStatus)
+- `GET /api/task-queues/{id}/tasks` - Get all tasks in a queue (with optional filtering by status)
+- `GET /api/task-queues/{id}/all-tasks` - Get all tasks associated with a queue (including processed ones)
+- `GET /api/task-queues/{id}/completed-tasks` - Get completed tasks with results from a queue
 - `POST /api/task-queues` - Create a new task queue
 - `POST /api/task-queues/{queueId}/tasks/{taskId}` - Add a task to a queue
 - `POST /api/task-queues/{queueId}/process-next` - Process the next task in a queue
@@ -283,6 +285,9 @@ The application provides real-time notifications via WebSocket:
    - `TASK_COMPLETED` - When a task finishes successfully
    - `TASK_ERROR` - When a task fails during execution
    - `TASK_OVERDUE` - When a task passes its due date
+   - `DEADLOCK_DETECTED` - When circular dependencies are detected between tasks
+   - `SYSTEM` - System-wide notifications
+   - `NOTIFICATION` - General user notifications
 
 3. **Interactive Testing:**
    - Test page: `/api/notifications-test.html`
@@ -450,10 +455,11 @@ The frontend is built using Vue 3 with Pinia for state management, offering a mo
    - Task details view with execution results and dependencies
 
 3. **Task Queue Management**
-   - Tab-based filtering of tasks by taskStatus (All, Pending, Running, Completed)
+   - Tab-based filtering of tasks by status (All, Pending, Running, Completed)
    - Real-time progress indicators for running tasks
    - Direct execution controls for individual tasks
    - Automatic data refreshing for active queues
+   - Proper handling of task status through entire task lifecycle
 
 4. **Notification System**
    - Real-time notification display with urgency-based styling
