@@ -1,0 +1,77 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  - main
+   
+resources:
+  - repo: self
+
+pool: 'Self hosted agent pool'
+
+parameters:
+- name: deployOnServer
+  displayName: deploy on Server
+  type: boolean
+  default: true
+
+
+variables:
+  tag: '$(Build.BuildId)'
+  coverageMinimum: 80
+
+steps:
+  - task: Npm@1
+    displayName: 'NPM Install'
+    inputs:
+      command: 'install'
+      workingDir: '$(System.DefaultWorkingDirectory)'
+
+  - task: Npm@1
+    displayName: 'NPM build stage'
+    inputs:
+      command: 'custom'
+      customCommand: 'run build'
+      workingDir: '$(System.DefaultWorkingDirectory)'
+
+  - task: Docker@2
+    displayName: Login to ACR
+    inputs:
+      containerRegistry: 'sc_acr_bht_sarah'
+      command: 'login'
+
+  - task: Docker@2
+    displayName: Build Stage
+    inputs:
+      containerRegistry: 'sc_acr_bht_sarah'
+      repository: 'PAF_Frontend'
+      command: 'build'
+      Dockerfile: '**/Dockerfile'
+      tags: |
+        Test-$(Build.BuildId)
+        latest
+      arguments: '--build-arg PAT=$(PAT) --build-arg ASPNETCORE_ENVIRONMENT=$(ASPNETCORE_ENVIRONMENT)'
+
+  - task: Docker@2
+    inputs:
+      containerRegistry: 'sc_acr_bht_sarah'
+      repository: 'PAF_Frontend'
+      command: 'push'
+      tags: |
+        Test-$(Build.BuildId)
+        latest
+
+  - ${{ if eq(parameters.deployOnServer, true) }}:
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Azure App Service Deploy: paf-frontend'
+      inputs:
+        azureSubscription: sc_arm_sp-auto_bhtsarah
+        appType: webAppContainer
+        WebAppName: 'paf-frontend'
+        deployToSlotOrASE: true
+        ResourceGroupName: 'rg_infrastructure'
+        DockerNamespace: bhtsarah.azurecr.io
+        DockerRepository: PAF_Frontend
+        DockerImageTag: 'Test-$(Build.BuildId)'
+         

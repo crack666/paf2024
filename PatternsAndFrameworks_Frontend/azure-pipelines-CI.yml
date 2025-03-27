@@ -1,0 +1,56 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  - main
+
+pool: 'Self hosted agent pool'
+
+resources:
+  - repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  coverageMinimum: 1
+
+steps:
+  - task: Npm@1
+    displayName: 'NPM Install'
+    inputs:
+      command: 'install'
+      workingDir: '$(System.DefaultWorkingDirectory)'
+
+  - task: Npm@1
+    displayName: 'NPM Test'
+    inputs:
+      command: 'custom'
+      workingDir: '$(System.DefaultWorkingDirectory)'
+      customCommand: 'run test --coverage'
+      
+  - script: ls $(System.DefaultWorkingDirectory)/coverage
+    displayName: 'List Coverage Directory'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/test-results/jest-results.xml'
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      publishRunAttachments: true
+      mergeTestResults: true
+      
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Coverage Results'
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/coverage/'
+      
+  - task: BuildQualityChecks@9
+    inputs:
+      checkCoverage: true
+      coverageFailOption: 'fixed'
+      coverageType: 'lines'
+      coverageThreshold: '$(coverageMinimum)'
+      runTitle: 'Quality Gateway'

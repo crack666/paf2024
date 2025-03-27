@@ -1,0 +1,343 @@
+/* Global Container & Header (aus dashboard.vue) */
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+.logo {
+  height: 100px;
+  margin-bottom: 1rem;
+}
+
+/* Dashboard Sections */
+/* Hier siehst du zuerst die Basis aus dashboard.vue ... */
+.dashboard-section {
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ... und hier kommen deine Enhancements, die diese Einstellungen überschreiben, wenn gewünscht */
+.dashboard-section {
+  background-color: #ffffff; /* Verbesserung: heller Hintergrund */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* leicht veränderte Schattenstärke */
+}
+
+.dashboard-section h2 {
+  color: #333333 !important;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Weitere Komponenten aus dashboard.vue */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.secondary-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #c87ec8;
+  background-color: white;
+  color: #c87ec8;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondary-button:hover {
+  background-color: #f8edf8;
+}
+
+.summary-cards {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.summary-card {
+  flex: 1;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.summary-count {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #c87ec8;
+  margin: 0.5rem 0;
+}
+
+.task-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.task-list {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.task-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Task Items */
+/* Basis aus dashboard.vue */
+.task-item {
+  background-color: #f8f0f8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.task-item.running {
+  background-color: #f0f8ff;
+}
+
+/* Verbesserte Variante aus dashboard.css */
+.task-item {
+  border-left: 4px solid #c87ec8;
+}
+
+.task-item.running {
+  border-left: 4px solid #2196f3;
+}
+
+.task-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.task-item h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.task-taskStatus {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  background-color: #e6e6e6;
+}
+
+.task-taskStatus.running {
+  background-color: #e6f7ff;
+  color: #0091ff;
+}
+
+.task-item p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.task-progress {
+  margin: 0.75rem 0;
+}
+
+.progress-bar {
+  height: 0.5rem;
+  background-color: #e6e6e6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4cd964;
+}
+
+.task-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Action Buttons – hier wähle ich die Verbesserungen aus dashboard.css */
+.action-button {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-button.execute {
+  background-color: #4caf50;
+  color: white;
+}
+
+.action-button.view {
+  background-color: #2196f3;
+  color: white;
+}
+
+.action-button.mark-read {
+  background-color: #ff9800;
+  color: white;
+}
+
+.action-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Glowing Button – aus dashboard.css */
+.glowing-button {
+  background-color: #c87ec8;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(200, 126, 200, 0.4);
+}
+
+.glowing-button:hover {
+  background-color: #d490d4;
+  box-shadow: 0 0 12px rgba(200, 126, 200, 0.6);
+}
+
+/* Notifications & sonstige Elemente (aus dashboard.vue) */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff8f8;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.notification-type {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  background-color: #f2f2f2;
+  border-radius: 1rem;
+}
+
+.notification-urgency {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 1rem;
+}
+
+.notification-urgency.high {
+  background-color: #ffebee;
+  color: #f44336;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #999;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.empty-state,
+.empty-list {
+  text-align: center;
+  padding: 1.5rem;
+  color: #999;
+  font-style: italic;
+}
+
+.loading-indicator,
+.error-message {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-message {
+  color: #f44336;
+}
+
+.view-all-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.text-button {
+  background: none;
+  border: none;
+  color: #c87ec8;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.text-button:hover {
+  color: #a65ea6;
+}
+
+/* Mobile Responsive Anpassungen (aus dashboard.vue) */
+@media (max-width: 768px) {
+  .summary-cards,
+  .task-lists {
+    grid-template-columns: 1fr;
+  }
+  .task-lists {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
