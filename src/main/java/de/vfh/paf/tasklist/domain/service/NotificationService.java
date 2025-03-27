@@ -1,7 +1,6 @@
 package de.vfh.paf.tasklist.domain.service;
 
 import de.vfh.paf.tasklist.application.dto.NotificationDTO;
-import de.vfh.paf.tasklist.application.dto.NotificationPayload;
 import de.vfh.paf.tasklist.domain.model.Notification;
 import de.vfh.paf.tasklist.domain.model.Task;
 import de.vfh.paf.tasklist.domain.repository.NotificationRepository;
@@ -157,18 +156,17 @@ public class NotificationService {
             // Save to repository
             Notification savedNotification = notificationRepository.save(notification);
 
-            // Send WebSocket notification
+            // Send WebSocket notification - use NotificationDTO directly
             NotificationDTO dto = new NotificationDTO(savedNotification);
-            NotificationPayload payload = NotificationPayload.fromDto(dto);
 
             // Send to topic for general notifications
-            messagingTemplate.convertAndSend("/topic/notifications", payload);
+            messagingTemplate.convertAndSend("/topic/notifications", dto);
 
             // Send to user-specific channel
             messagingTemplate.convertAndSendToUser(
                     String.valueOf(userId),
                     "/queue/notifications",
-                    payload
+                    dto
             );
         }
 
@@ -215,12 +213,11 @@ public class NotificationService {
         // Save to repository
         Notification savedNotification = notificationRepository.save(notification);
 
-        // Create payload for WebSocket
+        // Create DTO for WebSocket - use NotificationDTO directly
         NotificationDTO dto = new NotificationDTO(savedNotification);
-        NotificationPayload payload = NotificationPayload.fromDto(dto);
 
         // Broadcast to all connected clients
-        messagingTemplate.convertAndSend("/topic/system", payload);
+        messagingTemplate.convertAndSend("/topic/system", dto);
 
         return true;
     }

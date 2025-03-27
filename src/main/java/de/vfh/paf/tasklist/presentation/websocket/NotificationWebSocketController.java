@@ -1,7 +1,6 @@
 package de.vfh.paf.tasklist.presentation.websocket;
 
 import de.vfh.paf.tasklist.application.dto.NotificationDTO;
-import de.vfh.paf.tasklist.application.dto.NotificationPayload;
 import de.vfh.paf.tasklist.domain.model.Notification;
 import de.vfh.paf.tasklist.domain.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,26 +30,25 @@ public class NotificationWebSocketController {
 
     /**
      * Handles subscription to notifications from clients.
-     * Returns the list of unread notifications for the requested user.
+     * Returns ALL notifications for the requested user (both read and unread).
      *
-     * @param message The message to be sent
-     * @return List of notification payloads
+     * @param message The message containing userId
+     * @return List of notifications
      */
     @MessageMapping("/notifications.subscribe")
     @SendToUser("/queue/notifications")
-    public List<NotificationPayload> subscribeToNotifications(@Payload Map<String, Object> message) {
+    public List<NotificationDTO> subscribeToNotifications(@Payload Map<String, Object> message) {
         Integer userId = (Integer) message.get("userId");
         if (userId == null) {
             return List.of();
         }
 
-        // Get unread notifications for the user
-        List<Notification> notifications = notificationService.findByUserIdAndReadStatus(userId, false);
+        // Get ALL notifications for the user (not just unread)
+        List<Notification> notifications = notificationService.findByUserId(userId);
 
-        // Return as payload
+        // Return as DTOs directly (no more NotificationPayload)
         return notifications.stream()
                 .map(NotificationDTO::new)
-                .map(NotificationPayload::fromDto)
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +87,7 @@ public class NotificationWebSocketController {
      */
     @MessageMapping("/notifications.broadcast")
     @SendTo("/topic/notifications")
-    public NotificationPayload broadcastNotification(@Payload Map<String, String> message) {
+    public NotificationDTO broadcastNotification(@Payload Map<String, String> message) {
         String type = message.getOrDefault("type", "BROADCAST");
         String content = message.getOrDefault("message", "System broadcast message");
         String urgency = message.getOrDefault("urgency", "NORMAL");
@@ -97,13 +95,15 @@ public class NotificationWebSocketController {
         // Use the service to broadcast (this will send the WebSocket message too)
         notificationService.broadcastSystemNotification(type, content, urgency, null);
 
-        // Create a simple payload for the response
-        NotificationPayload payload = new NotificationPayload();
-        payload.setMessage(content);
-        payload.setType(type);
-        payload.setUrgency(urgency);
-        payload.setTimestamp(LocalDateTime.now());
-
-        return payload;
+        // Create a DTO for the response
+        NotificationDTO dto = new NotificationDTO();
+        dto.setMessage(content);
+        dto.setType(type);
+        dto.setUrgency(urgency);
+        dto.setTimestamp(LocalDateTime.now());
+        dto.setUserId(0); // System notification
+        dto.setStatus("SENT");
+        
+        return dto;
     }
 }

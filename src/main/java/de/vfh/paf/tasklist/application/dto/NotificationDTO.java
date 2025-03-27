@@ -8,11 +8,12 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * Data Transfer Object for Notification entity.
+ * Standardized Data Transfer Object for Notification entity.
+ * Used for all notification-related operations including WebSocket communication.
  */
 @Setter
 @Getter
-@Schema(description = "Data Transfer Object for notifications")
+@Schema(description = "Standardized Data Transfer Object for notifications")
 public class NotificationDTO {
 
     // Getters and setters
@@ -28,21 +29,30 @@ public class NotificationDTO {
     @Schema(description = "Whether the notification has been read")
     private boolean read;
 
-    @Schema(description = "Notification urgency level")
+    @Schema(description = "Notification urgency level (HIGH, NORMAL, LOW)")
     private String urgency;
 
-    @Schema(description = "Type of notification (e.g. TASK_CREATED, TASK_COMPLETED, TASK_OVERDUE)")
+    @Schema(description = "Type of notification (e.g. TASK_CREATED, TASK_COMPLETED, TASK_OVERDUE, DEADLOCK_DETECTED, SYSTEM)")
     private String type;
 
     @Schema(description = "Related task ID, if applicable")
     private Integer relatedTaskId;
 
-    @Schema(description = "ID of the user this notification is for")
+    @Schema(description = "ID of the user this notification is for (0 for system notifications)")
     private int userId;
 
+    @Schema(description = "Notification status (CREATED, SENT, DELIVERED, READ, ARCHIVED)")
+    private String status;
+
+    /**
+     * Default no-args constructor for serialization
+     */
     public NotificationDTO() {
     }
 
+    /**
+     * Create a DTO from a domain notification model
+     */
     public NotificationDTO(Notification notification) {
         this.id = notification.getId();
         this.message = notification.getMessage();
@@ -52,6 +62,25 @@ public class NotificationDTO {
         this.type = notification.getType();
         this.relatedTaskId = notification.getRelatedTaskId();
         this.userId = notification.getUserId();
+        this.status = notification.getStatus().toString();
     }
 
+    /**
+     * Factory method to create a NotificationDTO with all the details.
+     */
+    public static NotificationDTO of(int id, String message, LocalDateTime timestamp,
+                                     boolean read, String urgency, String type,
+                                     Integer relatedTaskId, int userId, String status) {
+        NotificationDTO dto = new NotificationDTO();
+        dto.id = id;
+        dto.message = message;
+        dto.timestamp = timestamp;
+        dto.read = read;
+        dto.urgency = urgency;
+        dto.type = type;
+        dto.relatedTaskId = relatedTaskId;
+        dto.userId = userId;
+        dto.status = status;
+        return dto;
+    }
 }
