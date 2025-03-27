@@ -2,6 +2,8 @@
 
 A Domain-Driven Design (DDD) implementation of a task management application for the PAF2024 module.
 
+The Task List Application is a task management system where users can select from predefined tasks (which can be extended in the future) and schedule them for execution. Users can configure various options such as execution datetime and set up dependencies between tasks (ensuring Task A runs before Task B). The system provides real-time progress tracking for running tasks, notifications about task status changes, and visualization of task queues. Users can monitor task execution status, view results after completion, and manage their notifications — all with an intuitive interface that refreshes automatically as tasks progress through their lifecycle.
+
 ## Project Overview
 
 This application demonstrates the implementation of Domain-Driven Design patterns and concurrency concepts. The project consists of a Java Spring Boot backend and a Vue.js frontend, integrated into a single repository:
