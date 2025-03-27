@@ -95,7 +95,7 @@ public class NotificationWebSocketController {
         String urgency = message.getOrDefault("urgency", "NORMAL");
 
         // Use the service to broadcast (this will send the WebSocket message too)
-        notificationService.broadcastSystemNotification(type, content, urgency);
+        notificationService.broadcastSystemNotification(type, content, urgency, null);
 
         // Create a simple payload for the response
         NotificationPayload payload = new NotificationPayload();

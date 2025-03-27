@@ -97,7 +97,7 @@ public class NotificationController {
             return ResponseEntity.badRequest().build();
         }
 
-        boolean sent = notificationService.broadcastSystemNotification(type, message, urgency);
+        boolean sent = notificationService.broadcastSystemNotification(type, message, urgency, null);
         return sent ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 

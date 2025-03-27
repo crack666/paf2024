@@ -81,7 +81,7 @@ public class NotificationService {
             }
 
             String message = String.format("Task '%s' is overdue. Due date was %s",
-                    task.getTitle(), task.getDueDate().toString());
+                    task.getTitle(), task.getDueDate());
 
             boolean sent = sendNotification("TASK_OVERDUE", "HIGH", task.getAssignedUserId(), message, task.getId());
             if (sent) {
@@ -154,23 +154,24 @@ public class NotificationService {
     /**
      * Broadcasts a system notification to all users.
      *
-     * @param type    The type of notification
-     * @param message The notification message
-     * @param urgency The urgency level
+     * @param type          The type of notification
+     * @param message       The notification message
+     * @param urgency       The urgency level
+     * @param relatedTaskId The ID of the related task (if applicable)
      * @return true if the notification was sent successfully
      */
-    public boolean broadcastSystemNotification(String type, String message, String urgency) {
-        // For system broadcasts, we use user ID 0 and no related task
+    public boolean broadcastSystemNotification(String type, String message, String urgency, Integer relatedTaskId) {
+        // For system broadcasts, we use user ID 0
         // Check if there's already an unread system notification of this type
         List<Notification> existingNotifications =
-                notificationRepository.findByTypeAndUserIdAndRelatedTaskId(type, 0, null);
+                notificationRepository.findByTypeAndReadStatus(type, false);
 
         // Only send if there are no unread notifications of this type
         if (existingNotifications.stream().anyMatch(n -> !n.isRead())) {
             return false;
         }
 
-        Notification notification = new Notification(null, message, urgency, type, 0, null); // System user ID is 0
+        Notification notification = new Notification(null, message, urgency, type, 0, relatedTaskId); // System user ID is 0
 
         // Save to repository
         Notification savedNotification = notificationRepository.save(notification);
@@ -223,6 +224,17 @@ public class NotificationService {
      */
     public List<Notification> findByUserIdAndReadStatus(int userId, boolean read) {
         return notificationRepository.findByUserIdAndReadStatus(userId, read);
+    }
+    
+    /**
+     * Finds notifications of a specific type with a specific read status.
+     *
+     * @param type The type of notification
+     * @param read The read status
+     * @return List of notifications
+     */
+    public List<Notification> findByTypeAndReadStatus(String type, boolean read) {
+        return notificationRepository.findByTypeAndReadStatus(type, read);
     }
 
     /**

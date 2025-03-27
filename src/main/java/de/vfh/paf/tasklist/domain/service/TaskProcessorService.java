@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * Service for executing tasks.
@@ -230,16 +230,38 @@ public class TaskProcessorService {
     @Scheduled(fixedRateString = "${tasklist.scheduling.task-check-seconds:10}000")
     public void checkForReadyTasks() {
         logger.debug("Detecting deadlocks...");
-        if(taskService.detectDeadlocks()){
-            logger.info("Found deadlocks in task dependencies");
+        List<Integer> deadlockedTaskIds = taskService.findDeadlockedTasks();
+        
+        if (!deadlockedTaskIds.isEmpty()) {
+            logger.info("Found deadlocks in task dependencies between tasks: {}", deadlockedTaskIds);
+
+            // Build a message with task details
+            StringBuilder messageBuilder = new StringBuilder();
+            messageBuilder.append("Circular dependencies detected between tasks: ");
             
-            // Send notification about deadlock
-            // We use a system broadcast message with type DEADLOCK_DETECTED
-            // The notificationService will ensure it's only sent once until read
+            // Get task titles for the message
+            List<String> taskInfoList = new ArrayList<>();
+            for (Integer taskId : deadlockedTaskIds) {
+                Task task = taskService.findById(taskId).orElse(null);
+                if (task != null) {
+                    taskInfoList.add("'" + task.getTitle() + "' (ID: " + taskId + ")");
+                } else {
+                    taskInfoList.add("Task ID: " + taskId);
+                }
+            }
+            
+            messageBuilder.append(String.join(", ", taskInfoList));
+            messageBuilder.append(". Please resolve the deadlock by removing problematic dependencies.");
+            
+            String message = messageBuilder.toString();
+            
+            // Send a notification using the notification service
+            // The service handles duplicate checking internally
             notificationService.broadcastSystemNotification(
-                    "DEADLOCK_DETECTED",
-                    "Circular dependencies detected between tasks. Please resolve the deadlock by removing problematic dependencies.",
-                    "HIGH"
+                "DEADLOCK_DETECTED",
+                message,
+                "HIGH",
+                deadlockedTaskIds.getFirst()  // Associate with the first task in the deadlock
             );
         }
 
@@ -254,7 +276,7 @@ public class TaskProcessorService {
             // Execute each ready task in parallel using the thread pool
             List<CompletableFuture<Task>> futures = readyTasks.stream()
                     .map(task -> executeTask(task.getId()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             // Optionally, wait for all tasks to complete
             // CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();

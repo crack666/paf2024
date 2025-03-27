@@ -1,7 +1,6 @@
 package de.vfh.paf.tasklist.domain.repository;
 
 import de.vfh.paf.tasklist.domain.model.Notification;
-import de.vfh.paf.tasklist.domain.model.NotificationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -63,4 +62,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             @Param("type") String type,
             @Param("userId") Integer userId,
             @Param("relatedTaskId") Integer relatedTaskId);
+            
+    /**
+     * Finds all notifications of a specific type with a certain read status.
+     *
+     * @param type The notification type
+     * @param isRead Whether the notification has been read
+     * @return List of notifications of the specified type with the specified read status
+     */
+    @Query("SELECT n FROM Notification n WHERE n.type = :type AND " +
+            "((:isRead = true AND n.status IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED)) OR " +
+            "(:isRead = false AND n.status NOT IN (de.vfh.paf.tasklist.domain.model.NotificationStatus.READ, de.vfh.paf.tasklist.domain.model.NotificationStatus.ARCHIVED))) " +
+            "ORDER BY n.createdAt DESC")
+    List<Notification> findByTypeAndReadStatus(@Param("type") String type, @Param("isRead") boolean isRead);
 }

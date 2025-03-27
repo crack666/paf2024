@@ -157,15 +157,62 @@ public class TaskService {
      * @return true if a deadlock is detected, false otherwise
      */
     public boolean detectDeadlocks() {
+        return !findDeadlockedTasks().isEmpty();
+    }
+    
+    /**
+     * Finds tasks involved in deadlocks (circular dependencies).
+     * 
+     * @return A list of task IDs involved in circular dependencies, or empty list if no deadlocks
+     */
+    public List<Integer> findDeadlockedTasks() {
         Map<Integer, Set<Integer>> graph = buildDependencyGraph();
         Set<Integer> visited = new HashSet<>();
-        Set<Integer> recursionStack = new HashSet<>();
-
+        Set<Integer> allCycleNodes = new HashSet<>();
+        
         for (Integer taskId : graph.keySet()) {
-            if (hasCycle(graph, taskId, visited, recursionStack)) {
+            Set<Integer> recursionStack = new HashSet<>();
+            Set<Integer> cycleNodes = new HashSet<>();
+            if (hasCycle(graph, taskId, visited, recursionStack, cycleNodes)) {
+                allCycleNodes.addAll(cycleNodes);
+            }
+        }
+        
+        return new ArrayList<>(allCycleNodes);
+    }
+
+    /**
+     * Enhanced cycle detection that collects the nodes involved in the cycle.
+     */
+    private boolean hasCycle(Map<Integer, Set<Integer>> graph, int taskId,
+                              Set<Integer> visited, Set<Integer> recursionStack,
+                              Set<Integer> cycleNodes) {
+        // If node is already in recursion stack, there is a cycle
+        if (recursionStack.contains(taskId)) {
+            // Add all nodes in the current recursion stack to the cycle nodes
+            cycleNodes.addAll(recursionStack);
+            return true;
+        }
+
+        // If node is already visited and not in recursion stack, no cycle through this node
+        if (visited.contains(taskId)) {
+            return false;
+        }
+
+        // Mark current node as visited and add to recursion stack
+        visited.add(taskId);
+        recursionStack.add(taskId);
+
+        // Visit all adjacent nodes
+        Set<Integer> dependencies = graph.getOrDefault(taskId, Collections.emptySet());
+        for (Integer dependencyId : dependencies) {
+            if (hasCycle(graph, dependencyId, visited, recursionStack, cycleNodes)) {
                 return true;
             }
         }
+
+        // Remove from recursion stack
+        recursionStack.remove(taskId);
 
         return false;
     }
@@ -186,36 +233,6 @@ public class TaskService {
         }
 
         return graph;
-    }
-
-    private boolean hasCycle(Map<Integer, Set<Integer>> graph, int taskId,
-                             Set<Integer> visited, Set<Integer> recursionStack) {
-        // If node is in recursion stack, there is a cycle
-        if (recursionStack.contains(taskId)) {
-            return true;
-        }
-
-        // If node is already visited and not in recursion stack, no cycle through this node
-        if (visited.contains(taskId)) {
-            return false;
-        }
-
-        // Mark current node as visited and add to recursion stack
-        visited.add(taskId);
-        recursionStack.add(taskId);
-
-        // Visit all adjacent nodes
-        Set<Integer> dependencies = graph.getOrDefault(taskId, Collections.emptySet());
-        for (Integer dependencyId : dependencies) {
-            if (hasCycle(graph, dependencyId, visited, recursionStack)) {
-                return true;
-            }
-        }
-
-        // Remove from recursion stack
-        recursionStack.remove(taskId);
-
-        return false;
     }
 
     /**
